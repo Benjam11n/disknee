@@ -7,14 +7,6 @@
     { "id": "ex4", "title": "Hip Abduction (3×15)",           "done": false, "estimatedMins": 8,  "difficulty": "easy" },
     { "id": "ex5", "title": "Calf Raise (3×15)",              "done": false, "estimatedMins": 6,  "difficulty": "easy" }
   ],
-  "leaderboard": [
-    { "name": "Dulian",        "weeks": 24, "accuracyPercentage": 99, "score": 2475 },
-    { "name": "Zen",           "weeks": 22, "accuracyPercentage": 98, "score": 2450 },
-    { "name": "julian",        "weeks": 21, "accuracyPercentage": 97, "score": 2425 },
-    { "name": "Aenjiman",      "weeks": 21, "accuracyPercentage": 96, "score": 2400 },
-    { "name": "Benjiman",      "weeks": 20, "accuracyPercentage": 95, "score": 2375 },
-    { "name": "Donald Duck",   "weeks": 1,  "accuracyPercentage": 64, "score": 160 }
-  ],
   "plans": [
     { "id": "p1",  "date": "2025-11-01T00:00:00.000Z", "title": "Mobility + Quad Activation",          "when": "Sat 6:00 pm" },
     { "id": "p2",  "date": "2025-11-04T00:00:00.000Z", "title": "Spanish Squat Pain-Modulation",       "when": "Tue 6:30 pm" },

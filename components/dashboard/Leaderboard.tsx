@@ -2,6 +2,8 @@
 
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Info } from "lucide-react";
 import { LeaderboardItem } from "./LeaderboardItem";
 
 interface LeaderboardRow {
@@ -45,30 +47,45 @@ export function Leaderboard({
   const isUserInTop = currentUserRank >= 0 && currentUserRank < maxItems;
 
   return (
-    <div className="space-y-4">
-      <div>
-        <p className="text-sm text-muted-foreground mb-3">
-          Top performers by {rankingType === "accuracy" ? "accuracy" : "score"}
-        </p>
-        {onRankingTypeChange && (
-          <div className="flex gap-2">
-            <Button
-              variant={rankingType === "score" ? "default" : "outline"}
-              size="sm"
-              onClick={() => onRankingTypeChange("score")}
-            >
-              Score
-            </Button>
-            <Button
-              variant={rankingType === "accuracy" ? "default" : "outline"}
-              size="sm"
-              onClick={() => onRankingTypeChange("accuracy")}
-            >
-              Accuracy
-            </Button>
+    <TooltipProvider>
+      <div className="space-y-4">
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <p className="text-sm text-muted-foreground">
+              Top performers by {rankingType === "accuracy" ? "accuracy" : "score"}
+            </p>
+            {rankingType === "score" && (
+              <Tooltip>
+                <TooltipTrigger>
+                  <Info className="h-3 w-3 text-muted-foreground" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-sm">
+                    Score = (Accuracy × 100) + 20 bonus for reflection
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            )}
           </div>
-        )}
-      </div>
+          {onRankingTypeChange && (
+            <div className="flex gap-2">
+              <Button
+                variant={rankingType === "score" ? "default" : "outline"}
+                size="sm"
+                onClick={() => onRankingTypeChange("score")}
+              >
+                Score
+              </Button>
+              <Button
+                variant={rankingType === "accuracy" ? "default" : "outline"}
+                size="sm"
+                onClick={() => onRankingTypeChange("accuracy")}
+              >
+                Accuracy
+              </Button>
+            </div>
+          )}
+        </div>
 
       {/* Top entries */}
       <div className="space-y-2">
@@ -149,7 +166,8 @@ export function Leaderboard({
           </div>
         </>
       )}
-    </div>
+      </div>
+    </TooltipProvider>
   );
 }
 

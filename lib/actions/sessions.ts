@@ -157,3 +157,24 @@ export async function createReflectionAction(params: CreateReflectionParams) {
     return handleError(error) as ErrorResponse;
   }
 }
+
+export async function updateSessionAction(
+  sessionId: string,
+  data: {
+    endedAt?: Date;
+    duration?: number;
+    accuracy?: number;
+    maxAccuracy?: number;
+  }
+) {
+  try {
+    const session = await prisma.session.update({
+      where: { id: sessionId },
+      data,
+    });
+
+    return { success: true, data: session };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}

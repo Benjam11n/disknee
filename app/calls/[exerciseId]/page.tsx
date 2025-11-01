@@ -26,6 +26,7 @@ import { Landmark } from "@/lib/pose-utils";
 import {
   createReflectionAction,
   createSessionAction,
+  updateSessionAction,
 } from "@/lib/actions/sessions";
 import { updateExerciseDoneAction } from "@/lib/actions/exercises";
 import { ROUTES } from "@/lib/constants/routes";
@@ -107,9 +108,24 @@ export default function CallExercisePage() {
     }
   };
 
-  const handleEndCall = () => {
+  const handleEndCall = async () => {
     setIsCallActive(false);
     setIsRecording(false);
+
+    // Update session with end time and duration
+    if (sessionId) {
+      try {
+        await updateSessionAction(sessionId, {
+          endedAt: new Date(),
+          duration: sessionTime,
+          accuracy: 85, // Placeholder accuracy - in real app this would be calculated from pose tracking
+          maxAccuracy: 90,
+        });
+      } catch (error) {
+        console.error("Error updating session:", error);
+      }
+    }
+
     setShowReflection(true);
   };
 
@@ -131,15 +147,21 @@ export default function CallExercisePage() {
       }
     }
 
-    if (data) {
+    // Calculate score: accuracy * 100 + 20 for reflection
+    const sessionAccuracy = 85; // This should come from the actual session
+    const calculatedScore = sessionAccuracy * 100 + 20;
+
+    console.log(`Score calculated: ${sessionAccuracy} * 100 + 20 = ${calculatedScore}`);
+
+    if (data && sessionId) {
       try {
         await createReflectionAction({
-          sessionId: sessionId!,
+          sessionId: sessionId,
           rating: data.rating,
           fatigue: data.fatigue,
           feedback: data.feedback,
         });
-        toast.success("Reflection submitted!");
+        toast.success(`Reflection submitted! Score: ${calculatedScore}`);
       } catch (error) {
         console.error("Error submitting reflection:", error);
         toast.error("Failed to submit reflection");
