@@ -1,58 +1,34 @@
-import {
-  PrismaClient,
-  UserRole,
-  Difficulty,
-  ApptStatus,
-} from "../lib/generated/prisma";
+import { prisma } from "@/lib/prisma";
 import seedData from "../app/seed.json";
-
-const prisma = new PrismaClient();
+import { Difficulty } from "@prisma/client";
 
 async function main() {
-  console.log("🌱 Seeding database...");
+  console.log("🌱 Seeding database with simplified schema...");
 
   // Clean up existing data
   await prisma.reflection.deleteMany();
   await prisma.session.deleteMany();
-  await prisma.exerciseProgress.deleteMany();
-  await prisma.patientPlan.deleteMany();
-  await prisma.progress.deleteMany();
-  await prisma.appointment.deleteMany();
-  await prisma.planExercise.deleteMany();
+  await prisma.leaderboard.deleteMany();
   await prisma.plan.deleteMany();
   await prisma.exercise.deleteMany();
-  await prisma.user.deleteMany();
+  await prisma.appointment.deleteMany();
 
   console.log("🧹 Cleaned existing data");
 
-  // Create main user (Donald Duck)
-  const mainUser = await prisma.user.create({
-    data: {
-      email: "donald.duck@example.com",
-      name: seedData.patientName,
-      role: UserRole.PATIENT,
-    },
-  });
-
-  console.log(`✅ Created user: ${mainUser.name}`);
-
-  // Create exercises
+  // Create exercises from seed data
   const exercises = await Promise.all(
     seedData.exercises.map((ex) =>
       prisma.exercise.create({
         data: {
           title: ex.title,
-          slug: ex.id,
+          estimatedMins: ex.estimatedMins,
           difficulty:
             ex.difficulty === "easy"
               ? Difficulty.EASY
               : ex.difficulty === "moderate"
               ? Difficulty.MODERATE
               : Difficulty.HARD,
-          estimatedMins: ex.estimatedMins,
-          description: `Description for ${ex.title}`,
-          category: "rehabilitation",
-          tags: ["knee", "physiotherapy", ex.difficulty],
+          done: ex.done,
         },
       })
     )
@@ -60,162 +36,65 @@ async function main() {
 
   console.log(`✅ Created ${exercises.length} exercises`);
 
-  // Create a default treatment plan
-  const treatmentPlan = await prisma.plan.create({
-    data: {
-      title: "Standard Knee Rehabilitation Program",
-      slug: "standard-knee-rehab",
-      description: "A comprehensive 10-week knee rehabilitation program",
-      programWeeks: seedData.programWeeks,
-      difficulty: Difficulty.MODERATE,
-      category: "post-surgery",
-    },
-  });
+  // Create plans from seed data
+  if (seedData.plans && seedData.plans.length > 0) {
+    const plans = await Promise.all(
+      seedData.plans.map((plan) =>
+        prisma.plan.create({
+          data: {
+            date: new Date(plan.date),
+            title: plan.title,
+            when: plan.when,
+          },
+        })
+      )
+    );
 
-  console.log(`✅ Created treatment plan: ${treatmentPlan.title}`);
+    console.log(`✅ Created ${plans.length} plans`);
+  }
 
-  // Create plan-exercise relations
-  const planExercises = await Promise.all(
-    exercises.map((exercise, index) =>
-      prisma.planExercise.create({
-        data: {
-          planId: treatmentPlan.id,
-          exerciseId: exercise.id,
-          order: index + 1,
-          weekNumber: Math.floor(index / 3) + 1,
-          sets: 3,
-          reps: index % 2 === 0 ? 10 : 15,
-          holdSeconds: index === 0 ? 5 : undefined,
-          restTime: 60,
-          notes: index === 0 ? "Focus on form" : "Control the movement",
-        },
-      })
-    )
-  );
-
-  console.log(`✅ Created ${planExercises.length} plan-exercise relations`);
-
-  // Enroll user in the treatment plan
-  await prisma.patientPlan.create({
-    data: {
-      userId: mainUser.id,
-      planId: treatmentPlan.id,
-      weeksCompleted: seedData.weeksCompleted,
-      overallPercent: seedData.overallPercent,
-    },
-  });
-
-  console.log(`✅ Enrolled user in treatment plan`);
-
-  // Create appointments
+  // Create appointments from seed data
   if (seedData.appointments && seedData.appointments.length > 0) {
     await Promise.all(
       seedData.appointments.map((appt) =>
         prisma.appointment.create({
           data: {
-            userId: mainUser.id,
+            start: new Date(appt.start),
             doctorName: appt.doctorName,
             doctorSpecialty: appt.doctorSpecialty,
             locationName: appt.locationName,
             locationAddr: appt.locationAddr,
-            start: new Date(appt.start),
-            status: ApptStatus.SCHEDULED,
           },
         })
       )
     );
-    console.log(`✅ Created appointments`);
+
+    console.log(`✅ Created ${seedData.appointments.length} appointments`);
   }
 
-  // Create progress tracking for leaderboard users
+  // Create leaderboard entries from seed data
   if (seedData.leaderboard && seedData.leaderboard.length > 0) {
     await Promise.all(
-      seedData.leaderboard.map((entry) => {
-        // Create or update the user
-        return prisma.user.upsert({
-          where: {
-            email: `${entry.name
-              .toLowerCase()
-              .replace(/\s+/g, ".")}@example.com`,
-          },
-          update: {},
-          create: {
-            email: `${entry.name
-              .toLowerCase()
-              .replace(/\s+/g, ".")}@example.com`,
+      seedData.leaderboard.map((entry) =>
+        prisma.leaderboard.create({
+          data: {
+            rank: entry.rank,
             name: entry.name,
-            role: UserRole.PATIENT,
+            weeks: entry.weeks,
+            percent: entry.percent,
           },
-        });
-      })
-    );
-
-    // Now create progress entries
-    const leaderboardUsers = await prisma.user.findMany({
-      where: {
-        name: {
-          in: seedData.leaderboard.map((entry) => entry.name),
-        },
-      },
-    });
-
-    await Promise.all(
-      leaderboardUsers.map((user) => {
-        const leaderboardEntry = seedData.leaderboard.find(
-          (entry) => entry.name === user.name
-        );
-        if (leaderboardEntry) {
-          return prisma.progress.upsert({
-            where: { userId: user.id },
-            update: {
-              totalWeeks: leaderboardEntry.weeks,
-              completedWeeks: leaderboardEntry.weeks,
-              overallPercent: leaderboardEntry.percent,
-              rank: leaderboardEntry.rank,
-            },
-            create: {
-              userId: user.id,
-              totalWeeks: leaderboardEntry.weeks,
-              completedWeeks: leaderboardEntry.weeks,
-              overallPercent: leaderboardEntry.percent,
-              rank: leaderboardEntry.rank,
-            },
-          });
-        }
-      })
+        })
+      )
     );
 
     console.log(
-      `✅ Created progress tracking for ${leaderboardUsers.length} users`
+      `✅ Created ${seedData.leaderboard.length} leaderboard entries`
     );
   }
 
-  // Create some sample plans from the data
-  if (seedData.plans && seedData.plans.length > 0) {
-    const samplePlans = await Promise.all(
-      seedData.plans
-        .filter((_, index) => index < 3) // Just create first 3 as samples
-        .map((plan) =>
-          prisma.plan.create({
-            data: {
-              title: plan.title,
-              slug: `plan-${plan.id}`,
-              description: `Sample plan: ${plan.title}`,
-              programWeeks: 10,
-              difficulty: Difficulty.MODERATE,
-              category: "rehabilitation",
-            },
-          })
-        )
-    );
-
-    console.log(`✅ Created ${samplePlans.length} sample plans`);
-  }
-
-  // Create a sample session for Donald Duck
+  // Create a sample session and reflection
   const sampleSession = await prisma.session.create({
     data: {
-      userId: mainUser.id,
       startedAt: new Date(),
       endedAt: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes later
       duration: 15 * 60, // 15 minutes in seconds
@@ -242,12 +121,10 @@ async function main() {
 
   console.log("\n✅ Database seeded successfully!");
   console.log("\n📊 Summary:");
-  console.log(
-    `  - Users: 1 main + ${seedData.leaderboard?.length || 0} leaderboard users`
-  );
   console.log(`  - Exercises: ${exercises.length}`);
-  console.log(`  - Plans: 1 main treatment plan`);
+  console.log(`  - Plans: ${seedData.plans?.length || 0}`);
   console.log(`  - Appointments: ${seedData.appointments?.length || 0}`);
+  console.log(`  - Leaderboard entries: ${seedData.leaderboard?.length || 0}`);
   console.log(`  - Sample session and reflection created`);
 }
 
