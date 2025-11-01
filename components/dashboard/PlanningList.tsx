@@ -1,9 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Plus } from "lucide-react";
-import { sameDay } from "@/lib/date-utils";
+import { Plus } from "lucide-react";
 import { PlanWithExercises } from "@/lib/types/plans";
+import { PlanCard } from "./PlanCard";
 
 interface PlanningListProps {
   plans: PlanWithExercises[];
@@ -11,8 +10,6 @@ interface PlanningListProps {
   maxItems?: number;
   showAddButton?: boolean;
 }
-
-// todo: move the data utils to a utils file and then abstract out the individual plan card
 
 export function PlanningList({
   plans,
@@ -25,37 +22,6 @@ export function PlanningList({
   );
 
   const displayPlans = sortedPlans.slice(0, maxItems);
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    if (sameDay(date, today)) return "Today";
-    if (sameDay(date, tomorrow)) return "Tomorrow";
-
-    return date.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const getDaysUntil = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    date.setHours(0, 0, 0, 0);
-
-    const diffTime = date.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "Tomorrow";
-    if (diffDays > 0) return `In ${diffDays} days`;
-    return `${Math.abs(diffDays)} days ago`;
-  };
 
   return (
     <Card>
@@ -90,34 +56,7 @@ export function PlanningList({
           </div>
         ) : (
           displayPlans.map((plan) => (
-            <Card
-              key={plan.id || plan.date.toISOString()}
-              className="p-3 hover:shadow-sm transition-all duration-200 cursor-pointer"
-            >
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">
-                      {plan.title || "Exercise Plan"}
-                    </span>
-                    <Badge variant="secondary" className="text-xs">
-                      {getDaysUntil(plan.date.toISOString())}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {formatDate(plan.date.toISOString())}{" "}
-                    {plan.when && `at ${plan.when}`}
-                  </p>
-                  {plan.exercises && plan.exercises.length > 0 && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {plan.exercises.length} exercise
-                      {plan.exercises.length !== 1 ? "s" : ""}
-                    </p>
-                  )}
-                </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </div>
-            </Card>
+            <PlanCard key={plan.id || plan.date.toISOString()} plan={plan} />
           ))
         )}
 
