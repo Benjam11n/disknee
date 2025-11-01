@@ -25,7 +25,8 @@ model Exercise {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
-  plan      Plan      @relation(fields: [planId], references: [id], onDelete: Cascade)
+  plan      Plan       @relation(fields: [planId], references: [id], onDelete: Cascade)
+  sessions Session[]
 
   @@map("exercises")
 }
@@ -63,10 +64,12 @@ model Session {
   maxAccuracy   Int?
   videoUrl      String?
   notes         String?
+  exerciseId    String?   // Optional link to an exercise
   createdAt     DateTime  @default(now())
 
   // Relations
   reflection Reflection?
+  exercise    Exercise?  @relation(fields: [exerciseId], references: [id], onDelete: SetNull)
 
   @@map("sessions")
 }

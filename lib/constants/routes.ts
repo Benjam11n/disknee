@@ -5,6 +5,9 @@ export const ROUTES = {
   HOME: "/",
   LOGIN: "/login",
   CALLS: "/calls",
+  CALL: {
+    detail: (exerciseId: string) => `/calls/${exerciseId}`,
+  },
   EXERCISE: {
     BASE: "/exercise",
     detail: (id: string) => `/exercise/${id}`,

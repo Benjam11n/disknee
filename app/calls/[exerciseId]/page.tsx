@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,19 +16,32 @@ import {
   Activity,
   RotateCcw,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import VideoStream from "@/components/VideoStream";
 import PoseOverlay from "@/components/PoseOverlay";
 import ModelVideo from "@/components/ModelVideo";
 import { ReflectionDialog } from "@/components/ReflectionDialog";
 import { Landmark } from "@/lib/pose-utils";
+import {
+  createReflectionAction,
+  createSessionAction,
+} from "@/lib/actions/sessions";
+import { updateExerciseDoneAction } from "@/lib/actions/exercises";
+import { ROUTES } from "@/lib/constants/routes";
+import { formatTime } from "@/lib/utils/session-utils";
 
-export default function CallsPage() {
+export default function CallExercisePage() {
+  const params = useParams();
+  const router = useRouter();
+  const exerciseId = params.exerciseId as string;
+
   const [isCallActive, setIsCallActive] = useState(false);
   const [isVideoOn, setIsVideoOn] = useState(true);
   const [isModelPlaying, setIsModelPlaying] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
   const [showReflection, setShowReflection] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [poseLandmarks, setPoseLandmarks] = useState<Landmark[]>([]);
   const [sessionTime, setSessionTime] = useState(0);
   const sessionStartTime = useRef<number | null>(null);
@@ -58,13 +72,6 @@ export default function CallsPage() {
     };
   }, [isCallActive]);
 
-  // Format time as MM:SS
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
-
   // Handle pose results from MediaPipe
   const handlePoseResults = (results: {
     poseLandmarks: Landmark[];
@@ -75,9 +82,29 @@ export default function CallsPage() {
     }
   };
 
-  const handleStartCall = () => {
+  const handleStartCall = async () => {
     setIsCallActive(true);
     setIsRecording(true);
+
+    // Create a session when the call starts
+    try {
+      const session = await createSessionAction({
+        startedAt: new Date().toISOString(),
+        repsCompleted: 0,
+        accuracy: 0,
+        exerciseId: exerciseId,
+      });
+
+      if (session instanceof Error || !session.data) {
+        toast.error("Failed to create session");
+        return;
+      } else {
+        setSessionId(session.data.id);
+      }
+    } catch (error) {
+      console.error("Error creating session:", error);
+      toast.error("Failed to create session");
+    }
   };
 
   const handleEndCall = () => {
@@ -86,12 +113,60 @@ export default function CallsPage() {
     setShowReflection(true);
   };
 
-  const handleReflectionSubmit = () => {
+  const handleReflectionSubmit = async (data: {
+    rating: number;
+    fatigue: number;
+    feedback?: string;
+  }) => {
+    if (exerciseId) {
+      try {
+        await updateExerciseDoneAction({
+          id: exerciseId,
+          done: true,
+        });
+        toast.success("Exercise marked as completed!");
+      } catch (error) {
+        console.error("Error marking exercise as done:", error);
+        toast.error("Failed to mark exercise as complete");
+      }
+    }
+
+    if (data) {
+      try {
+        await createReflectionAction({
+          sessionId: sessionId!,
+          rating: data.rating,
+          fatigue: data.fatigue,
+          feedback: data.feedback,
+        });
+        toast.success("Reflection submitted!");
+      } catch (error) {
+        console.error("Error submitting reflection:", error);
+        toast.error("Failed to submit reflection");
+      }
+    }
+
     setShowReflection(false);
+    router.push(ROUTES.HOME);
   };
 
-  const handleReflectionSkip = () => {
+  const handleReflectionSkip = async () => {
+    // Still mark the exercise as done even if reflection is skipped
+    if (exerciseId) {
+      try {
+        await updateExerciseDoneAction({
+          id: exerciseId,
+          done: true,
+        });
+        toast.success("Exercise marked as completed!");
+      } catch (error) {
+        console.error("Error marking exercise as done:", error);
+        toast.error("Failed to mark exercise as complete");
+      }
+    }
+
     setShowReflection(false);
+    router.push(ROUTES.HOME);
   };
 
   return (

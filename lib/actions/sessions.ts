@@ -15,8 +15,11 @@ import {
   GetSessionByIdParams,
   GetSessionsParams,
 } from "../types/sessions";
+import { Session } from "@prisma/client";
 
-export async function createSession(params: CreateSessionParams) {
+export async function createSessionAction(
+  params: CreateSessionParams
+): Promise<ActionResponse<Session>> {
   const validationResult = await action({
     params: params,
     schema: CreateSessionSchema,
@@ -36,6 +39,7 @@ export async function createSession(params: CreateSessionParams) {
     maxAccuracy,
     videoUrl,
     notes,
+    exerciseId,
   } = validationResult.params!;
 
   try {
@@ -49,16 +53,17 @@ export async function createSession(params: CreateSessionParams) {
         maxAccuracy,
         videoUrl,
         notes,
+        exerciseId,
       },
     });
 
-    return session;
+    return { success: true, data: session };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
 }
 
-export async function getSessions(params: GetSessionsParams) {
+export async function getSessionsAction(params: GetSessionsParams) {
   const validationResult = await action({
     params: params,
     schema: GetSessionsSchema,
@@ -93,7 +98,7 @@ export async function getSessions(params: GetSessionsParams) {
   }
 }
 
-export async function getSessionById(params: GetSessionByIdParams) {
+export async function getSessionByIdAction(params: GetSessionByIdParams) {
   const validationResult = await action({
     params: params,
     schema: GetSessionByIdSchema,
@@ -124,7 +129,7 @@ export async function getSessionById(params: GetSessionByIdParams) {
   }
 }
 
-export async function createReflection(params: CreateReflectionParams) {
+export async function createReflectionAction(params: CreateReflectionParams) {
   const validationResult = await action({
     params: params,
     schema: CreateReflectionSchema,

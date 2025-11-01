@@ -28,3 +28,9 @@ export const GetExercisesSchema = z.object({
 export const GetExerciseByIdSchema = z.object({
   id: z.string(),
 });
+
+// Update exercise status schema
+export const UpdateExerciseDoneSchema = z.object({
+  id: z.string(),
+  done: z.boolean(),
+});

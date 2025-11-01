@@ -14,6 +14,7 @@ const SessionBaseSchema = z.object({
 export const CreateSessionSchema = SessionBaseSchema.extend({
   startedAt: z.string().datetime("Invalid start date format"),
   endedAt: z.string().datetime("Invalid end date format").optional(),
+  exerciseId: z.string().optional(),
 });
 
 export const CreateReflectionSchema = z.object({

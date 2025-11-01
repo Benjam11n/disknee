@@ -7,11 +7,13 @@ import {
   CreateExerciseSchema,
   GetExercisesSchema,
   GetExerciseByIdSchema,
+  UpdateExerciseDoneSchema,
 } from "@/lib/validations/exercise-schemas";
 import {
   CreateExerciseParams,
   GetExerciseByIdParams,
   GetExercisesParams,
+  UpdateExerciseDoneParams,
 } from "../types/exercises";
 
 export async function createExerciseAction(params: CreateExerciseParams) {
@@ -97,6 +99,33 @@ export async function getExerciseByIdAction(params: GetExerciseByIdParams) {
     if (!exercise) {
       return handleError(new Error("Exercise not found")) as ErrorResponse;
     }
+
+    return exercise;
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function updateExerciseDoneAction(
+  params: UpdateExerciseDoneParams
+) {
+  const validationResult = await action({
+    params: params,
+    schema: UpdateExerciseDoneSchema,
+    authorize: true,
+  });
+
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  const { id, done } = validationResult.params!;
+
+  try {
+    const exercise = await prisma.exercise.update({
+      where: { id },
+      data: { done },
+    });
 
     return exercise;
   } catch (error) {

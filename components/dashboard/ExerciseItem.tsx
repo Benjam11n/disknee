@@ -86,11 +86,12 @@ export function ExerciseItem({
         {/* Exercise details */}
         <div className="flex flex-col leading-tight flex-1">
           <span
-            className={`font-medium transition-colors ${
+            className={`font-medium transition-colors cursor-pointer hover:text-primary ${
               exercise.done
                 ? "text-muted-foreground line-through"
                 : "text-foreground"
             }`}
+            onClick={() => router.push(ROUTES.EXERCISE.detail(exercise.id))}
           >
             {exercise.title}
           </span>
@@ -141,7 +142,7 @@ export function ExerciseItem({
           size="sm"
           className="group-hover:bg-accent"
           aria-label={`Open ${exercise.title}`}
-          onClick={() => router.push(ROUTES.CALLS)}
+          onClick={() => router.push(ROUTES.CALL.detail(exercise.id))}
           disabled={exercise.done || isDisabled}
         >
           <div className="flex items-center gap-1 text-xs">
