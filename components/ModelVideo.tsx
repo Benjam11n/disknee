@@ -17,15 +17,6 @@ export default function ModelVideo({
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Mock video URLs - in a real app, these would be actual demonstration videos
-  const exerciseVideos: Record<string, string> = {
-    squat: "/videos/squat-demonstration.mp4",
-    lunge: "/videos/lunge-demonstration.mp4",
-    pushup: "/videos/pushup-demonstration.mp4",
-    plank: "/videos/plank-demonstration.mp4",
-    default: "/videos/default-exercise.mp4",
-  };
-
   useEffect(() => {
     if (!videoRef.current) return;
 
@@ -66,9 +57,6 @@ export default function ModelVideo({
     video.addEventListener("error", handleError);
     video.addEventListener("timeupdate", handleTimeUpdate);
 
-    // Try to load the video
-    const videoSrc = exerciseVideos[exerciseType] || exerciseVideos.default;
-
     // For demo purposes, we'll use a placeholder video source
     // In production, you'd have actual demonstration videos
     video.src = "data:video/mp4;base64,"; // Empty base64 for demo
@@ -78,7 +66,7 @@ export default function ModelVideo({
       video.removeEventListener("error", handleError);
       video.removeEventListener("timeupdate", handleTimeUpdate);
     };
-  }, [exerciseType, onTimeUpdate, isPlaying, exerciseVideos]);
+  }, [exerciseType, onTimeUpdate, isPlaying]);
 
   // If no video is available, show a placeholder
   if (!isLoaded && !error) {

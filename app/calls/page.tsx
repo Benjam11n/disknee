@@ -4,66 +4,34 @@ import { useState, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Phone,
   PhoneOff,
   Video,
   VideoOff,
-  RotateCcw,
   PlayCircle,
   PauseCircle,
-  Trophy,
   Activity,
+  RotateCcw,
 } from "lucide-react";
 
-import VideoStream from "@/components/VideoStreamSimple";
-import PoseOverlay from "@/components/PoseOverlaySimple";
+import VideoStream from "@/components/VideoStream";
+import PoseOverlay from "@/components/PoseOverlay";
 import ModelVideo from "@/components/ModelVideo";
-import AccuracyMetrics from "@/components/AccuracyMetrics";
 import { ReflectionDialog } from "@/components/ReflectionDialog";
-import {
-  calculateKneeAngle,
-  calculateElbowAngle,
-  calculateHipAngle,
-  calculateBackAngle,
-  calculateOverallAccuracy,
-  Landmark,
-  PoseMetrics,
-} from "@/lib/pose-utils";
+import { Landmark } from "@/lib/pose-utils";
 
 export default function CallsPage() {
   const [isCallActive, setIsCallActive] = useState(false);
   const [isVideoOn, setIsVideoOn] = useState(true);
   const [isModelPlaying, setIsModelPlaying] = useState(true);
-  const [accuracy, setAccuracy] = useState(85);
   const [isRecording, setIsRecording] = useState(false);
   const [showReflection, setShowReflection] = useState(false);
   const [poseLandmarks, setPoseLandmarks] = useState<Landmark[]>([]);
-  const [currentMetrics, setCurrentMetrics] = useState<PoseMetrics>({
-    kneeAngle: { angle: 0, visibility: 0 },
-    elbowAngle: { angle: 0, visibility: 0 },
-    hipAngle: { angle: 0, visibility: 0 },
-    shoulderAngle: { angle: 0, visibility: 0 },
-    backAngle: { angle: 0, visibility: 0 },
-    overallAccuracy: 0,
-  });
-  const [repsCompleted, setRepsCompleted] = useState(0);
-  const [targetReps] = useState(10);
   const [sessionTime, setSessionTime] = useState(0);
   const sessionStartTime = useRef<number | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Reference angles for "perfect" form
-  const referenceAngles = {
-    kneeAngle: { angle: 90, visibility: 1 }, // Perfect squat knee angle
-    elbowAngle: { angle: 180, visibility: 1 }, // Straight arms
-    backAngle: { angle: 180, visibility: 1 }, // Straight back
-    hipAngle: { angle: 90, visibility: 1 }, // Perfect hip angle for squat
-    shoulderAngle: { angle: 0, visibility: 1 },
-    overallAccuracy: 0,
-  };
 
   // Timer for session
   useEffect(() => {
@@ -98,37 +66,12 @@ export default function CallsPage() {
   };
 
   // Handle pose results from MediaPipe
-  const handlePoseResults = (results: any) => {
+  const handlePoseResults = (results: {
+    poseLandmarks: Landmark[];
+    image: HTMLVideoElement;
+  }) => {
     if (results.poseLandmarks) {
-      setPoseLandmarks(results.poseLandmarks as Landmark[]);
-
-      // Calculate metrics
-      const metrics = {
-        kneeAngle: calculateKneeAngle(
-          results.poseLandmarks as Landmark[],
-          "right"
-        ),
-        elbowAngle: calculateElbowAngle(
-          results.poseLandmarks as Landmark[],
-          "right"
-        ),
-        hipAngle: calculateHipAngle(
-          results.poseLandmarks as Landmark[],
-          "right"
-        ),
-        shoulderAngle: { angle: 0, visibility: 0 },
-        backAngle: calculateBackAngle(results.poseLandmarks as Landmark[]),
-        overallAccuracy: 0,
-      };
-
-      // Calculate overall accuracy
-      metrics.overallAccuracy = calculateOverallAccuracy(
-        metrics,
-        referenceAngles
-      );
-
-      setCurrentMetrics(metrics);
-      setAccuracy(metrics.overallAccuracy);
+      setPoseLandmarks(results.poseLandmarks);
     }
   };
 
@@ -171,7 +114,6 @@ export default function CallsPage() {
                 <Badge variant={isRecording ? "destructive" : "secondary"}>
                   {isRecording ? "● Recording" : "Paused"}
                 </Badge>
-                <Badge variant="outline">Accuracy: {accuracy}%</Badge>
               </>
             )}
           </div>
@@ -278,65 +220,12 @@ export default function CallsPage() {
                 End Session
               </Button>
             </div>
-
-            {/* Accuracy Score */}
-            {isCallActive && (
-              <div className="flex items-center gap-3">
-                <Trophy className="h-5 w-5 text-yellow-500" />
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium">Accuracy Score</span>
-                  <div className="flex items-center gap-2">
-                    <Progress value={accuracy} className="w-32" />
-                    <span className="text-sm font-bold">{accuracy}%</span>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
-          {/* Metrics Display */}
+          {/* Simple Metrics Display */}
           {isCallActive && (
             <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Alert>
-                  <Activity className="h-4 w-4" />
-                  <AlertDescription>
-                    <div className="text-sm">Knee Angle</div>
-                    <div className="font-bold">
-                      {Math.round(currentMetrics.kneeAngle.angle)}° / 90°
-                    </div>
-                  </AlertDescription>
-                </Alert>
-                <Alert>
-                  <Activity className="h-4 w-4" />
-                  <AlertDescription>
-                    <div className="text-sm">Back Position</div>
-                    <div
-                      className={`font-bold ${
-                        currentMetrics.backAngle.angle > 170
-                          ? "text-green-600"
-                          : currentMetrics.backAngle.angle > 150
-                          ? "text-yellow-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {currentMetrics.backAngle.angle > 170
-                        ? "Good"
-                        : currentMetrics.backAngle.angle > 150
-                        ? "Fair"
-                        : "Adjust"}
-                    </div>
-                  </AlertDescription>
-                </Alert>
-                <Alert>
-                  <Activity className="h-4 w-4" />
-                  <AlertDescription>
-                    <div className="text-sm">Reps Completed</div>
-                    <div className="font-bold">
-                      {repsCompleted} / {targetReps}
-                    </div>
-                  </AlertDescription>
-                </Alert>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
                 <Alert>
                   <Activity className="h-4 w-4" />
                   <AlertDescription>
@@ -344,17 +233,16 @@ export default function CallsPage() {
                     <div className="font-bold">{formatTime(sessionTime)}</div>
                   </AlertDescription>
                 </Alert>
+                <Alert>
+                  <Activity className="h-4 w-4" />
+                  <AlertDescription>
+                    <div className="text-sm">Status</div>
+                    <div className="font-bold capitalize">
+                      {isRecording ? "Recording" : "Paused"}
+                    </div>
+                  </AlertDescription>
+                </Alert>
               </div>
-
-              {/* Detailed Metrics Component */}
-              <AccuracyMetrics
-                metrics={{
-                  ...currentMetrics,
-                  repsCompleted,
-                  targetReps,
-                }}
-                isVisible={isCallActive}
-              />
             </div>
           )}
         </div>
@@ -365,8 +253,8 @@ export default function CallsPage() {
         isOpen={showReflection}
         sessionData={{
           duration: sessionTime,
-          repsCompleted,
-          accuracy,
+          repsCompleted: 0, // Not tracking reps for now
+          accuracy: 0, // Not tracking accuracy for now
         }}
         onSubmit={handleReflectionSubmit}
         onSkip={handleReflectionSkip}

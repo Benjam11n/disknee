@@ -15,6 +15,7 @@ export default function PoseOverlay({
   height,
 }: PoseOverlayProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const lastLandmarksRef = useRef<string | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -23,9 +24,23 @@ export default function PoseOverlay({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Set canvas size
-    canvas.width = width;
-    canvas.height = height;
+    // Create a hash of landmarks to compare changes
+    const landmarksHash = landmarks ?
+      landmarks.map(l => `${Math.round(l.x * 100)}_${Math.round(l.y * 100)}_${Math.round(l.visibility * 100)}`).join('|') :
+      'empty';
+
+    // Skip redraw if landmarks haven't changed significantly
+    if (lastLandmarksRef.current === landmarksHash) {
+      return;
+    }
+
+    lastLandmarksRef.current = landmarksHash;
+
+    // Set canvas size only when needed
+    if (canvas.width !== width || canvas.height !== height) {
+      canvas.width = width;
+      canvas.height = height;
+    }
 
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
