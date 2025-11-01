@@ -17,16 +17,12 @@ import {
   Trophy,
   Activity,
 } from "lucide-react";
-// Types for MediaPipe
-interface Results {
-  poseLandmarks?: any[];
-  image: any;
-}
 
 import VideoStream from "@/components/VideoStreamSimple";
 import PoseOverlay from "@/components/PoseOverlaySimple";
 import ModelVideo from "@/components/ModelVideo";
 import AccuracyMetrics from "@/components/AccuracyMetrics";
+import { ReflectionDialog } from "@/components/ReflectionDialog";
 import {
   calculateKneeAngle,
   calculateElbowAngle,
@@ -43,6 +39,7 @@ export default function CallsPage() {
   const [isModelPlaying, setIsModelPlaying] = useState(true);
   const [accuracy, setAccuracy] = useState(85);
   const [isRecording, setIsRecording] = useState(false);
+  const [showReflection, setShowReflection] = useState(false);
   const [poseLandmarks, setPoseLandmarks] = useState<Landmark[]>([]);
   const [currentMetrics, setCurrentMetrics] = useState<PoseMetrics>({
     kneeAngle: { angle: 0, visibility: 0 },
@@ -143,6 +140,15 @@ export default function CallsPage() {
   const handleEndCall = () => {
     setIsCallActive(false);
     setIsRecording(false);
+    setShowReflection(true);
+  };
+
+  const handleReflectionSubmit = () => {
+    setShowReflection(false);
+  };
+
+  const handleReflectionSkip = () => {
+    setShowReflection(false);
   };
 
   return (
@@ -353,6 +359,18 @@ export default function CallsPage() {
           )}
         </div>
       </div>
+
+      {/* Reflection Dialog */}
+      <ReflectionDialog
+        isOpen={showReflection}
+        sessionData={{
+          duration: sessionTime,
+          repsCompleted,
+          accuracy,
+        }}
+        onSubmit={handleReflectionSubmit}
+        onSkip={handleReflectionSkip}
+      />
     </div>
   );
 }
