@@ -56,12 +56,6 @@ export default function AccuracyMetrics({
     return "text-red-600";
   };
 
-  const getProgressColor = (accuracy: number) => {
-    if (accuracy >= 90) return "bg-green-500";
-    if (accuracy >= 70) return "bg-yellow-500";
-    return "bg-red-500";
-  };
-
   const metricData: MetricData[] = [
     {
       label: "Knee Angle",
@@ -224,8 +218,8 @@ export default function AccuracyMetrics({
           <Alert className="border-yellow-200 bg-yellow-50">
             <AlertCircle className="h-4 w-4 text-yellow-600" />
             <AlertDescription className="text-yellow-800">
-              Good form, but there's room for improvement. Pay attention to the
-              highlighted metrics.
+              Good form, but there&apos;s room for improvement. Pay attention to
+              the highlighted metrics.
             </AlertDescription>
           </Alert>
         )}

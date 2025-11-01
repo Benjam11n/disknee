@@ -69,13 +69,11 @@ export function DashboardClient({
     return done / total;
   }, [exercises]);
 
-  // Weekly total estimated minutes
   const weeklyTotalMins = useMemo<number>(() => {
     const list = Array.isArray(exercises) ? exercises : [];
     return list.reduce((acc, e) => acc + (e.estimatedMins ?? 0), 0);
   }, [exercises]);
 
-  // Overall progress
   const computedOverall = useMemo<number>(() => {
     const weeks = Math.max(1, programWeeks);
     const base = Math.max(0, Math.min(weeks, weeksCompleted));
@@ -116,7 +114,14 @@ export function DashboardClient({
 
   useEffect(() => {
     if (!nextAppt) return setNextApptLabel("—");
-    setNextApptLabel(formatDateTime(nextAppt.start.toISOString()));
+
+    setNextApptLabel(
+      formatDateTime(
+        nextAppt.start instanceof Date
+          ? nextAppt.start.toISOString()
+          : nextAppt.start
+      )
+    );
   }, [nextAppt]);
 
   // Calendar
@@ -166,7 +171,9 @@ export function DashboardClient({
       .map((a) => ({
         ...a,
         date: formatYMD(new Date(a.start)),
-        time: formatTime(a.start.toISOString()),
+        time: formatTime(
+          a.start instanceof Date ? a.start.toISOString() : a.start
+        ),
       }));
   }, [appointments]);
 
