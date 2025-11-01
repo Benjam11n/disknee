@@ -165,7 +165,7 @@ export default function LoginPage() {
 
             <Button
               type="submit"
-              className="w-full"
+              className="w-full text-black"
               disabled={isLoading || !email || !password}
             >
               {isLoading ? (
@@ -180,22 +180,20 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 pt-6 border-t space-y-2">
-            <Card className="bg-blue-50 border-blue-200">
+            <Card>
               <CardHeader className="py-3">
-                <CardTitle className="text-sm text-blue-900">
-                  Demo Credentials
-                </CardTitle>
+                <CardTitle className="text-sm">Demo Credentials</CardTitle>
               </CardHeader>
               <CardContent className="space-y-1">
-                <p className="text-xs text-blue-700">
+                <p className="text-xs">
                   <span className="font-mono">demo@disknee.com</span> /{" "}
                   <span className="font-mono">demo123</span>
                 </p>
-                <p className="text-xs text-blue-700">
+                <p className="text-xs">
                   <span className="font-mono">patient@example.com</span> /{" "}
                   <span className="font-mono">patient2024</span>
                 </p>
-                <p className="text-xs text-blue-700">
+                <p className="text-xs">
                   <span className="font-mono">physio@example.com</span> /{" "}
                   <span className="font-mono">physio2024</span>
                 </p>
