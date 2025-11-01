@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChevronRight } from "lucide-react";
+import { Play } from "lucide-react";
 import { PlanWithExercises } from "@/lib/types/plans";
 import { formatDate, getDaysUntil } from "@/lib/utils/plan-utils";
 
@@ -34,7 +34,10 @@ export function PlanCard({ plan, onClick }: PlanCardProps) {
             </p>
           )}
         </div>
-        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Play className="h-3 w-3" />
+              <span>Start</span>
+            </div>
       </div>
     </Card>
   );

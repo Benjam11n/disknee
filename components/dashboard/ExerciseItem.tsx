@@ -1,15 +1,21 @@
 "use client";
 
-import { ChevronRight } from "lucide-react";
+import { Play } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Difficulty, Exercise } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/lib/constants/routes";
 
 interface ExerciseItemProps {
   exercise: Exercise;
+  isDisabled?: boolean;
 }
 
 function difficultyBadgeVariant(difficulty?: Difficulty) {
@@ -54,7 +60,10 @@ function difficultyStyles(difficulty?: Difficulty) {
   }
 }
 
-export function ExerciseItem({ exercise }: ExerciseItemProps) {
+export function ExerciseItem({
+  exercise,
+  isDisabled = false,
+}: ExerciseItemProps) {
   const router = useRouter();
   const styles = difficultyStyles(exercise.difficulty);
 
@@ -100,16 +109,43 @@ export function ExerciseItem({ exercise }: ExerciseItemProps) {
       </div>
 
       {/* Open button */}
-      <Button
-        variant="ghost"
-        size="sm"
-        className="group-hover:bg-accent"
-        aria-label={`Open ${exercise.title}`}
-        onClick={() => router.push(ROUTES.CALLS)}
-        disabled={exercise.done}
-      >
-        <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-      </Button>
+      {isDisabled && !exercise.done ? (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="group-hover:bg-accent pointer-events-none"
+                aria-label={`Open ${exercise.title}`}
+                disabled={exercise.done || isDisabled}
+              >
+                <div className="flex items-center gap-1 text-xs">
+                  <Play className="h-3 w-3" />
+                  <span>Start</span>
+                </div>
+              </Button>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Only the next exercise in sequence can be started</p>
+          </TooltipContent>
+        </Tooltip>
+      ) : (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="group-hover:bg-accent"
+          aria-label={`Open ${exercise.title}`}
+          onClick={() => router.push(ROUTES.CALLS)}
+          disabled={exercise.done || isDisabled}
+        >
+          <div className="flex items-center gap-1 text-xs">
+            <Play className="h-3 w-3" />
+            <span>Start</span>
+          </div>
+        </Button>
+      )}
     </li>
   );
 }

@@ -293,9 +293,8 @@ export function DashboardClient({
             {/* Selected Date Plans */}
             <PlanningList
               plans={selectedPlans}
-              onAddPlan={handleAddPlan}
               maxItems={5}
-              showAddButton={true}
+              showAddButton={false}
             />
           </Card>
 

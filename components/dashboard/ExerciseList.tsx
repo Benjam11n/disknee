@@ -16,6 +16,8 @@ export function ExerciseList({
   pillPercent,
   weeklyTotalMins,
 }: ExerciseListProps) {
+  const nextExerciseIndex = exercises.findIndex((ex) => !ex.done);
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -39,8 +41,12 @@ export function ExerciseList({
 
       {/* Exercise list */}
       <ul className="space-y-2">
-        {exercises.map((exercise) => (
-          <ExerciseItem key={exercise.id} exercise={exercise} />
+        {exercises.map((exercise, index) => (
+          <ExerciseItem
+            key={exercise.id}
+            exercise={exercise}
+            isDisabled={index !== nextExerciseIndex}
+          />
         ))}
       </ul>
     </div>
