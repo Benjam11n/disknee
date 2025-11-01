@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ROUTES } from "@/lib/constants/routes";
 
 interface User {
   email: string;
@@ -47,7 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     localStorage.removeItem("disknee_user");
     localStorage.removeItem("disknee_email");
-    router.push("/login");
+    router.push(ROUTES.LOGIN);
   };
 
   return (

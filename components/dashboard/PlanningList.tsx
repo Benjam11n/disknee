@@ -12,6 +12,8 @@ interface PlanningListProps {
   showAddButton?: boolean;
 }
 
+// todo: move the data utils to a utils file and then abstract out the individual plan card
+
 export function PlanningList({
   plans,
   onAddPlan,

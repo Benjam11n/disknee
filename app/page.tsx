@@ -9,7 +9,7 @@ export default async function RehabDashboardPage() {
     await Promise.allSettled([
       getExercises({ page: 1, limit: 50 }),
       getAppointments({ limit: 50, offset: 0 }),
-      getPlans({ limit: 100, offset: 0 }),
+      getPlans({ limit: 100, offset: 0, include: { exercises: true } }),
       getLeaderboard({
         limit: 50,
         offset: 0,
@@ -18,34 +18,16 @@ export default async function RehabDashboardPage() {
       }),
     ]);
 
-  // Process exercises data
+  // Process exercises data - keep original Prisma types
   const exercises =
     exercisesData.status === "fulfilled" && !("success" in exercisesData.value)
-      ? exercisesData.value.map((ex) => ({
-          id: ex.id,
-          title: ex.title,
-          done: ex.done,
-          estimatedMins: ex.estimatedMins,
-          difficulty: ex.difficulty?.toLowerCase() as
-            | "easy"
-            | "moderate"
-            | "hard",
-        }))
+      ? exercisesData.value
       : [];
 
-  // Process appointments data
+  // Process appointments data - keep original Prisma types
   const appointments =
-    appointmentsData.status === "fulfilled" &&
-    !("success" in appointmentsData.value)
-      ? appointmentsData.value.map((apt) => ({
-          id: apt.id,
-          start:
-            apt.start instanceof Date ? apt.start.toISOString() : apt.start,
-          doctorName: apt.doctorName,
-          doctorSpecialty: apt.doctorSpecialty,
-          locationName: apt.locationName,
-          locationAddr: apt.locationAddr,
-        }))
+    appointmentsData.status === "fulfilled" && !("success" in appointmentsData.value)
+      ? appointmentsData.value
       : [];
 
   const today = new Date();
@@ -59,13 +41,6 @@ export default async function RehabDashboardPage() {
             const planDate = new Date(plan.date);
             return planDate >= startOfMonth && planDate <= endOfMonth;
           })
-          .map((plan) => ({
-            id: plan.id,
-            date:
-              plan.date instanceof Date ? plan.date.toISOString() : plan.date,
-            title: plan.title,
-            when: plan.when,
-          }))
       : [];
 
   // Process leaderboard data

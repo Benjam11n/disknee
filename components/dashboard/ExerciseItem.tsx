@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Difficulty, Exercise } from "@prisma/client";
+import { useRouter } from "next/navigation";
+import { ROUTES } from "@/lib/constants/routes";
 
 interface ExerciseItemProps {
   exercise: Exercise;
@@ -53,6 +55,7 @@ function difficultyStyles(difficulty?: Difficulty) {
 }
 
 export function ExerciseItem({ exercise }: ExerciseItemProps) {
+  const router = useRouter();
   const styles = difficultyStyles(exercise.difficulty);
 
   return (
@@ -89,7 +92,7 @@ export function ExerciseItem({ exercise }: ExerciseItemProps) {
                 variant={difficultyBadgeVariant(exercise.difficulty)}
                 className="text-[10px] uppercase tracking-wider px-2 py-0.5"
               >
-                {exercise.difficulty}
+                {exercise.difficulty.toLowerCase()}
               </Badge>
             )}
           </div>
@@ -102,6 +105,8 @@ export function ExerciseItem({ exercise }: ExerciseItemProps) {
         size="sm"
         className="group-hover:bg-accent"
         aria-label={`Open ${exercise.title}`}
+        onClick={() => router.push(ROUTES.CALLS)}
+        disabled={exercise.done}
       >
         <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
       </Button>

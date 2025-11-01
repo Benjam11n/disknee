@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { ROUTES } from "@/lib/constants/routes";
 import { FormDialog } from "@/components/ui/form-dialog";
 import {
   Form,
@@ -106,13 +107,13 @@ export function ReflectionDialog({
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     onSubmit(reflectionData);
-    router.push("/");
+    router.push(ROUTES.HOME);
   };
 
   const handleSkip = () => {
     console.log("User skipped reflection");
     onSkip();
-    router.push("/");
+    router.push(ROUTES.HOME);
   };
 
   return (

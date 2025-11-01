@@ -10,13 +10,13 @@ import {
   GetAppointmentByIdSchema,
 } from "@/lib/validations/appointment-schemas";
 import {
-  CreateAppointmentInput,
+  CreateAppointmentParams,
+  GetAppointmentByIdParams,
   GetAppointmentsParams,
   GetUpcomingAppointmentsParams,
-  GetAppointmentByIdParams,
-} from "@/lib/validations/appointment-schemas";
+} from "../types/appointments";
 
-export async function createAppointment(params: CreateAppointmentInput) {
+export async function createAppointment(params: CreateAppointmentParams) {
   const validationResult = await action({
     params: params,
     schema: CreateAppointmentSchema,

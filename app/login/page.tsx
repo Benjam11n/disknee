@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { ROUTES } from "@/lib/constants/routes";
 import {
   Card,
   CardContent,
@@ -27,14 +28,12 @@ export default function LoginPage() {
   const { login, isAuthenticated } = useAuth();
   const router = useRouter();
 
-  // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/");
+      router.push(ROUTES.HOME);
     }
   }, [isAuthenticated, router]);
 
-  // Load saved email on mount
   useEffect(() => {
     const savedEmail = localStorage.getItem("disknee_email");
     if (savedEmail) {
@@ -79,7 +78,7 @@ export default function LoginPage() {
       if (rememberMe) {
         localStorage.setItem("disknee_email", email);
       }
-      router.push("/");
+      router.push(ROUTES.HOME);
     } else {
       setError("Invalid credentials. Try demo@disknee.com / demo123");
     }

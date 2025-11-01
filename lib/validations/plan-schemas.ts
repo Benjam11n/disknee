@@ -5,6 +5,9 @@ export const GetPlansSchema = z.object({
   endDate: z.string().datetime("Invalid end date format").optional(),
   limit: z.coerce.number().min(1).max(100).default(20),
   offset: z.coerce.number().min(0).default(0),
+  include: z.object({
+    exercises: z.boolean().default(false),
+  }),
 });
 
 export const GetPlansByDateRangeSchema = z.object({
