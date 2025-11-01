@@ -3,14 +3,12 @@
 import { JSX, useEffect, useMemo, useState } from "react";
 
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import { ExerciseList } from "@/components/dashboard/ExerciseList";
 import { Leaderboard } from "@/components/dashboard/Leaderboard";
-import { Calendar } from "@/components/dashboard/Calendar";
-import { ProgressRing } from "@/components/dashboard/ProgressRing";
+import { CalendarAndPlans } from "@/components/dashboard/CalendarAndPlans";
+import { ExerciseProgressCard } from "@/components/dashboard/ExerciseProgressCard";
+import { UpcomingAppointments } from "@/components/dashboard/UpcomingAppointments";
+import { ProgressSummary } from "@/components/dashboard/ProgressSummary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { PlanningList } from "@/components/dashboard/PlanningList";
-import { AppointmentCard } from "@/components/dashboard/AppointmentCard";
 import {
   buildMonthMatrix,
   formatYMD,
@@ -44,6 +42,7 @@ interface DashboardClientProps {
   initialData: DashboardData;
 }
 
+// todo: break this component down for maintainability
 export function DashboardClient({
   initialData,
 }: DashboardClientProps): JSX.Element {
@@ -86,24 +85,7 @@ export function DashboardClient({
     return computedOverall;
   }, [overallPercent, computedOverall]);
 
-  // Animate outer ring
-  const [ringProgress, setRingProgress] = useState<number>(0);
-  useEffect(() => {
-    const duration = 700;
-    const start = performance.now();
-    const from = ringProgress;
-    const to = overallTarget;
-    let raf = 0;
-    const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / duration);
-      const eased = 1 - Math.pow(1 - t, 3);
-      setRingProgress(from + (to - from) * eased);
-      if (t < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [overallTarget, ringProgress]);
-
+  
   // Next appointment
   const [nextApptLabel, setNextApptLabel] = useState<string>("—");
   const nextAppt = useMemo(
@@ -176,11 +158,6 @@ export function DashboardClient({
       }));
   }, [appointments]);
 
-  const handleAddPlan = () => {
-    // TODO: Open plan creation dialog
-    console.log("Add plan clicked");
-  };
-
   // Find patient rank from leaderboard
   const patientRank = useMemo(() => {
     const patientEntry = leaderboard.find(
@@ -201,44 +178,14 @@ export function DashboardClient({
         {/* Left Column */}
         <div className="lg:col-span-5 space-y-6">
           {/* Exercise Progress */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Weekly Exercises</CardTitle>
-              <div className="space-y-2">
-                <div className="text-sm text-muted-foreground">
-                  {Math.round(weeklyTarget * 100)}% complete
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  Estimated time: {weeklyTotalMins} minutes
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <ExerciseList
-                exercises={Array.isArray(exercises) ? exercises : []}
-                pillPercent={Math.round(weeklyTarget * 100)}
-                weeklyTotalMins={weeklyTotalMins}
-              />
-            </CardContent>
-          </Card>
+          <ExerciseProgressCard
+            exercises={exercises}
+            weeklyTarget={weeklyTarget}
+            weeklyTotalMins={weeklyTotalMins}
+          />
 
           {/* Upcoming Appointments */}
-          {upcomingAppointments.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Upcoming Appointments</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {upcomingAppointments.map((apt, idx) => (
-                  <AppointmentCard
-                    key={apt.id || idx}
-                    appointment={apt}
-                    compact={true}
-                  />
-                ))}
-              </CardContent>
-            </Card>
-          )}
+          <UpcomingAppointments appointments={upcomingAppointments} />
 
           {/* Leaderboard */}
           <Card>
@@ -266,66 +213,26 @@ export function DashboardClient({
 
         {/* Right Column */}
         <div className="lg:col-span-7 space-y-6">
-          {/* Progress and Calendar */}
-          <Card className="p-6">
-            <div className="relative flex justify-center mb-6">
-              <ProgressRing
-                progress={ringProgress}
-                size={250}
-                strokeWidth={16}
-                showPercentage={true}
-              />
-            </div>
-
-            {/* Calendar */}
-            <Calendar
-              monthMatrix={monthMatrix}
-              monthLabel={monthLabel}
-              today={today}
-              selectedDate={selectedDate}
-              apptDays={apptDays}
-              planDays={planDays}
-              onSelectDate={setSelectedDate}
-            />
-
-            <Separator className="my-4" />
-
-            {/* Selected Date Plans */}
-            <PlanningList
-              plans={selectedPlans}
-              maxItems={5}
-              showAddButton={false}
-            />
-          </Card>
-
           {/* Overall Progress Summary */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Overall Progress</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <div className="text-2xl font-bold text-primary">
-                    {Math.round(overallTarget * 100)}%
-                  </div>
-                  <div className="text-sm text-muted-foreground">Complete</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-primary">
-                    {weeksCompleted}/{programWeeks}
-                  </div>
-                  <div className="text-sm text-muted-foreground">Weeks</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-primary">
-                    #{patientRank}
-                  </div>
-                  <div className="text-sm text-muted-foreground">Rank</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <ProgressSummary
+            overallTarget={overallTarget}
+            weeksCompleted={weeksCompleted}
+            programWeeks={programWeeks}
+            patientRank={patientRank}
+          />
+
+          {/* Progress and Calendar */}
+          <CalendarAndPlans
+            monthMatrix={monthMatrix}
+            monthLabel={monthLabel}
+            today={today}
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+            apptDays={apptDays}
+            planDays={planDays}
+            selectedPlans={selectedPlans}
+            ringProgress={overallTarget}
+          />
         </div>
       </main>
     </div>
