@@ -9,12 +9,15 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
+  SidebarRail,
 } from "@/components/ui/sidebar";
-import { Home, Trophy, Activity, Video, Calendar } from "lucide-react";
+import { Home, Trophy, Activity, Settings, HelpCircle } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 const navigation = [
   {
@@ -31,16 +34,20 @@ const navigation = [
     name: "Exercises",
     href: "/exercise",
     icon: Activity,
+    badge: "3 new",
+  },
+];
+
+const secondaryNavigation = [
+  {
+    name: "Settings",
+    href: "/settings",
+    icon: Settings,
   },
   {
-    name: "Calls",
-    href: "/calls",
-    icon: Video,
-  },
-  {
-    name: "Appointments",
-    href: "/appointments",
-    icon: Calendar,
+    name: "Help & Support",
+    href: "/help",
+    icon: HelpCircle,
   },
 ];
 
@@ -50,10 +57,10 @@ export function SidebarNavigation({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider open={open} onOpenChange={setOpen}>
-      <Sidebar>
-        <SidebarHeader className="p-4">
+      <Sidebar className="border-r border-border/40 bg-sidebar">
+        <SidebarHeader className="bg-gradient-to-b from-background to-sidebar/50 border-b border-border/40 p-6">
           <div className="flex items-center gap-3">
-            <div className="relative h-8 w-8">
+            <div className="relative h-10 w-10 shrink-0 rounded-lg p-2">
               <Image
                 src="/logo.png"
                 alt="DisKnee Logo"
@@ -61,37 +68,109 @@ export function SidebarNavigation({ children }: { children: React.ReactNode }) {
                 className="object-contain"
               />
             </div>
-            <h1 className="text-xl font-semibold tracking-tight">DisKnee</h1>
+            <div className="flex flex-col gap-0.5">
+              <h1 className="text-xl font-bold tracking-tight text-foreground">
+                DisKnee
+              </h1>
+              <p className="text-xs text-muted-foreground">
+                Virtual Physiotherapy
+              </p>
+            </div>
           </div>
         </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            {navigation.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton
-                    asChild
-                    className={cn(
-                      "transition-all duration-200",
-                      isActive
-                        ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                        : "hover:bg-accent hover:text-accent-foreground"
-                    )}
-                  >
-                    <Link href={item.href}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.name}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              );
-            })}
-          </SidebarMenu>
+
+        <SidebarContent className="px-3 py-4">
+          <div className="space-y-6">
+            {/* Main Navigation */}
+            <div className="space-y-1">
+              <p className="px-3 text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">
+                Main
+              </p>
+              <SidebarMenu>
+                {navigation.map((item) => {
+                  const isActive = pathname === item.href;
+                  return (
+                    <SidebarMenuItem key={item.name}>
+                      <SidebarMenuButton
+                        asChild
+                        className={cn(
+                          "h-10 rounded-lg px-3 text-sm font-medium transition-all duration-200",
+                          "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                          "focus-visible:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-sidebar-ring",
+                          isActive &&
+                            "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
+                        )}
+                      >
+                        <Link href={item.href}>
+                          <item.icon
+                            className={cn(
+                              "h-4 w-4",
+                              isActive && "text-primary-foreground"
+                            )}
+                          />
+                          <div className="flex-1 text-left">
+                            <span>{item.name}</span>
+                          </div>
+                          {item.badge && (
+                            <Badge
+                              variant={isActive ? "secondary" : "default"}
+                              className="ml-auto text-xs px-1.5 py-0.5 h-5"
+                            >
+                              {item.badge}
+                            </Badge>
+                          )}
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </div>
+
+            <Separator className="bg-border/40" />
+
+            {/* Secondary Navigation */}
+            <div className="space-y-1">
+              <p className="px-3 text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">
+                Support
+              </p>
+              <SidebarMenu>
+                {secondaryNavigation.map((item) => {
+                  const isActive = pathname === item.href;
+                  return (
+                    <SidebarMenuItem key={item.name}>
+                      <SidebarMenuButton
+                        asChild
+                        className={cn(
+                          "h-9 rounded-lg px-3 text-sm font-medium transition-all duration-200",
+                          "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                          "focus-visible:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-sidebar-ring",
+                          isActive &&
+                            "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
+                        )}
+                      >
+                        <Link href={item.href}>
+                          <item.icon
+                            className={cn(
+                              "h-4 w-4",
+                              isActive && "text-primary-foreground"
+                            )}
+                          />
+                          <span>{item.name}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </div>
+          </div>
         </SidebarContent>
+
+        <SidebarRail />
       </Sidebar>
-      <div className="flex-1 flex flex-col min-h-screen">
-        <main className="flex-1">{children}</main>
+      <div className="flex flex-1 flex-col">
+        <main className="flex-1 bg-background/95">{children}</main>
       </div>
     </SidebarProvider>
   );

@@ -5,10 +5,20 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
+import { useMounted } from "@/hooks/use-mounted";
 
 export function ThemeToggle() {
   const { setTheme, theme } = useTheme();
-  console.log("theme", theme);
+  const mounted = useMounted();
+
+  if (!mounted) {
+    // Prevent hydration mismatch by not rendering until client-side
+    return (
+      <Button className="h-9 w-9" size="icon" variant="ghost">
+        <div className="h-4 w-4" />
+      </Button>
+    );
+  }
 
   return (
     <Button
