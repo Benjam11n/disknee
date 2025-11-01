@@ -1,21 +1,14 @@
 "use client";
 
-import { JSX, useEffect, useMemo, useState } from "react";
+import { JSX, useMemo, useState } from "react";
 
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Leaderboard } from "@/components/dashboard/Leaderboard";
 import { CalendarAndPlans } from "@/components/dashboard/CalendarAndPlans";
 import { ExerciseProgressCard } from "@/components/dashboard/ExerciseProgressCard";
 import { UpcomingAppointments } from "@/components/dashboard/UpcomingAppointments";
 import { ProgressSummary } from "@/components/dashboard/ProgressSummary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  buildMonthMatrix,
-  formatYMD,
-  getNextAppointment,
-  formatDateTime,
-  formatTime,
-} from "@/lib/date-utils";
+import { buildMonthMatrix, formatYMD, formatTime } from "@/lib/date-utils";
 import { Appointment, Exercise, Plan } from "@prisma/client";
 import { PlanWithExercises } from "@/lib/types/plans";
 
@@ -85,26 +78,6 @@ export function DashboardClient({
     return computedOverall;
   }, [overallPercent, computedOverall]);
 
-  
-  // Next appointment
-  const [nextApptLabel, setNextApptLabel] = useState<string>("—");
-  const nextAppt = useMemo(
-    () => getNextAppointment(Array.isArray(appointments) ? appointments : []),
-    [appointments]
-  );
-
-  useEffect(() => {
-    if (!nextAppt) return setNextApptLabel("—");
-
-    setNextApptLabel(
-      formatDateTime(
-        nextAppt.start instanceof Date
-          ? nextAppt.start.toISOString()
-          : nextAppt.start
-      )
-    );
-  }, [nextAppt]);
-
   // Calendar
   const today = useMemo(() => new Date(), []);
   const { monthMatrix, monthLabel } = useMemo(
@@ -167,74 +140,66 @@ export function DashboardClient({
   }, [leaderboard, patientName]);
 
   return (
-    <>
-      <DashboardHeader
-        name={patientName}
-        nextAppt={nextAppt}
-        label={nextApptLabel}
-      />
+    <div className="px-6 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-[1400px] mx-auto">
+      {/* Left Column */}
+      <div className="lg:col-span-5 space-y-6">
+        {/* Exercise Progress */}
+        <ExerciseProgressCard
+          exercises={exercises}
+          weeklyTarget={weeklyTarget}
+          weeklyTotalMins={weeklyTotalMins}
+        />
 
-      <div className="px-6 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-[1400px] mx-auto">
-        {/* Left Column */}
-        <div className="lg:col-span-5 space-y-6">
-          {/* Exercise Progress */}
-          <ExerciseProgressCard
-            exercises={exercises}
-            weeklyTarget={weeklyTarget}
-            weeklyTotalMins={weeklyTotalMins}
-          />
+        {/* Upcoming Appointments */}
+        <UpcomingAppointments appointments={upcomingAppointments} />
 
-          {/* Upcoming Appointments */}
-          <UpcomingAppointments appointments={upcomingAppointments} />
-
-          {/* Leaderboard */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Leaderboard</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Leaderboard
-                leaderboard={Array.isArray(leaderboard) ? leaderboard : []}
-                patientName={patientName}
-                showAll={showAllLeaderboard}
-                maxItems={5}
-              />
-              {leaderboard.length > 5 && (
-                <button
-                  onClick={() => setShowAllLeaderboard(!showAllLeaderboard)}
-                  className="mt-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  {showAllLeaderboard ? "Show Less" : "Show All"}
-                </button>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Right Column */}
-        <div className="lg:col-span-7 space-y-6">
-          {/* Overall Progress Summary */}
-          <ProgressSummary
-            overallTarget={overallTarget}
-            weeksCompleted={weeksCompleted}
-            programWeeks={programWeeks}
-            patientRank={patientRank}
-          />
-
-          {/* Progress and Calendar */}
-          <CalendarAndPlans
-            monthMatrix={monthMatrix}
-            monthLabel={monthLabel}
-            today={today}
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
-            apptDays={apptDays}
-            planDays={planDays}
-            selectedPlans={selectedPlans}
-            ringProgress={overallTarget}
-          />
-        </div>
+        {/* Leaderboard */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Leaderboard</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Leaderboard
+              leaderboard={Array.isArray(leaderboard) ? leaderboard : []}
+              patientName={patientName}
+              showAll={showAllLeaderboard}
+              maxItems={5}
+            />
+            {leaderboard.length > 5 && (
+              <button
+                onClick={() => setShowAllLeaderboard(!showAllLeaderboard)}
+                className="mt-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                {showAllLeaderboard ? "Show Less" : "Show All"}
+              </button>
+            )}
+          </CardContent>
+        </Card>
       </div>
-    </>
+
+      {/* Right Column */}
+      <div className="lg:col-span-7 space-y-6">
+        {/* Overall Progress Summary */}
+        <ProgressSummary
+          overallTarget={overallTarget}
+          weeksCompleted={weeksCompleted}
+          programWeeks={programWeeks}
+          patientRank={patientRank}
+        />
+
+        {/* Progress and Calendar */}
+        <CalendarAndPlans
+          monthMatrix={monthMatrix}
+          monthLabel={monthLabel}
+          today={today}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          apptDays={apptDays}
+          planDays={planDays}
+          selectedPlans={selectedPlans}
+          ringProgress={overallTarget}
+        />
+      </div>
+    </div>
   );
 }

@@ -3,39 +3,29 @@
 import { Appointment } from "@prisma/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, Menu } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
-interface DashboardHeaderProps {
-  label: string;
-  name: string;
+interface NavbarProps {
+  label?: string;
+  name?: string;
   nextAppt?: Appointment | null;
   primaryDoctorText?: string;
-  onSidebarToggle?: () => void;
 }
 
-export function DashboardHeader({
-  label,
-  name,
+export function Navbar({
+  label = "No appointment",
+  name = "",
   nextAppt,
   primaryDoctorText,
-  onSidebarToggle,
-}: DashboardHeaderProps) {
+}: NavbarProps) {
   const patientName = name || "";
 
   return (
     <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
       <div className="mx-auto flex items-center justify-between px-6 py-3 max-w-7xl">
-        {/* Left: sidebar trigger and brand with logo */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onSidebarToggle}
-            className="lg:hidden p-2 hover:bg-accent rounded-md transition-colors"
-          >
-            <Menu className="h-5 w-5" />
-            <span className="sr-only">Toggle sidebar</span>
-          </button>
-        </div>
+        {/* Left spacer - sidebar handles branding */}
+        <div></div>
 
         {/* Right: appointment, theme toggle, and user info grouped */}
         <div className="flex items-center gap-3 sm:gap-4">

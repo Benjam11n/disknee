@@ -5,6 +5,8 @@ import { Toaster } from "sonner";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { SidebarNavigation } from "@/components/layout/SidebarNavigation";
+import { NavbarWrapper } from "@/components/layout/NavbarWrapper";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
@@ -41,7 +43,13 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <TooltipProvider>{children}</TooltipProvider>
+            <TooltipProvider>
+              <SidebarNavigation>
+                <NavbarWrapper patientName="Donald Duck">
+                  {children}
+                </NavbarWrapper>
+              </SidebarNavigation>
+            </TooltipProvider>
           </ThemeProvider>
         </AuthProvider>
         <Toaster
