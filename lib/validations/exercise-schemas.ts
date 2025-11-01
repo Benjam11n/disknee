@@ -12,7 +12,9 @@ const ExerciseBaseSchema = z.object({
   done: z.boolean().default(false),
 });
 
-export const CreateExerciseSchema = ExerciseBaseSchema;
+export const CreateExerciseSchema = ExerciseBaseSchema.extend({
+  planId: z.string(),
+});
 
 // Query parameters schema
 export const GetExercisesSchema = z.object({

@@ -97,7 +97,7 @@ export default function CallsPage() {
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
-      <header className="border-b px-4 py-3">
+      <header className="px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Activity className="h-6 w-6 text-primary" />

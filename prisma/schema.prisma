@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["views"]
 }
 
 datasource db {
@@ -85,12 +86,30 @@ model Reflection {
 }
 
 model Leaderboard {
-  id      String @id @default(cuid())
-  rank    Int
-  name    String
-  weeks   Int
-  percent Int
+  name               String @id
+  weeks              Int
+  accuracyPercentage Int
+  score              Int
 
-  @@unique([rank])
   @@map("leaderboard")
+}
+
+view leaderboardByScore {
+  rank               Int
+  name               String
+  weeks              Int
+  accuracyPercentage Int
+  score              Int
+
+  @@map("leaderboard_by_score")
+}
+
+view leaderboardByAccuracy {
+  rank               Int
+  name               String
+  weeks              Int
+  accuracyPercentage Int
+  score              Int
+
+  @@map("leaderboard_by_accuracy")
 }

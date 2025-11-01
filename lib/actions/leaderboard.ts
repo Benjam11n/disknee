@@ -11,8 +11,9 @@ import {
   GetLeaderboardByRankParams,
   GetLeaderboardParams,
 } from "../types/leaderboard";
+import { leaderboardByAccuracy, leaderboardByScore } from "@prisma/client";
 
-export async function getLeaderboard(params: GetLeaderboardParams) {
+export async function getLeaderboardAction(params: GetLeaderboardParams) {
   const validationResult = await action({
     params: params,
     schema: GetLeaderboardSchema,
@@ -23,25 +24,41 @@ export async function getLeaderboard(params: GetLeaderboardParams) {
     return handleError(validationResult) as ErrorResponse;
   }
 
-  const { limit, offset, sortBy, sortOrder, name } = validationResult.params!;
+  const { limit, offset, sortBy, sortOrder, name, rankingType } =
+    validationResult.params!;
 
   try {
-    const leaderboard = await prisma.leaderboard.findMany({
-      where: {
-        name: name ? { contains: name, mode: "insensitive" } : undefined,
-      },
-      orderBy: { [sortBy]: sortOrder },
-      take: limit,
-      skip: offset,
-    });
+    let leaderboard: leaderboardByScore[] | leaderboardByAccuracy[] = [];
+    if (rankingType === "accuracy") {
+      leaderboard = await prisma.leaderboardByAccuracy.findMany({
+        where: {
+          name: name ? { contains: name, mode: "insensitive" } : undefined,
+        },
+        orderBy: { [sortBy]: sortOrder },
+        take: limit,
+        skip: offset,
+      });
 
+      return leaderboard;
+    } else {
+      leaderboard = await prisma.leaderboardByScore.findMany({
+        where: {
+          name: name ? { contains: name, mode: "insensitive" } : undefined,
+        },
+        orderBy: { [sortBy]: sortOrder },
+        take: limit,
+        skip: offset,
+      });
+    }
     return leaderboard;
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
 }
 
-export async function getLeaderboardByRank(params: GetLeaderboardByRankParams) {
+export async function getLeaderboardByRankAction(
+  params: GetLeaderboardByRankParams & { rankingType?: "score" | "accuracy" }
+) {
   const validationResult = await action({
     params: params,
     schema: GetLeaderboardByRankSchema,
@@ -52,20 +69,34 @@ export async function getLeaderboardByRank(params: GetLeaderboardByRankParams) {
     return handleError(validationResult) as ErrorResponse;
   }
 
-  const { startRank, endRank } = validationResult.params!;
+  const { startRank, endRank, rankingType } = validationResult.params!;
 
   try {
-    const leaderboard = await prisma.leaderboard.findMany({
-      where: {
-        rank: {
-          gte: startRank,
-          lte: endRank,
+    if (rankingType === "accuracy") {
+      const leaderboard = await prisma.leaderboardByAccuracy.findMany({
+        where: {
+          rank: {
+            gte: startRank,
+            lte: endRank,
+          },
         },
-      },
-      orderBy: { rank: "asc" },
-    });
+        orderBy: { rank: "asc" },
+      });
 
-    return leaderboard;
+      return leaderboard;
+    } else {
+      const leaderboard = await prisma.leaderboardByScore.findMany({
+        where: {
+          rank: {
+            gte: startRank,
+            lte: endRank,
+          },
+        },
+        orderBy: { rank: "asc" },
+      });
+
+      return leaderboard;
+    }
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }

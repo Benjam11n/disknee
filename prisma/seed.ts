@@ -52,7 +52,7 @@ async function main() {
               ? Difficulty.MODERATE
               : Difficulty.HARD,
           done: ex.done,
-          planId: assignedPlan?.id || null,
+          planId: assignedPlan?.id,
         },
       });
     })
@@ -87,10 +87,10 @@ async function main() {
       seedData.leaderboard.map((entry) =>
         prisma.leaderboard.create({
           data: {
-            rank: entry.rank,
             name: entry.name,
             weeks: entry.weeks,
-            percent: entry.percent,
+            accuracyPercentage: entry.accuracyPercentage,
+            score: entry.score,
           },
         })
       )

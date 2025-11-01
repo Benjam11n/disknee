@@ -1,13 +1,15 @@
 "use client";
 
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import { LeaderboardItem } from "./LeaderboardItem";
 
 interface LeaderboardRow {
   rank: number;
   name: string;
   weeks: number;
-  percent: number;
+  accuracyPercentage: number;
+  score: number;
 }
 
 interface LeaderboardProps {
@@ -15,6 +17,8 @@ interface LeaderboardProps {
   patientName: string;
   showAll?: boolean;
   maxItems?: number;
+  rankingType?: "score" | "accuracy";
+  onRankingTypeChange?: (type: "score" | "accuracy") => void;
 }
 
 export function Leaderboard({
@@ -22,10 +26,15 @@ export function Leaderboard({
   patientName,
   showAll = false,
   maxItems = 5,
+  rankingType = "score",
+  onRankingTypeChange,
 }: LeaderboardProps) {
-  const sortedLeaderboard = [...leaderboard].sort(
-    (a, b) => b.percent - a.percent || a.rank - b.rank
-  );
+  const sortedLeaderboard = [...leaderboard].sort((a, b) => {
+    if (rankingType === "accuracy") {
+      return b.accuracyPercentage - a.accuracyPercentage || a.rank - b.rank;
+    }
+    return b.score - a.score || a.rank - b.rank;
+  });
 
   const topEntries = sortedLeaderboard.slice(0, maxItems);
   const currentUserRank = sortedLeaderboard.findIndex(
@@ -39,9 +48,27 @@ export function Leaderboard({
     <div className="space-y-4">
       <div>
         <h3 className="text-xl font-semibold">Leaderboard</h3>
-        <p className="text-sm text-muted-foreground">
-          Top performers by accuracy
+        <p className="text-sm text-muted-foreground mb-3">
+          Top performers by {rankingType === "accuracy" ? "accuracy" : "score"}
         </p>
+        {onRankingTypeChange && (
+          <div className="flex gap-2">
+            <Button
+              variant={rankingType === "score" ? "default" : "outline"}
+              size="sm"
+              onClick={() => onRankingTypeChange("score")}
+            >
+              Score
+            </Button>
+            <Button
+              variant={rankingType === "accuracy" ? "default" : "outline"}
+              size="sm"
+              onClick={() => onRankingTypeChange("accuracy")}
+            >
+              Accuracy
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Top entries */}
@@ -52,6 +79,7 @@ export function Leaderboard({
             key={topEntries[0].rank}
             row={topEntries[0]}
             isCurrentUser={isLeaderboardMe(topEntries[0], patientName)}
+            displayValue={rankingType}
           />
         )}
 
@@ -62,6 +90,7 @@ export function Leaderboard({
               key={topEntries[1].rank}
               row={topEntries[1]}
               isCurrentUser={isLeaderboardMe(topEntries[1], patientName)}
+              displayValue={rankingType}
             />
           )}
           {topEntries[2] && (
@@ -69,6 +98,7 @@ export function Leaderboard({
               key={topEntries[2].rank}
               row={topEntries[2]}
               isCurrentUser={isLeaderboardMe(topEntries[2], patientName)}
+              displayValue={rankingType}
             />
           )}
         </div>
@@ -81,6 +111,7 @@ export function Leaderboard({
                 key={topEntries[3].rank}
                 row={topEntries[3]}
                 isCurrentUser={isLeaderboardMe(topEntries[3], patientName)}
+                displayValue={rankingType}
               />
             )}
             {topEntries[4] && (
@@ -88,6 +119,7 @@ export function Leaderboard({
                 key={topEntries[4].rank}
                 row={topEntries[4]}
                 isCurrentUser={isLeaderboardMe(topEntries[4], patientName)}
+                displayValue={rankingType}
               />
             )}
           </div>
@@ -101,6 +133,7 @@ export function Leaderboard({
           <LeaderboardItem
             row={currentUserData}
             isCurrentUser={true}
+            displayValue={rankingType}
           />
         </>
       )}

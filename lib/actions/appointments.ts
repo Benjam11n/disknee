@@ -16,7 +16,7 @@ import {
   GetUpcomingAppointmentsParams,
 } from "../types/appointments";
 
-export async function createAppointment(params: CreateAppointmentParams) {
+export async function createAppointmentAction(params: CreateAppointmentParams) {
   const validationResult = await action({
     params: params,
     schema: CreateAppointmentSchema,
@@ -47,7 +47,7 @@ export async function createAppointment(params: CreateAppointmentParams) {
   }
 }
 
-export async function getAppointments(params: GetAppointmentsParams) {
+export async function getAppointmentsAction(params: GetAppointmentsParams) {
   const validationResult = await action({
     params: params,
     schema: GetAppointmentsSchema,
@@ -79,7 +79,7 @@ export async function getAppointments(params: GetAppointmentsParams) {
   }
 }
 
-export async function getUpcomingAppointments(
+export async function getUpcomingAppointmentsAction(
   params: GetUpcomingAppointmentsParams
 ) {
   const validationResult = await action({
@@ -114,7 +114,9 @@ export async function getUpcomingAppointments(
   }
 }
 
-export async function getAppointmentById(params: GetAppointmentByIdParams) {
+export async function getAppointmentByIdAction(
+  params: GetAppointmentByIdParams
+) {
   const validationResult = await action({
     params: params,
     schema: GetAppointmentByIdSchema,

@@ -12,17 +12,19 @@ import { buildMonthMatrix, formatYMD, formatTime } from "@/lib/date-utils";
 import { Appointment, Exercise, Plan } from "@prisma/client";
 import { PlanWithExercises } from "@/lib/types/plans";
 
-interface LeaderboardRow {
+// todo
+interface LeaderboardEntry {
   rank: number;
   name: string;
   weeks: number;
-  percent: number;
+  accuracyPercentage: number;
+  score: number;
 }
 
 interface DashboardData {
   patientName: string;
   exercises: Exercise[];
-  leaderboard: LeaderboardRow[];
+  leaderboard: LeaderboardEntry[];
   appointments: Appointment[];
   plans: Plan[];
   overallPercent?: number;

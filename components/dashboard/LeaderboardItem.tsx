@@ -6,7 +6,8 @@ interface LeaderboardRow {
   rank: number;
   name: string;
   weeks: number;
-  percent: number;
+  accuracyPercentage: number;
+  score: number;
 }
 
 interface LeaderboardItemProps {
@@ -14,6 +15,7 @@ interface LeaderboardItemProps {
   isCurrentUser?: boolean;
   showRank?: boolean;
   compact?: boolean;
+  displayValue?: "score" | "accuracy";
 }
 
 export function LeaderboardItem({
@@ -21,6 +23,7 @@ export function LeaderboardItem({
   isCurrentUser = false,
   showRank = true,
   compact = false,
+  displayValue = "score",
 }: LeaderboardItemProps) {
   const rankDisplay = getRankDisplay(row.rank);
   const getRankEmoji = (rank: number) => {
@@ -40,11 +43,12 @@ export function LeaderboardItem({
     <Card
       className={`
         flex items-center justify-between p-3 transition-all
-        ${isCurrentUser
-          ? 'border-2 border-primary bg-primary/5 shadow-md'
-          : 'border bg-card hover:shadow-sm'
+        ${
+          isCurrentUser
+            ? "border-2 border-primary bg-primary/5 shadow-md"
+            : "border bg-card hover:shadow-sm"
         }
-        ${compact ? 'px-2 py-2' : ''}
+        ${compact ? "px-2 py-2" : ""}
       `}
     >
       <div className="flex items-center gap-3">
@@ -83,10 +87,11 @@ export function LeaderboardItem({
             ${isCurrentUser ? "text-primary" : "text-muted-foreground"}
           `}
         >
-          {row.percent}%
+          {displayValue === "accuracy"
+            ? `${row.accuracyPercentage}%`
+            : row.score}
         </span>
       </div>
     </Card>
   );
 }
-

@@ -1,21 +1,23 @@
-import { Leaderboard } from "@/components/dashboard/Leaderboard";
-import { getLeaderboard } from "@/lib/actions/leaderboard";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getLeaderboardAction } from "@/lib/actions/leaderboard";
+import { LeaderboardClient } from "./LeaderboardClient";
 
 export default async function LeaderboardPage() {
-  const leaderboardData = await getLeaderboard({
+  // Fetch initial data on the server
+  const initialLeaderboardData = await getLeaderboardAction({
     limit: 50,
     offset: 0,
     sortBy: "rank",
     sortOrder: "asc",
+    rankingType: "score",
   });
 
-  const leaderboard = Array.isArray(leaderboardData)
-    ? leaderboardData.map((entry) => ({
+  const initialLeaderboard = Array.isArray(initialLeaderboardData)
+    ? initialLeaderboardData.map((entry) => ({
         rank: entry.rank,
         name: entry.name,
         weeks: entry.weeks,
-        percent: entry.percent,
+        accuracyPercentage: entry.accuracyPercentage,
+        score: entry.score,
       }))
     : [];
 
@@ -23,19 +25,10 @@ export default async function LeaderboardPage() {
 
   return (
     <div className="px-6 py-6 max-w-[1400px] mx-auto">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Leaderboard</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Leaderboard
-            leaderboard={leaderboard}
-            patientName={patientName}
-            showAll={true}
-            maxItems={50}
-          />
-        </CardContent>
-      </Card>
+      <LeaderboardClient
+        initialLeaderboard={initialLeaderboard}
+        patientName={patientName}
+      />
     </div>
   );
 }

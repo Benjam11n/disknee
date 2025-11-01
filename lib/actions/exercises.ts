@@ -14,7 +14,7 @@ import {
   GetExercisesParams,
 } from "../types/exercises";
 
-export async function createExercise(params: CreateExerciseParams) {
+export async function createExerciseAction(params: CreateExerciseParams) {
   const validationResult = await action({
     params: params,
     schema: CreateExerciseSchema,
@@ -25,7 +25,8 @@ export async function createExercise(params: CreateExerciseParams) {
     return handleError(validationResult) as ErrorResponse;
   }
 
-  const { title, estimatedMins, difficulty, done } = validationResult.params!;
+  const { title, estimatedMins, difficulty, done, planId } =
+    validationResult.params!;
 
   try {
     const exercise = await prisma.exercise.create({
@@ -34,6 +35,7 @@ export async function createExercise(params: CreateExerciseParams) {
         estimatedMins,
         difficulty,
         done: done || false,
+        planId: planId,
       },
     });
 
@@ -43,7 +45,7 @@ export async function createExercise(params: CreateExerciseParams) {
   }
 }
 
-export async function getExercises(params: GetExercisesParams) {
+export async function getExercisesAction(params: GetExercisesParams) {
   const validationResult = await action({
     params: params,
     schema: GetExercisesSchema,
@@ -74,7 +76,7 @@ export async function getExercises(params: GetExercisesParams) {
   }
 }
 
-export async function getExerciseById(params: GetExerciseByIdParams) {
+export async function getExerciseByIdAction(params: GetExerciseByIdParams) {
   const validationResult = await action({
     params: params,
     schema: GetExerciseByIdSchema,
