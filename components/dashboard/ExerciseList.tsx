@@ -6,14 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Exercise } from "@prisma/client";
 
 interface ExerciseListProps {
-  loading: boolean;
   exercises: Exercise[];
   pillPercent: number;
   weeklyTotalMins: number;
 }
 
 export function ExerciseList({
-  loading,
   exercises,
   pillPercent,
   weeklyTotalMins,
@@ -41,11 +39,6 @@ export function ExerciseList({
 
       {/* Exercise list */}
       <ul className="space-y-2">
-        {loading && (
-          <li className="animate-pulse">
-            <div className="h-16 rounded-lg bg-muted"></div>
-          </li>
-        )}
         {exercises.map((exercise) => (
           <ExerciseItem key={exercise.id} exercise={exercise} />
         ))}

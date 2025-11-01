@@ -1,7 +1,8 @@
 "use client";
 
 import { Appointment } from "@prisma/client";
-import { Activity } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Image from "next/image";
 
 interface DashboardHeaderProps {
   label: string;
@@ -20,11 +21,16 @@ export function DashboardHeader({
 
   return (
     <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-      <div className="mx-auto grid grid-cols-3 items-center gap-6 px-6 py-3 max-w-[1200px]">
-        {/* Left: brand */}
+      <div className="mx-auto grid grid-cols-3 items-center gap-6 px-6 py-3 max-w-7xl">
+        {/* Left: brand with logo */}
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
-            <Activity className="h-5 w-5 text-primary-foreground" />
+          <div className="relative h-8 w-8">
+            <Image
+              src="/logo.png"
+              alt="DisKnee Logo"
+              fill
+              className="object-contain"
+            />
           </div>
           <h1 className="text-xl font-semibold tracking-tight">DisKnee</h1>
         </div>
@@ -71,23 +77,36 @@ export function DashboardHeader({
           )}
         </div>
 
-        {/* Right: patient name + doctor-in-charge */}
-        <div className="flex items-center justify-end gap-2">
-          <div
-            className="max-w-[220px] truncate text-right font-medium"
-            title={patientName}
-          >
-            {patientName}
+        {/* Right: patient name, doctor-in-charge, and avatar */}
+        <div className="flex items-center justify-end gap-3">
+          <div className="hidden sm:block">
+            <div
+              className="max-w-[180px] truncate text-right font-medium text-sm"
+              title={patientName}
+            >
+              {patientName}
+            </div>
+            {primaryDoctorText && (
+              <div
+                className="max-w-[220px] truncate text-right text-xs text-muted-foreground"
+                title={primaryDoctorText}
+              >
+                Dr. {primaryDoctorText}
+              </div>
+            )}
           </div>
 
-          {primaryDoctorText && (
-            <span
-              className="hidden sm:inline-flex max-w-[300px] truncate rounded-full border bg-accent text-accent-foreground px-3 py-1 text-xs"
-              title={primaryDoctorText}
-            >
-              {primaryDoctorText}
-            </span>
-          )}
+          <Avatar className="h-9 w-9">
+            <AvatarImage src="" alt={patientName} />
+            <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+              {patientName
+                .split(" ")
+                .map((word) => word[0])
+                .join("")
+                .toUpperCase()
+                .slice(0, 2)}
+            </AvatarFallback>
+          </Avatar>
         </div>
       </div>
     </header>

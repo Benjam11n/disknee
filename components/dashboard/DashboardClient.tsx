@@ -47,7 +47,6 @@ interface DashboardClientProps {
 export function DashboardClient({
   initialData,
 }: DashboardClientProps): JSX.Element {
-  const { data, loading } = useLocalData(initialData);
   const [showAllLeaderboard, setShowAllLeaderboard] = useState(false);
 
   const {
@@ -59,7 +58,7 @@ export function DashboardClient({
     overallPercent,
     programWeeks = 10,
     weeksCompleted = 0,
-  } = data;
+  } = initialData;
 
   // Weekly progress
   const weeklyTarget = useMemo<number>(() => {
@@ -217,7 +216,6 @@ export function DashboardClient({
             <CardContent>
               <ExerciseList
                 exercises={Array.isArray(exercises) ? exercises : []}
-                loading={loading}
                 pillPercent={Math.round(weeklyTarget * 100)}
                 weeklyTotalMins={weeklyTotalMins}
               />
@@ -333,17 +331,4 @@ export function DashboardClient({
       </main>
     </div>
   );
-}
-
-/* ----------------------------- Data hook ---------------------------- */
-function useLocalData(initial: DashboardData): {
-  data: DashboardData;
-  loading: boolean;
-  setData: React.Dispatch<React.SetStateAction<DashboardData>>;
-} {
-  const [loading] = useState<boolean>(false);
-  const [data, setData] = useState<DashboardData>(
-    () => JSON.parse(JSON.stringify(initial)) as DashboardData
-  );
-  return { data, loading, setData };
 }
