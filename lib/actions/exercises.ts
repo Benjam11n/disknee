@@ -1,0 +1,103 @@
+"use server";
+
+import { prisma } from "@/lib/prisma";
+import action from "@/lib/handlers/action";
+import handleError from "@/lib/handlers/error";
+import {
+  CreateExerciseSchema,
+  GetExercisesSchema,
+  GetExerciseByIdSchema,
+} from "@/lib/validations/exercise-schemas";
+import {
+  CreateExerciseParams,
+  GetExerciseByIdParams,
+  GetExercisesParams,
+} from "../types/exercises";
+
+export async function createExercise(params: CreateExerciseParams) {
+  const validationResult = await action({
+    params: params,
+    schema: CreateExerciseSchema,
+    authorize: true,
+  });
+
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  const { title, estimatedMins, difficulty, done } = validationResult.params!;
+
+  try {
+    const exercise = await prisma.exercise.create({
+      data: {
+        title,
+        estimatedMins,
+        difficulty,
+        done: done || false,
+      },
+    });
+
+    return exercise;
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function getExercises(params: GetExercisesParams) {
+  const validationResult = await action({
+    params: params,
+    schema: GetExercisesSchema,
+    authorize: true,
+  });
+
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  const { difficulty, done, page, limit } = validationResult.params!;
+  const skip = (page - 1) * limit;
+
+  try {
+    const exercises = await prisma.exercise.findMany({
+      where: {
+        difficulty: difficulty || undefined,
+        done: done !== undefined ? done : undefined,
+      },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      skip,
+    });
+
+    return exercises;
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function getExerciseById(params: GetExerciseByIdParams) {
+  const validationResult = await action({
+    params: params,
+    schema: GetExerciseByIdSchema,
+    authorize: true,
+  });
+
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  const { id } = validationResult.params!;
+
+  try {
+    const exercise = await prisma.exercise.findUnique({
+      where: { id },
+    });
+
+    if (!exercise) {
+      return handleError(new Error("Exercise not found")) as ErrorResponse;
+    }
+
+    return exercise;
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}

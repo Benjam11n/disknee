@@ -29,6 +29,7 @@ export const CreateAppointmentSchema = AppointmentBaseSchema.extend({
 // Query parameters schema
 export const GetAppointmentsSchema = z.object({
   startDate: z.string().datetime("Invalid start date format").optional(),
+  endDate: z.string().datetime("Invalid end date format").optional(),
   limit: z.coerce.number().min(1).max(100).default(20),
   offset: z.coerce.number().min(0).default(0),
 });
@@ -38,3 +39,23 @@ export const GetUpcomingAppointmentsSchema = z.object({
   limit: z.coerce.number().min(1).max(10).default(3),
   daysAhead: z.coerce.number().min(1).max(365).default(30),
 });
+
+// Get appointment by ID
+export const GetAppointmentByIdSchema = z.object({
+  id: z.string(),
+});
+
+// Read appointment schema (full model)
+export const AppointmentSchema = AppointmentBaseSchema.extend({
+  id: z.string(),
+  createdAt: z.date(),
+});
+
+// Types
+export type Appointment = z.infer<typeof AppointmentSchema>;
+export type CreateAppointmentInput = z.infer<typeof CreateAppointmentSchema>;
+export type GetAppointmentsParams = z.infer<typeof GetAppointmentsSchema>;
+export type GetUpcomingAppointmentsParams = z.infer<
+  typeof GetUpcomingAppointmentsSchema
+>;
+export type GetAppointmentByIdParams = z.infer<typeof GetAppointmentByIdSchema>;

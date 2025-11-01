@@ -7,3 +7,15 @@ export const GetLeaderboardSchema = z.object({
   sortOrder: z.enum(["asc", "desc"]).default("asc"),
   name: z.string().optional(),
 });
+
+// Get leaderboard by rank range
+export const GetLeaderboardByRankSchema = z.object({
+  startRank: z.coerce
+    .number()
+    .min(1, "Start rank must be a positive integer")
+    .default(1),
+  endRank: z.coerce
+    .number()
+    .min(1, "End rank must be a positive integer")
+    .optional(),
+});
