@@ -3,14 +3,15 @@
 import { Appointment } from "@prisma/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import Image from "next/image";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Menu } from "lucide-react";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 interface DashboardHeaderProps {
   label: string;
   name: string;
   nextAppt?: Appointment | null;
   primaryDoctorText?: string;
+  onSidebarToggle?: () => void;
 }
 
 export function DashboardHeader({
@@ -18,27 +19,29 @@ export function DashboardHeader({
   name,
   nextAppt,
   primaryDoctorText,
+  onSidebarToggle,
 }: DashboardHeaderProps) {
   const patientName = name || "";
 
   return (
     <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
       <div className="mx-auto flex items-center justify-between px-6 py-3 max-w-7xl">
-        {/* Left: brand with logo */}
+        {/* Left: sidebar trigger and brand with logo */}
         <div className="flex items-center gap-3">
-          <div className="relative h-8 w-8">
-            <Image
-              src="/logo.png"
-              alt="DisKnee Logo"
-              fill
-              className="object-contain"
-            />
-          </div>
-          <h1 className="text-xl font-semibold tracking-tight">DisKnee</h1>
+          <button
+            onClick={onSidebarToggle}
+            className="lg:hidden p-2 hover:bg-accent rounded-md transition-colors"
+          >
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Toggle sidebar</span>
+          </button>
         </div>
 
-        {/* Right: appointment and user info grouped */}
+        {/* Right: appointment, theme toggle, and user info grouped */}
         <div className="flex items-center gap-3 sm:gap-4">
+          {/* Theme toggle */}
+          <ThemeToggle />
+
           {/* Next appointment with hover dropdown */}
           <div className="hidden sm:flex items-center gap-2 relative group">
             <CalendarDays className="h-4 w-4 text-muted-foreground" />

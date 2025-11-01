@@ -3,6 +3,7 @@ import { getAppointments } from "@/lib/actions/appointments";
 import { getPlans } from "@/lib/actions/plans";
 import { getLeaderboard } from "@/lib/actions/leaderboard";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
+import { SidebarNavigation } from "@/components/layout/SidebarNavigation";
 
 export default async function RehabDashboardPage() {
   const [exercisesData, appointmentsData, plansData, leaderboardData] =
@@ -71,5 +72,9 @@ export default async function RehabDashboardPage() {
     weeksCompleted: 0,
   };
 
-  return <DashboardClient initialData={initialData} />;
+  return (
+    <SidebarNavigation>
+      <DashboardClient initialData={initialData} />
+    </SidebarNavigation>
+  );
 }

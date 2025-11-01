@@ -9,4 +9,5 @@ export const ROUTES = {
     BASE: "/exercise",
     detail: (id: string) => `/exercise/${id}`,
   },
+  LEADERBOARD: "/leaderboard",
 } as const;
