@@ -47,7 +47,6 @@ export function Leaderboard({
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-xl font-semibold">Leaderboard</h3>
         <p className="text-sm text-muted-foreground mb-3">
           Top performers by {rankingType === "accuracy" ? "accuracy" : "score"}
         </p>
