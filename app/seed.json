@@ -1,5 +1,12 @@
 {
   "patientName": "Donald Duck",
+  "users": [
+    { "name": "Donald Duck" },
+    { "name": "Mickey Mouse" },
+    { "name": "Goofy" },
+    { "name": "Minnie Mouse" },
+    { "name": "Daisy Duck" }
+  ],
   "exercises": [
     { "id": "ex1", "title": "Quad Set / TKE (5-sec holds)",  "done": true,  "estimatedMins": 8,  "difficulty": "easy" },
     { "id": "ex2", "title": "Spanish Squat (5×45s)",         "done": false, "estimatedMins": 12, "difficulty": "moderate" },
@@ -27,10 +34,393 @@
     { "id": "p17", "date": "2025-12-09T00:00:00.000Z", "title": "Jump Landing Technique (Low Impact)", "when": "Tue 6:30 pm" },
     { "id": "p18", "date": "2025-12-12T00:00:00.000Z", "title": "End-of-Program Review",               "when": "Fri 6:00 pm" }
   ],
-  "overallPercent": null,
-  "programWeeks": 10,
-  "weeksCompleted": 0,
-
+  "sessions": [
+    {
+      "userIndex": 0,
+      "startedAt": "2025-11-01T10:00:00.000Z",
+      "duration": 300,
+      "repsCompleted": 10,
+      "accuracy": 92,
+      "maxAccuracy": 95,
+      "exerciseIndex": 0,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 5,
+        "fatigue": 2,
+        "feedback": "Great session! Feeling stronger."
+      }
+    },
+    {
+      "userIndex": 0,
+      "startedAt": "2025-10-30T14:30:00.000Z",
+      "duration": 360,
+      "repsCompleted": 12,
+      "accuracy": 88,
+      "maxAccuracy": 90,
+      "exerciseIndex": 1,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 4,
+        "fatigue": 3,
+        "feedback": "Good form today, slightly tired."
+      }
+    },
+    {
+      "userIndex": 0,
+      "startedAt": "2025-10-28T09:00:00.000Z",
+      "duration": 240,
+      "repsCompleted": 8,
+      "accuracy": 95,
+      "maxAccuracy": 98,
+      "exerciseIndex": 2,
+      "hasReflection": false
+    },
+    {
+      "userIndex": 0,
+      "startedAt": "2025-10-25T16:00:00.000Z",
+      "duration": 420,
+      "repsCompleted": 15,
+      "accuracy": 85,
+      "maxAccuracy": 88,
+      "exerciseIndex": 3,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 4,
+        "fatigue": 3,
+        "feedback": "Challenging but managed well."
+      }
+    },
+    {
+      "userIndex": 0,
+      "startedAt": "2025-10-23T11:30:00.000Z",
+      "duration": 300,
+      "repsCompleted": 10,
+      "accuracy": 90,
+      "maxAccuracy": 93,
+      "exerciseIndex": 4,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 5,
+        "fatigue": 2,
+        "feedback": "Excellent progress!"
+      }
+    },
+    {
+      "userIndex": 0,
+      "startedAt": "2025-10-21T10:15:00.000Z",
+      "duration": 360,
+      "repsCompleted": 12,
+      "accuracy": 87,
+      "maxAccuracy": 91,
+      "exerciseIndex": 0,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 4,
+        "fatigue": 4,
+        "feedback": "Knee felt a bit stiff today."
+      }
+    },
+    {
+      "userIndex": 0,
+      "startedAt": "2025-10-18T14:45:00.000Z",
+      "duration": 300,
+      "repsCompleted": 10,
+      "accuracy": 93,
+      "maxAccuracy": 96,
+      "exerciseIndex": 1,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 5,
+        "fatigue": 2,
+        "feedback": "Best session yet!"
+      }
+    },
+    {
+      "userIndex": 1,
+      "startedAt": "2025-10-30T10:00:00.000Z",
+      "duration": 300,
+      "repsCompleted": 10,
+      "accuracy": 98,
+      "maxAccuracy": 100,
+      "exerciseIndex": 2,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 5,
+        "fatigue": 1,
+        "feedback": "Perfect form today!"
+      }
+    },
+    {
+      "userIndex": 1,
+      "startedAt": "2025-10-28T15:30:00.000Z",
+      "duration": 360,
+      "repsCompleted": 12,
+      "accuracy": 96,
+      "maxAccuracy": 98,
+      "exerciseIndex": 3,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 5,
+        "fatigue": 2,
+        "feedback": "Strong performance."
+      }
+    },
+    {
+      "userIndex": 1,
+      "startedAt": "2025-10-25T09:30:00.000Z",
+      "duration": 300,
+      "repsCompleted": 10,
+      "accuracy": 99,
+      "maxAccuracy": 100,
+      "exerciseIndex": 4,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 5,
+        "fatigue": 1,
+        "feedback": "Outstanding!"
+      }
+    },
+    {
+      "userIndex": 1,
+      "startedAt": "2025-10-23T11:00:00.000Z",
+      "duration": 330,
+      "repsCompleted": 11,
+      "accuracy": 97,
+      "maxAccuracy": 99,
+      "exerciseIndex": 0,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 4,
+        "fatigue": 2,
+        "feedback": "Very good session."
+      }
+    },
+    {
+      "userIndex": 1,
+      "startedAt": "2025-10-21T14:00:00.000Z",
+      "duration": 300,
+      "repsCompleted": 10,
+      "accuracy": 95,
+      "maxAccuracy": 97,
+      "exerciseIndex": 1,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 4,
+        "fatigue": 3,
+        "feedback": "Solid workout."
+      }
+    },
+    {
+      "userIndex": 2,
+      "startedAt": "2025-11-01T10:30:00.000Z",
+      "duration": 300,
+      "repsCompleted": 10,
+      "accuracy": 85,
+      "maxAccuracy": 88,
+      "exerciseIndex": 2,
+      "hasReflection": false
+    },
+    {
+      "userIndex": 2,
+      "startedAt": "2025-10-29T15:00:00.000Z",
+      "duration": 360,
+      "repsCompleted": 12,
+      "accuracy": 88,
+      "maxAccuracy": 91,
+      "exerciseIndex": 3,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 3,
+        "fatigue": 4,
+        "feedback": "Tough but got through it."
+      }
+    },
+    {
+      "userIndex": 2,
+      "startedAt": "2025-10-26T09:15:00.000Z",
+      "duration": 270,
+      "repsCompleted": 9,
+      "accuracy": 82,
+      "maxAccuracy": 85,
+      "exerciseIndex": 4,
+      "hasReflection": false
+    },
+    {
+      "userIndex": 2,
+      "startedAt": "2025-10-24T13:45:00.000Z",
+      "duration": 300,
+      "repsCompleted": 10,
+      "accuracy": 90,
+      "maxAccuracy": 93,
+      "exerciseIndex": 0,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 4,
+        "fatigue": 3,
+        "feedback": "Better today!"
+      }
+    },
+    {
+      "userIndex": 2,
+      "startedAt": "2025-10-22T10:30:00.000Z",
+      "duration": 330,
+      "repsCompleted": 11,
+      "accuracy": 86,
+      "maxAccuracy": 89,
+      "exerciseIndex": 1,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 3,
+        "fatigue": 4,
+        "feedback": "Making progress."
+      }
+    },
+    {
+      "userIndex": 3,
+      "startedAt": "2025-10-30T11:00:00.000Z",
+      "duration": 300,
+      "repsCompleted": 10,
+      "accuracy": 94,
+      "maxAccuracy": 97,
+      "exerciseIndex": 2,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 5,
+        "fatigue": 2,
+        "feedback": "Consistent form."
+      }
+    },
+    {
+      "userIndex": 3,
+      "startedAt": "2025-10-27T14:30:00.000Z",
+      "duration": 360,
+      "repsCompleted": 12,
+      "accuracy": 95,
+      "maxAccuracy": 98,
+      "exerciseIndex": 3,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 5,
+        "fatigue": 2,
+        "feedback": "Excellent technique!"
+      }
+    },
+    {
+      "userIndex": 3,
+      "startedAt": "2025-10-25T09:00:00.000Z",
+      "duration": 300,
+      "repsCompleted": 10,
+      "accuracy": 93,
+      "maxAccuracy": 96,
+      "exerciseIndex": 4,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 4,
+        "fatigue": 3,
+        "feedback": "Good balance."
+      }
+    },
+    {
+      "userIndex": 3,
+      "startedAt": "2025-10-23T13:15:00.000Z",
+      "duration": 330,
+      "repsCompleted": 11,
+      "accuracy": 96,
+      "maxAccuracy": 99,
+      "exerciseIndex": 0,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 5,
+        "fatigue": 2,
+        "feedback": "Peak performance!"
+      }
+    },
+    {
+      "userIndex": 3,
+      "startedAt": "2025-10-21T10:45:00.000Z",
+      "duration": 300,
+      "repsCompleted": 10,
+      "accuracy": 94,
+      "maxAccuracy": 97,
+      "exerciseIndex": 1,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 4,
+        "fatigue": 3,
+        "feedback": "Steady improvement."
+      }
+    },
+    {
+      "userIndex": 4,
+      "startedAt": "2025-11-01T12:00:00.000Z",
+      "duration": 300,
+      "repsCompleted": 10,
+      "accuracy": 78,
+      "maxAccuracy": 82,
+      "exerciseIndex": 2,
+      "hasReflection": false
+    },
+    {
+      "userIndex": 4,
+      "startedAt": "2025-10-29T16:30:00.000Z",
+      "duration": 330,
+      "repsCompleted": 11,
+      "accuracy": 82,
+      "maxAccuracy": 85,
+      "exerciseIndex": 3,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 3,
+        "fatigue": 4,
+        "feedback": "Starting to get it."
+      }
+    },
+    {
+      "userIndex": 4,
+      "startedAt": "2025-10-26T10:00:00.000Z",
+      "duration": 360,
+      "repsCompleted": 12,
+      "accuracy": 85,
+      "maxAccuracy": 88,
+      "exerciseIndex": 4,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 4,
+        "fatigue": 3,
+        "feedback": "Better control now."
+      }
+    },
+    {
+      "userIndex": 4,
+      "startedAt": "2025-10-24T14:15:00.000Z",
+      "duration": 300,
+      "repsCompleted": 10,
+      "accuracy": 88,
+      "maxAccuracy": 91,
+      "exerciseIndex": 0,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 4,
+        "fatigue": 3,
+        "feedback": "Feeling more confident."
+      }
+    },
+    {
+      "userIndex": 4,
+      "startedAt": "2025-10-22T09:30:00.000Z",
+      "duration": 330,
+      "repsCompleted": 11,
+      "accuracy": 91,
+      "maxAccuracy": 94,
+      "exerciseIndex": 1,
+      "hasReflection": true,
+      "reflection": {
+        "rating": 5,
+        "fatigue": 2,
+        "feedback": "Great progress!"
+      }
+    }
+  ],
   "appointments": [
     {
       "id": "appt-1",
