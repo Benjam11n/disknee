@@ -15,9 +15,6 @@
     { "rank": 5, "name": "Benjiman",      "weeks": 20, "percent": 95 },
     { "rank": 4321, "name": "Donald Duck","weeks": 1,  "percent": 64 }
   ],
-  "appointments": [
-    { "id": "appt-1", "start": "2025-11-03T23:30:00.000Z" }
-  ],
   "plans": [
     { "id": "p1",  "date": "2025-11-01T00:00:00.000Z", "title": "Mobility + Quad Activation",          "when": "Sat 6:00 pm" },
     { "id": "p2",  "date": "2025-11-04T00:00:00.000Z", "title": "Spanish Squat Pain-Modulation",       "when": "Tue 6:30 pm" },
