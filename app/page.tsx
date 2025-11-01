@@ -285,7 +285,7 @@ export default function RehabDashboardPage(): JSX.Element {
             <div className="relative flex justify-center mb-6">
               <ProgressRing
                 progress={ringProgress}
-                size={400}
+                size={250}
                 strokeWidth={16}
                 showPercentage={true}
               />
