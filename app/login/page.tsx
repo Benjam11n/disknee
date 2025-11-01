@@ -88,11 +88,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 to-orange-200 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
               <Activity className="h-10 w-10 text-white" />
             </div>
           </div>
@@ -180,11 +180,13 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 pt-6 border-t space-y-2">
-            <div className="bg-blue-50 p-3 rounded-lg">
-              <p className="text-xs font-medium text-blue-900 mb-1">
-                Demo Credentials:
-              </p>
-              <div className="space-y-1">
+            <Card className="bg-blue-50 border-blue-200">
+              <CardHeader className="py-3">
+                <CardTitle className="text-sm text-blue-900">
+                  Demo Credentials
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-1">
                 <p className="text-xs text-blue-700">
                   <span className="font-mono">demo@disknee.com</span> /{" "}
                   <span className="font-mono">demo123</span>
@@ -197,8 +199,8 @@ export default function LoginPage() {
                   <span className="font-mono">physio@example.com</span> /{" "}
                   <span className="font-mono">physio2024</span>
                 </p>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
             <p className="text-xs text-center text-gray-500">
               AI-powered physiotherapy for knee rehabilitation
             </p>
