@@ -8,6 +8,20 @@ import { Landmark } from "@/lib/pose-utils";
 const DETECTION_INTERVAL = 2; // Detect pose every 2 frames (30 fps for smoother tracking)
 const DETECTION_FPS = 1000 / 30; // 30 fps = 33ms between detections
 
+/**
+ * VideoStream Component
+ *
+ * Handles webcam video capture and real-time pose detection using MediaPipe.
+ * Features:
+ * - 30fps pose detection with frame skipping for performance
+ * - Exponential smoothing for jitter-free landmark tracking
+ * - Dynamic canvas sizing that adapts to container dimensions
+ * - GPU-accelerated pose detection
+ *
+ * @param onPoseResults - Callback function that receives detected pose landmarks
+ * @param isVideoOn - Whether video capture should be active
+ * @param isCallActive - Whether the session is active
+ */
 interface VideoStreamProps {
   onPoseResults?: (results: {
     poseLandmarks: Landmark[];
@@ -35,6 +49,10 @@ export default function VideoStream({
   const smoothedLandmarksRef = useRef<Landmark[] | null>(null);
   const smoothingFactor = 0.7; // Higher = more smoothing (0.7 = 70% old, 30% new)
 
+  /**
+   * Initialize MediaPipe PoseLandmarker with GPU acceleration
+   * Downloads the pose detection model and sets up configuration
+   */
   const initializePoseLandmarker = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -68,6 +86,10 @@ export default function VideoStream({
     }
   }, []);
 
+  /**
+   * Initialize webcam video stream with optimal settings
+   * Requests user media permissions and configures video stream
+   */
   const startCamera = useCallback(async () => {
     try {
       if (!videoRef.current || !poseLandmarkerRef.current) return;
@@ -100,6 +122,10 @@ export default function VideoStream({
     }
   }, []);
 
+  /**
+   * Main pose detection loop running at 60fps
+   * Renders video frames and runs pose detection at 30fps with smoothing
+   */
   const detectPose = useCallback(() => {
     if (
       !videoRef.current ||

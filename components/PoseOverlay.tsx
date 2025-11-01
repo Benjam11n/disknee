@@ -3,6 +3,18 @@
 import { useEffect, useRef } from "react";
 import { Landmark, POSE_CONNECTIONS } from "@/lib/pose-utils";
 
+/**
+ * PoseOverlay Component
+ *
+ * Renders a visual skeleton overlay on top of the video stream.
+ * Features:
+ * - Real-time pose visualization with green lines connecting joints
+ * - Color-coded key joints (shoulders, hips, knees, elbows)
+ * - Glowing effects for better visibility
+ * - Efficient rendering with change detection
+ *
+ * @param landmarks - Array of pose landmarks from MediaPipe detection
+ */
 interface PoseOverlayProps {
   landmarks?: Landmark[];
 }
