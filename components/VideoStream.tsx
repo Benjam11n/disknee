@@ -5,8 +5,8 @@ import { PoseLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
 import { Landmark } from "@/lib/pose-utils";
 
 // Performance optimization constants
-const DETECTION_INTERVAL = 3; // Detect pose every 3 frames (20 fps instead of 60)
-const DETECTION_FPS = 1000 / 20; // 20 fps = 50ms between detections
+const DETECTION_INTERVAL = 2; // Detect pose every 2 frames (30 fps for smoother tracking)
+const DETECTION_FPS = 1000 / 30; // 30 fps = 33ms between detections
 
 interface VideoStreamProps {
   onPoseResults?: (results: {
@@ -32,6 +32,8 @@ export default function VideoStream({
   const frameCountRef = useRef<number>(0);
   const lastLandmarksRef = useRef<Landmark[] | null>(null);
   const lastDetectionTimeRef = useRef<number>(0);
+  const smoothedLandmarksRef = useRef<Landmark[] | null>(null);
+  const smoothingFactor = 0.7; // Higher = more smoothing (0.7 = 70% old, 30% new)
 
   const initializePoseLandmarker = useCallback(async () => {
     try {
@@ -115,17 +117,19 @@ export default function VideoStream({
     const currentTime = performance.now();
 
     if (ctx) {
-      // Set canvas size to match video (only once)
-      if (
-        canvas.width !== video.videoWidth ||
-        canvas.height !== video.videoHeight
-      ) {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+      // Get the actual display dimensions of the canvas element
+      const rect = canvas.getBoundingClientRect();
+      const displayWidth = rect.width;
+      const displayHeight = rect.height;
+
+      // Set canvas internal resolution to match display size
+      if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
+        canvas.width = displayWidth;
+        canvas.height = displayHeight;
       }
 
-      // Draw video frame at 60fps for smooth visuals
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      // Draw video frame to fill the canvas
+      ctx.drawImage(video, 0, 0, displayWidth, displayHeight);
 
       frameCountRef.current++;
 
@@ -157,14 +161,29 @@ export default function VideoStream({
               })
             );
 
-            // Store for interpolation
-            lastLandmarksRef.current = landmarks;
+            // Apply smoothing if we have previous landmarks
+            let smoothedLandmarks = landmarks;
+            if (smoothedLandmarksRef.current) {
+              smoothedLandmarks = landmarks.map((landmark, index) => {
+                const prevLandmark = smoothedLandmarksRef.current![index];
+                return {
+                  x: prevLandmark.x * smoothingFactor + landmark.x * (1 - smoothingFactor),
+                  y: prevLandmark.y * smoothingFactor + landmark.y * (1 - smoothingFactor),
+                  z: prevLandmark.z * smoothingFactor + (landmark.z || 0) * (1 - smoothingFactor),
+                  visibility: prevLandmark.visibility * smoothingFactor + landmark.visibility * (1 - smoothingFactor),
+                };
+              });
+            }
+
+            // Store landmarks for next frame
+            lastLandmarksRef.current = smoothedLandmarks;
+            smoothedLandmarksRef.current = smoothedLandmarks;
             lastDetectionTimeRef.current = currentTime;
 
-            // Send landmarks to parent component
+            // Send smoothed landmarks to parent component
             if (onPoseResults) {
               onPoseResults({
-                poseLandmarks: landmarks,
+                poseLandmarks: smoothedLandmarks,
                 image: video,
               });
             }
@@ -198,6 +217,11 @@ export default function VideoStream({
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
+
+    // Reset smoothed landmarks for next session
+    lastLandmarksRef.current = null;
+    smoothedLandmarksRef.current = null;
+    frameCountRef.current = 0;
   }, []);
 
   useEffect(() => {

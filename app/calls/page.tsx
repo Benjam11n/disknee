@@ -138,7 +138,7 @@ export default function CallsPage() {
                 isVideoOn={isVideoOn}
                 isCallActive={isCallActive}
               />
-              <PoseOverlay landmarks={poseLandmarks} width={640} height={480} />
+              <PoseOverlay landmarks={poseLandmarks} />
             </div>
 
             {/* Video Controls */}

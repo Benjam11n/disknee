@@ -5,14 +5,10 @@ import { Landmark, POSE_CONNECTIONS } from "@/lib/pose-utils";
 
 interface PoseOverlayProps {
   landmarks?: Landmark[];
-  width: number;
-  height: number;
 }
 
 export default function PoseOverlay({
   landmarks,
-  width,
-  height,
 }: PoseOverlayProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const lastLandmarksRef = useRef<string | null>(null);
@@ -23,6 +19,17 @@ export default function PoseOverlay({
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+
+    // Get actual display dimensions from DOM
+    const rect = canvas.getBoundingClientRect();
+    const displayWidth = rect.width;
+    const displayHeight = rect.height;
+
+    // Set canvas internal resolution to match display size
+    if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
+      canvas.width = displayWidth;
+      canvas.height = displayHeight;
+    }
 
     // Create a hash of landmarks to compare changes
     const landmarksHash = landmarks ?
@@ -35,12 +42,6 @@ export default function PoseOverlay({
     }
 
     lastLandmarksRef.current = landmarksHash;
-
-    // Set canvas size only when needed
-    if (canvas.width !== width || canvas.height !== height) {
-      canvas.width = width;
-      canvas.height = height;
-    }
 
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -55,9 +56,11 @@ export default function PoseOverlay({
         visibility: landmark.visibility,
       }));
 
-      // Draw connections
+      // Draw connections with smoother lines
       ctx.strokeStyle = "#00ff00";
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
 
       POSE_CONNECTIONS.forEach(([start, end]) => {
         const startPoint = canvasLandmarks[start];
@@ -76,17 +79,25 @@ export default function PoseOverlay({
         }
       });
 
-      // Draw landmarks
+      // Draw landmarks with smoother appearance
       canvasLandmarks.forEach((landmark) => {
         if (landmark.visibility > 0.5) {
-          ctx.beginPath();
-          ctx.arc(
-            landmark.x,
-            landmark.y,
-            landmark.visibility ? 5 : 2,
-            0,
-            2 * Math.PI
+          // Add subtle glow effect
+          const gradient = ctx.createRadialGradient(
+            landmark.x, landmark.y, 0,
+            landmark.x, landmark.y, 8
           );
+          gradient.addColorStop(0, "rgba(255, 0, 0, 0.8)");
+          gradient.addColorStop(1, "rgba(255, 0, 0, 0)");
+
+          ctx.beginPath();
+          ctx.arc(landmark.x, landmark.y, 8, 0, 2 * Math.PI);
+          ctx.fillStyle = gradient;
+          ctx.fill();
+
+          // Draw main point
+          ctx.beginPath();
+          ctx.arc(landmark.x, landmark.y, 4, 0, 2 * Math.PI);
           ctx.fillStyle = "#ff0000";
           ctx.fill();
           ctx.strokeStyle = "#ffffff";
@@ -110,8 +121,24 @@ export default function PoseOverlay({
       keyJoints.forEach(({ index, color }) => {
         if (canvasLandmarks[index]) {
           const landmark = canvasLandmarks[index];
+
+          // Add glow for key joints
+          const gradient = ctx.createRadialGradient(
+            landmark.x, landmark.y, 0,
+            landmark.x, landmark.y, 12
+          );
+          gradient.addColorStop(0, color);
+          gradient.addColorStop(0.5, color + "80");
+          gradient.addColorStop(1, color + "00");
+
           ctx.beginPath();
-          ctx.arc(landmark.x, landmark.y, 8, 0, 2 * Math.PI);
+          ctx.arc(landmark.x, landmark.y, 12, 0, 2 * Math.PI);
+          ctx.fillStyle = gradient;
+          ctx.fill();
+
+          // Draw main joint
+          ctx.beginPath();
+          ctx.arc(landmark.x, landmark.y, 6, 0, 2 * Math.PI);
           ctx.fillStyle = color;
           ctx.fill();
           ctx.strokeStyle = "#ffffff";
@@ -120,13 +147,13 @@ export default function PoseOverlay({
         }
       });
     }
-  }, [landmarks, width, height]);
+  }, [landmarks]);
 
   return (
     <canvas
       ref={canvasRef}
-      className="absolute top-0 left-0 w-full h-full pointer-events-none"
-      style={{ width, height }}
+      className="absolute top-0 left-0 w-full h-full pointer-events-none transition-opacity duration-75"
+      style={{ willChange: 'transform' }}
     />
   );
 }
