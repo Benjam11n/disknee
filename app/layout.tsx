@@ -17,6 +17,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "DisKnee - Virtual Physiotherapy Assistant",
   description: "AI-powered physiotherapy for knee rehabilitation",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({
