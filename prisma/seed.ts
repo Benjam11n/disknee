@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import seedData from "../app/seed.json";
-import { Difficulty } from "@prisma/client";
+import { Difficulty, Plan } from "@prisma/client";
 
 async function main() {
   console.log("🌱 Seeding database with simplified schema...");
@@ -15,30 +15,10 @@ async function main() {
 
   console.log("🧹 Cleaned existing data");
 
-  // Create exercises from seed data
-  const exercises = await Promise.all(
-    seedData.exercises.map((ex) =>
-      prisma.exercise.create({
-        data: {
-          title: ex.title,
-          estimatedMins: ex.estimatedMins,
-          difficulty:
-            ex.difficulty === "easy"
-              ? Difficulty.EASY
-              : ex.difficulty === "moderate"
-              ? Difficulty.MODERATE
-              : Difficulty.HARD,
-          done: ex.done,
-        },
-      })
-    )
-  );
-
-  console.log(`✅ Created ${exercises.length} exercises`);
-
-  // Create plans from seed data
+  // Create plans from seed data first (since exercises reference plans)
+  let plans: Plan[] = [];
   if (seedData.plans && seedData.plans.length > 0) {
-    const plans = await Promise.all(
+    plans = await Promise.all(
       seedData.plans.map((plan) =>
         prisma.plan.create({
           data: {
@@ -52,6 +32,35 @@ async function main() {
 
     console.log(`✅ Created ${plans.length} plans`);
   }
+
+  // Create exercises from seed data and associate them with plans
+  const exercises = await Promise.all(
+    seedData.exercises.map((ex, index) => {
+      // Distribute exercises across the available plans
+      // Each exercise gets assigned to a plan based on its index
+      const planIndex = index % plans.length;
+      const assignedPlan = plans[planIndex];
+
+      return prisma.exercise.create({
+        data: {
+          title: ex.title,
+          estimatedMins: ex.estimatedMins,
+          difficulty:
+            ex.difficulty === "easy"
+              ? Difficulty.EASY
+              : ex.difficulty === "moderate"
+              ? Difficulty.MODERATE
+              : Difficulty.HARD,
+          done: ex.done,
+          planId: assignedPlan?.id || null,
+        },
+      });
+    })
+  );
+
+  console.log(
+    `✅ Created ${exercises.length} exercises with plan associations`
+  );
 
   // Create appointments from seed data
   if (seedData.appointments && seedData.appointments.length > 0) {
@@ -121,11 +130,22 @@ async function main() {
 
   console.log("\n✅ Database seeded successfully!");
   console.log("\n📊 Summary:");
-  console.log(`  - Exercises: ${exercises.length}`);
-  console.log(`  - Plans: ${seedData.plans?.length || 0}`);
+  console.log(`  - Plans: ${plans.length}`);
+  console.log(`  - Exercises: ${exercises.length} (distributed across plans)`);
   console.log(`  - Appointments: ${seedData.appointments?.length || 0}`);
   console.log(`  - Leaderboard entries: ${seedData.leaderboard?.length || 0}`);
   console.log(`  - Sample session and reflection created`);
+
+  // Show plan-exercise distribution
+  console.log("\n📋 Exercise Distribution:");
+  exercises.forEach((ex, index) => {
+    const assignedPlanIndex = index % plans.length;
+    console.log(
+      `  Exercise "${ex.title.substring(0, 30)}..." → Plan: "${
+        plans[assignedPlanIndex]?.title
+      }"`
+    );
+  });
 }
 
 main()

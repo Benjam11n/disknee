@@ -1,22 +1,13 @@
 "use client";
 
 import { ExerciseItem } from "./ExerciseItem";
-
-type Difficulty = "easy" | "moderate" | "hard";
-
-interface Exercise {
-  id: number | string;
-  title: string;
-  done: boolean;
-  estimatedMins?: number;
-  difficulty?: Difficulty;
-}
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Exercise } from "@prisma/client";
 
 interface ExerciseListProps {
   loading: boolean;
   exercises: Exercise[];
-  onToggle: (id: Exercise["id"]) => void;
-  onOpen: (id: Exercise["id"]) => void;
   pillPercent: number;
   weeklyTotalMins: number;
 }
@@ -24,8 +15,6 @@ interface ExerciseListProps {
 export function ExerciseList({
   loading,
   exercises,
-  onToggle,
-  onOpen,
   pillPercent,
   weeklyTotalMins,
 }: ExerciseListProps) {
@@ -39,17 +28,15 @@ export function ExerciseList({
         </div>
       </div>
 
-      {/* Progress pill */}
+      {/* Progress with shadcn/ui Progress component */}
       <div className="space-y-2">
-        <div className="relative h-8 w-full max-w-md overflow-hidden rounded-full bg-secondary">
-          <div
-            className="h-full bg-primary transition-all duration-500 ease-out"
-            style={{ width: `${pillPercent}%` }}
-          />
-          <div className="absolute inset-0 flex items-center justify-center text-sm font-medium">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium">Weekly Progress</span>
+          <Badge variant={pillPercent === 100 ? "default" : "secondary"}>
             {pillPercent}% complete
-          </div>
+          </Badge>
         </div>
+        <Progress value={pillPercent} className="h-2 w-full max-w-md" />
       </div>
 
       {/* Exercise list */}
@@ -60,12 +47,7 @@ export function ExerciseList({
           </li>
         )}
         {exercises.map((exercise) => (
-          <ExerciseItem
-            key={exercise.id}
-            exercise={exercise}
-            onToggle={onToggle}
-            onOpen={onOpen}
-          />
+          <ExerciseItem key={exercise.id} exercise={exercise} />
         ))}
       </ul>
     </div>

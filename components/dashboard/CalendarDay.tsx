@@ -39,11 +39,6 @@ export function CalendarDay({
     ? "bg-accent text-accent-foreground hover:bg-accent/90"
     : "bg-card hover:bg-card/80 text-foreground hover:text-foreground";
 
-  const indicatorColors = {
-    appointment: hasAppointment ? "bg-primary" : "",
-    plan: hasPlan ? "bg-secondary" : "",
-  };
-
   return (
     <button
       type="button"
@@ -57,16 +52,10 @@ export function CalendarDay({
       {/* Indicators */}
       <div className="flex gap-1 mt-1">
         {hasAppointment && (
-          <div
-            className="h-1.5 w-1.5 rounded-full"
-            style={{ backgroundColor: indicatorColors.appointment }}
-          />
+          <div className="h-1.5 w-1.5 rounded-full bg-primary" />
         )}
         {hasPlan && (
-          <div
-            className="h-1.5 w-1.5 rounded-full"
-            style={{ backgroundColor: indicatorColors.plan }}
-          />
+          <div className="h-1.5 w-1.5 rounded-full bg-secondary" />
         )}
       </div>
     </button>

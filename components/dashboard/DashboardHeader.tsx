@@ -1,15 +1,7 @@
 "use client";
 
+import { Appointment } from "@prisma/client";
 import { Activity } from "lucide-react";
-
-interface Appointment {
-  id?: string | number;
-  start: string;
-  doctorName?: string;
-  doctorSpecialty?: string;
-  locationName?: string;
-  locationAddr?: string;
-}
 
 interface DashboardHeaderProps {
   label: string;

@@ -1,7 +1,6 @@
 "use client";
 
 import { JSX, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { ExerciseList } from "@/components/dashboard/ExerciseList";
@@ -17,43 +16,16 @@ import {
   formatYMD,
   getNextAppointment,
   formatDateTime,
+  formatTime,
 } from "@/lib/date-utils";
-
-/* ------------------------------- Types ------------------------------- */
-type Difficulty = "easy" | "moderate" | "hard";
-
-interface Exercise {
-  id: number | string;
-  title: string;
-  done: boolean;
-  estimatedMins?: number;
-  difficulty?: Difficulty;
-}
+import { Appointment, Exercise, Plan } from "@prisma/client";
+import { PlanWithExercises } from "@/lib/types/plans";
 
 interface LeaderboardRow {
   rank: number;
   name: string;
   weeks: number;
   percent: number;
-}
-
-interface Appointment {
-  id?: string | number;
-  start: string;
-  doctorName?: string;
-  doctorSpecialty?: string;
-  locationName?: string;
-  locationAddr?: string;
-  time?: string;
-  date?: string;
-  type?: string;
-}
-
-interface Plan {
-  id?: string | number;
-  date: string;
-  title?: string;
-  when?: string;
 }
 
 interface DashboardData {
@@ -75,8 +47,7 @@ interface DashboardClientProps {
 export function DashboardClient({
   initialData,
 }: DashboardClientProps): JSX.Element {
-  const router = useRouter();
-  const { data, loading, setData } = useLocalData(initialData);
+  const { data, loading } = useLocalData(initialData);
   const [showAllLeaderboard, setShowAllLeaderboard] = useState(false);
 
   const {
@@ -145,7 +116,7 @@ export function DashboardClient({
 
   useEffect(() => {
     if (!nextAppt) return setNextApptLabel("—");
-    setNextApptLabel(formatDateTime(nextAppt.start));
+    setNextApptLabel(formatDateTime(nextAppt.start.toISOString()));
   }, [nextAppt]);
 
   // Calendar
@@ -177,12 +148,14 @@ export function DashboardClient({
   );
 
   // Plans filtered by selected date
-  const selectedPlans: Plan[] = useMemo(() => {
+  const selectedPlans: PlanWithExercises[] = useMemo(() => {
     const sel = selectedDate ? formatYMD(selectedDate) : null;
-    const list: Plan[] = Array.isArray(plans) ? plans : [];
-    if (!sel) return list;
-    return list.filter((p) => p?.date && formatYMD(new Date(p.date)) === sel);
-  }, [plans, selectedDate]);
+
+    if (!sel) return [];
+    return (Array.isArray(plans) ? plans : []).filter(
+      (p) => p?.date && formatYMD(new Date(p.date)) === sel
+    );
+  }, [plans, selectedDate]) as PlanWithExercises[];
 
   // Upcoming appointments for display
   const upcomingAppointments = useMemo(() => {
@@ -192,22 +165,10 @@ export function DashboardClient({
       .slice(0, 3)
       .map((a) => ({
         ...a,
-        date: a.start.split("T")[0],
-        time: a.start.split("T")[1]?.substring(0, 5) || "09:00",
+        date: formatYMD(new Date(a.start)),
+        time: formatTime(a.start.toISOString()),
       }));
   }, [appointments]);
-
-  // Handlers
-  const toggleExercise = (id: Exercise["id"]) => {
-    setData((prev) => ({
-      ...prev,
-      exercises: (Array.isArray(prev.exercises) ? prev.exercises : []).map(
-        (e) => (e?.id === id ? { ...e, done: !e.done } : e)
-      ),
-    }));
-  };
-
-  const openExercise = (id: Exercise["id"]) => router.push(`/exercise/${id}`);
 
   const handleAddPlan = () => {
     // TODO: Open plan creation dialog
@@ -227,7 +188,7 @@ export function DashboardClient({
       <DashboardHeader
         name={patientName}
         nextAppt={nextAppt}
-        label="Next Appointment"
+        label={nextApptLabel}
       />
 
       <main className="px-6 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-[1400px] mx-auto">
@@ -249,8 +210,6 @@ export function DashboardClient({
             <CardContent>
               <ExerciseList
                 exercises={Array.isArray(exercises) ? exercises : []}
-                onToggle={toggleExercise}
-                onOpen={openExercise}
                 loading={loading}
                 pillPercent={Math.round(weeklyTarget * 100)}
                 weeklyTotalMins={weeklyTotalMins}
@@ -268,12 +227,7 @@ export function DashboardClient({
                 {upcomingAppointments.map((apt, idx) => (
                   <AppointmentCard
                     key={apt.id || idx}
-                    appointment={{
-                      date: apt.date!,
-                      time: apt.time!,
-                      location: apt.locationName,
-                      type: apt.doctorSpecialty,
-                    }}
+                    appointment={apt}
                     compact={true}
                   />
                 ))}
@@ -282,12 +236,27 @@ export function DashboardClient({
           )}
 
           {/* Leaderboard */}
-          <Leaderboard
-            leaderboard={Array.isArray(leaderboard) ? leaderboard : []}
-            patientName={patientName}
-            showAll={showAllLeaderboard}
-            maxItems={5}
-          />
+          <Card>
+            <CardHeader>
+              <CardTitle>Leaderboard</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Leaderboard
+                leaderboard={Array.isArray(leaderboard) ? leaderboard : []}
+                patientName={patientName}
+                showAll={showAllLeaderboard}
+                maxItems={5}
+              />
+              {leaderboard.length > 5 && (
+                <button
+                  onClick={() => setShowAllLeaderboard(!showAllLeaderboard)}
+                  className="mt-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {showAllLeaderboard ? "Show Less" : "Show All"}
+                </button>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
         {/* Right Column */}

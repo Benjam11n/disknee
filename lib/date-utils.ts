@@ -1,13 +1,6 @@
 // Date utility functions for the DisKnee application
 
-export interface Appointment {
-  id?: string | number;
-  start: string;
-  doctorName?: string;
-  doctorSpecialty?: string;
-  locationName?: string;
-  locationAddr?: string;
-}
+import { Appointment } from "@prisma/client";
 
 /**
  * Check if two dates represent the same day

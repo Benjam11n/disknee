@@ -3,21 +3,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Plus } from "lucide-react";
 import { sameDay } from "@/lib/date-utils";
-
-interface Plan {
-  id?: string | number;
-  date: string;
-  title?: string;
-  when?: string;
-  exercises?: Array<{
-    name: string;
-    sets?: number;
-    reps?: number;
-  }>;
-}
+import { PlanWithExercises } from "@/lib/types/plans";
 
 interface PlanningListProps {
-  plans: Plan[];
+  plans: PlanWithExercises[];
   onAddPlan?: () => void;
   maxItems?: number;
   showAddButton?: boolean;
@@ -27,10 +16,10 @@ export function PlanningList({
   plans,
   onAddPlan,
   maxItems = 3,
-  showAddButton = true
+  showAddButton = true,
 }: PlanningListProps) {
-  const sortedPlans = [...plans].sort((a, b) =>
-    new Date(a.date).getTime() - new Date(b.date).getTime()
+  const sortedPlans = [...plans].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
   const displayPlans = sortedPlans.slice(0, maxItems);
@@ -100,23 +89,27 @@ export function PlanningList({
         ) : (
           displayPlans.map((plan) => (
             <Card
-              key={plan.id || plan.date}
+              key={plan.id || plan.date.toISOString()}
               className="p-3 hover:shadow-sm transition-all duration-200 cursor-pointer"
             >
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium">{plan.title || "Exercise Plan"}</span>
+                    <span className="font-medium">
+                      {plan.title || "Exercise Plan"}
+                    </span>
                     <Badge variant="secondary" className="text-xs">
-                      {getDaysUntil(plan.date)}
+                      {getDaysUntil(plan.date.toISOString())}
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {formatDate(plan.date)} {plan.when && `at ${plan.when}`}
+                    {formatDate(plan.date.toISOString())}{" "}
+                    {plan.when && `at ${plan.when}`}
                   </p>
                   {plan.exercises && plan.exercises.length > 0 && (
                     <p className="text-xs text-muted-foreground mt-1">
-                      {plan.exercises.length} exercise{plan.exercises.length !== 1 ? "s" : ""}
+                      {plan.exercises.length} exercise
+                      {plan.exercises.length !== 1 ? "s" : ""}
                     </p>
                   )}
                 </div>
