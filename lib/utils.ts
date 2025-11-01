@@ -1,8 +1,8 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 /**
@@ -70,27 +70,6 @@ export function truncateText(text: string, maxLength: number): string {
 }
 
 /**
- * Debounce function calls
- */
-export function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout;
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), wait);
-  };
-}
-
-/**
- * Check if a value is a valid number
- */
-export function isValidNumber(value: any): value is number {
-  return typeof value === "number" && !Number.isNaN(value) && Number.isFinite(value);
-}
-
-/**
  * Generate a unique ID
  */
 export function generateId(): string {
@@ -103,7 +82,7 @@ export function generateId(): string {
 export function deepClone<T>(obj: T): T {
   if (obj === null || typeof obj !== "object") return obj;
   if (obj instanceof Date) return new Date(obj.getTime()) as T;
-  if (obj instanceof Array) return obj.map(item => deepClone(item)) as T;
+  if (obj instanceof Array) return obj.map((item) => deepClone(item)) as T;
   if (typeof obj === "object") {
     const clonedObj = {} as T;
     for (const key in obj) {

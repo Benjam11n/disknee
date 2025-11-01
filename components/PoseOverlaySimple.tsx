@@ -62,7 +62,7 @@ export default function PoseOverlay({
       });
 
       // Draw landmarks
-      canvasLandmarks.forEach((landmark, index) => {
+      canvasLandmarks.forEach((landmark) => {
         if (landmark.visibility > 0.5) {
           ctx.beginPath();
           ctx.arc(

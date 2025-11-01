@@ -60,7 +60,7 @@ export default function VideoStreamSimple({
                   if (onPoseResults && Math.random() > 0.95) {
                     const mockLandmarks = Array(33)
                       .fill(null)
-                      .map((_, i) => ({
+                      .map(() => ({
                         x: Math.random(),
                         y: Math.random(),
                         z: Math.random() * 0.1,

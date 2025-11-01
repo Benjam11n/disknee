@@ -78,7 +78,7 @@ export default function ModelVideo({
       video.removeEventListener("error", handleError);
       video.removeEventListener("timeupdate", handleTimeUpdate);
     };
-  }, [exerciseType, onTimeUpdate]);
+  }, [exerciseType, onTimeUpdate, isPlaying, exerciseVideos]);
 
   // If no video is available, show a placeholder
   if (!isLoaded && !error) {
