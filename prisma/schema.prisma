@@ -13,3 +13,232 @@ datasource db {
   url        = env("DATABASE_URL")
   directUrl  = env("DATABASE_DIRECT_URL")
 }
+
+// User roles in the system
+enum UserRole {
+  PATIENT
+  PHYSIOTHERAPIST
+  ADMIN
+}
+
+// Exercise difficulty levels
+enum Difficulty {
+  EASY
+  MODERATE
+  HARD
+}
+
+// Appointment status
+enum ApptStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+// Users of the system (patients and physiotherapists)
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  name        String
+  role        UserRole @default(PATIENT)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  sessions     Session[]
+  appointments Appointment[]
+  patientPlans PatientPlan[]
+  progress     Progress?
+
+  @@map("users")
+}
+
+// Exercises library
+model Exercise {
+  id            String       @id @default(cuid())
+  title         String
+  slug          String       @unique
+  difficulty    Difficulty
+  estimatedMins Int
+  description   String?
+  videoUrl      String?
+  instructions  Json?        // Detailed instructions, images, etc.
+  category      String?      // e.g., "strength", "mobility", "balance"
+  tags          String[]     // For filtering and search
+  isActive      Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // Relations
+  planExercises PlanExercise[]
+
+  @@index([difficulty])
+  @@index([category])
+  @@map("exercises")
+}
+
+// Treatment plans templates
+model Plan {
+  id            String    @id @default(cuid())
+  title         String
+  slug          String    @unique
+  description   String?
+  programWeeks  Int       @default(10)
+  difficulty    Difficulty @default(MODERATE)
+  category      String?   // e.g., "post-surgery", "chronic pain", "sports injury"
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  planExercises PlanExercise[]
+  patientPlans  PatientPlan[]
+
+  @@index([difficulty])
+  @@index([category])
+  @@map("plans")
+}
+
+// Junction table for Plans and Exercises
+model PlanExercise {
+  id           String   @id @default(cuid())
+  planId       String
+  exerciseId   String
+  order        Int      // Order in the plan
+  dayOfWeek    Int?     // Which day of the week (1-7)
+  weekNumber   Int?     // Which week of the program
+  sets         Int?     // Number of sets
+  reps         Int?     // Number of repetitions
+  holdSeconds  Int?     // For isometric exercises
+  restTime     Int?     // Rest time in seconds
+  notes        String?  // Special instructions
+
+  // Relations
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  plan     Plan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, exerciseId])
+  @@index([planId, order])
+  @@map("plan_exercises")
+}
+
+// Patient enrollment in treatment plans
+model PatientPlan {
+  id              String    @id @default(cuid())
+  userId          String
+  planId          String
+  startDate       DateTime  @default(now())
+  endDate         DateTime? // When the plan ends or is paused
+  weeksCompleted  Int       @default(0)
+  overallPercent  Int?      // Overall completion percentage
+  isActive        Boolean   @default(true)
+  lastActivityAt  DateTime  @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan Plan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  exerciseProgress ExerciseProgress[]
+
+  @@unique([userId, planId])
+  @@index([userId])
+  @@index([planId])
+  @@map("patient_plans")
+}
+
+// Track progress on individual exercises within a plan
+model ExerciseProgress {
+  id             String      @id @default(cuid())
+  patientPlanId  String
+  planExerciseId String
+  completed      Boolean     @default(false)
+  completedAt    DateTime?
+  completionTime Int?        // Time taken in seconds
+  notes          String?
+
+  // Relations
+  patientPlan   PatientPlan  @relation(fields: [patientPlanId], references: [id], onDelete: Cascade)
+
+  @@unique([patientPlanId, planExerciseId])
+  @@map("exercise_progress")
+}
+
+// Video session records
+model Session {
+  id            String    @id @default(cuid())
+  userId        String
+  startedAt     DateTime  @default(now())
+  endedAt       DateTime?
+  duration      Int?      // Duration in seconds
+  repsCompleted Int       @default(0)
+  accuracy      Int       @default(0) // Average accuracy percentage
+  maxAccuracy   Int?      // Best accuracy during session
+  videoUrl      String?   // Recording URL
+  notes         String?   // Session notes
+  createdAt     DateTime  @default(now())
+
+  // Relations
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reflection Reflection?
+
+  @@index([userId])
+  @@index([startedAt])
+  @@map("sessions")
+}
+
+// Session reflections/feedback
+model Reflection {
+  id        String   @id @default(cuid())
+  sessionId String   @unique
+  rating    Int      // 1-5 session rating
+  fatigue   Int      // 1-5 fatigue level
+  feedback  String?  // Open feedback
+  createdAt DateTime @default(now())
+
+  // Relations
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("reflections")
+}
+
+// Appointments with healthcare providers
+model Appointment {
+  id                String      @id @default(cuid())
+  userId            String
+  doctorName        String
+  doctorSpecialty   String
+  locationName      String
+  locationAddr      String
+  start             DateTime
+  end               DateTime?
+  status            ApptStatus  @default(SCHEDULED)
+  notes             String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([start])
+  @@index([status])
+  @@map("appointments")
+}
+
+// Leaderboard and overall progress tracking
+model Progress {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  totalWeeks        Int       // Total weeks in program
+  completedWeeks    Int       @default(0)
+  overallPercent    Int?      // Overall completion percentage
+  rank              Int?      // Leaderboard rank
+  lastUpdated       DateTime  @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([rank])
+  @@index([overallPercent])
+  @@map("progress")
+}
