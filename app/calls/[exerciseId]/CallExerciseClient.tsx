@@ -174,9 +174,9 @@ export default function CallExerciseClient({
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-4rem)]">
-      {/* Left Column - Video Streams */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div className="flex flex-col h-[calc(100vh-4rem)]">
+      {/* Video Streams - Taking full width at top */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 p-6">
         {/* User Video Stream */}
         <Card className="relative bg-black overflow-hidden">
           <VideoStream
@@ -217,101 +217,93 @@ export default function CallExerciseClient({
         </Card>
       </div>
 
-      {/* Right Column - Exercise Info & Controls */}
-      <div className="w-full lg:w-96 space-y-4">
-        {/* Exercise Info */}
-        <Card>
-          <Card>
-            <div className="p-4 border-b">
-              <h2 className="text-xl font-semibold mb-2">{exercise.title}</h2>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Activity className="h-4 w-4" />
-                  {exercise.difficulty.toLowerCase()}
-                </span>
-                <span>{exercise.estimatedMins} min</span>
-              </div>
-            </div>
-            <div className="p-4">
-              <div className="text-2xl font-mono text-center">
+      {/* Bottom Section - Exercise Info, Instructions & Controls */}
+      <div className="border-t bg-background p-6">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Exercise Info */}
+          <div>
+            <h2 className="text-2xl font-bold mb-2">{exercise.title}</h2>
+            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+              <span className="flex items-center gap-1">
+                <Activity className="h-4 w-4" />
+                {exercise.difficulty.toLowerCase()}
+              </span>
+              <span>{exercise.estimatedMins} min</span>
+              <span className="text-lg font-mono">
                 {formatTime(sessionTime)}
-              </div>
+              </span>
             </div>
-          </Card>
-        </Card>
-
-        {/* Call Controls */}
-        <Card className="p-4">
-          <div className="grid grid-cols-2 gap-3">
-            {!isCallActive ? (
-              <Button
-                onClick={startCall}
-                className="col-span-2 bg-green-600 hover:bg-green-700"
-                size="lg"
-              >
-                <Phone className="h-5 w-5 mr-2" />
-                Start Session
-              </Button>
-            ) : (
-              <>
-                <Button
-                  onClick={toggleVideo}
-                  variant={isVideoOn ? "default" : "secondary"}
-                  size="lg"
-                >
-                  {isVideoOn ? (
-                    <VideoOff className="h-5 w-5" />
-                  ) : (
-                    <Video className="h-5 w-5" />
-                  )}
-                </Button>
-                <Button
-                  onClick={toggleModelVideo}
-                  variant={isModelPlaying ? "default" : "secondary"}
-                  size="lg"
-                >
-                  {isModelPlaying ? (
-                    <PauseCircle className="h-5 w-5" />
-                  ) : (
-                    <PlayCircle className="h-5 w-5" />
-                  )}
-                </Button>
-                <Button
-                  onClick={endCall}
-                  className="col-span-2 bg-red-600 hover:bg-red-700"
-                  size="lg"
-                >
-                  <PhoneOff className="h-5 w-5 mr-2" />
-                  End Session
-                </Button>
-              </>
+            {/* Pose Detection Status */}
+            {poseLandmarks.length > 0 && (
+              <div className="flex items-center gap-2 text-sm">
+                <Activity className="h-5 w-5 text-green-500" />
+                <span className="font-medium">Pose Detection Active</span>
+                <span className="text-muted-foreground">
+                  ({poseLandmarks.length} points tracked)
+                </span>
+              </div>
             )}
           </div>
-        </Card>
 
-        {/* Pose Detection Status */}
-        {poseLandmarks.length > 0 && (
-          <Card className="p-4">
-            <div className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-green-500" />
-              <span className="text-sm font-medium">Pose Detection Active</span>
-            </div>
-            <div className="mt-2 text-xs text-muted-foreground">
-              Tracking {poseLandmarks.length} body points
-            </div>
-          </Card>
-        )}
+          {/* Instructions */}
+          <div>
+            <h3 className="font-medium mb-2">Instructions</h3>
+            <ul className="text-sm text-muted-foreground space-y-1">
+              <li>• Position yourself in view of the camera</li>
+              <li>• Follow the perfect form demonstration</li>
+              <li>• Maintain proper posture throughout</li>
+              <li>• End the session when completed</li>
+            </ul>
+          </div>
 
-        {/* Instructions */}
-        <Card className="p-4">
-          <h3 className="font-medium mb-2">Instructions</h3>
-          <ul className="text-sm text-muted-foreground space-y-1">
-            <li>• Position yourself in view of the camera</li>
-            <li>• Follow the perfect form demonstration</li>
-            <li>• Maintain proper posture throughout</li>
-            <li>• End the session when completed</li>
-          </ul>
-        </Card>
+          {/* Call Controls */}
+          <div>
+            <div className="grid grid-cols-3 gap-3">
+              {!isCallActive ? (
+                <Button
+                  onClick={startCall}
+                  className="col-span-3 bg-green-600 hover:bg-green-700"
+                  size="lg"
+                >
+                  <Phone className="h-5 w-5 mr-2" />
+                  Start Session
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    onClick={toggleVideo}
+                    variant={isVideoOn ? "default" : "secondary"}
+                    size="lg"
+                  >
+                    {isVideoOn ? (
+                      <VideoOff className="h-5 w-5" />
+                    ) : (
+                      <Video className="h-5 w-5" />
+                    )}
+                  </Button>
+                  <Button
+                    onClick={toggleModelVideo}
+                    variant={isModelPlaying ? "default" : "secondary"}
+                    size="lg"
+                  >
+                    {isModelPlaying ? (
+                      <PauseCircle className="h-5 w-5" />
+                    ) : (
+                      <PlayCircle className="h-5 w-5" />
+                    )}
+                  </Button>
+                  <Button
+                    onClick={endCall}
+                    className="bg-red-600 hover:bg-red-700"
+                    size="lg"
+                  >
+                    <PhoneOff className="h-5 w-5" />
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Reflection Dialog */}
