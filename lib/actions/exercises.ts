@@ -14,9 +14,13 @@ import {
   GetExerciseByIdParams,
   GetExercisesParams,
   UpdateExerciseDoneParams,
-} from "../types/exercises";
+} from "@/lib/types/exercises";
+import { Exercise } from "@prisma/client";
+import { NotFoundError } from "@/lib/http-errors";
 
-export async function createExerciseAction(params: CreateExerciseParams) {
+export async function createExerciseAction(
+  params: CreateExerciseParams
+): Promise<ActionResponse<Exercise>> {
   const validationResult = await action({
     params: params,
     schema: CreateExerciseSchema,
@@ -41,13 +45,19 @@ export async function createExerciseAction(params: CreateExerciseParams) {
       },
     });
 
-    return exercise;
+    if (!exercise) {
+      throw new NotFoundError("Exercise not created");
+    }
+
+    return { success: true, data: exercise };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
 }
 
-export async function getExercisesAction(params: GetExercisesParams) {
+export async function getExercisesAction(
+  params: GetExercisesParams
+): Promise<ActionResponse<Exercise[]>> {
   const validationResult = await action({
     params: params,
     schema: GetExercisesSchema,
@@ -72,13 +82,15 @@ export async function getExercisesAction(params: GetExercisesParams) {
       skip,
     });
 
-    return exercises;
+    return { success: true, data: exercises };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
 }
 
-export async function getExerciseByIdAction(params: GetExerciseByIdParams) {
+export async function getExerciseByIdAction(
+  params: GetExerciseByIdParams
+): Promise<ActionResponse<Exercise>> {
   const validationResult = await action({
     params: params,
     schema: GetExerciseByIdSchema,
@@ -97,10 +109,10 @@ export async function getExerciseByIdAction(params: GetExerciseByIdParams) {
     });
 
     if (!exercise) {
-      return handleError(new Error("Exercise not found")) as ErrorResponse;
+      throw new NotFoundError("Exercise not found");
     }
 
-    return exercise;
+    return { success: true, data: exercise };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
@@ -108,7 +120,7 @@ export async function getExerciseByIdAction(params: GetExerciseByIdParams) {
 
 export async function updateExerciseDoneAction(
   params: UpdateExerciseDoneParams
-) {
+): Promise<ActionResponse<Exercise>> {
   const validationResult = await action({
     params: params,
     schema: UpdateExerciseDoneSchema,
@@ -127,7 +139,11 @@ export async function updateExerciseDoneAction(
       data: { done },
     });
 
-    return exercise;
+    if (!exercise) {
+      throw new NotFoundError("Exercise not found");
+    }
+
+    return { success: true, data: exercise };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }

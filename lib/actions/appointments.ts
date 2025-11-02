@@ -14,9 +14,12 @@ import {
   GetAppointmentByIdParams,
   GetAppointmentsParams,
   GetUpcomingAppointmentsParams,
-} from "../types/appointments";
+} from "@/lib/types/appointments";
+import { Appointment } from "@prisma/client";
 
-export async function createAppointmentAction(params: CreateAppointmentParams) {
+export async function createAppointmentAction(
+  params: CreateAppointmentParams
+): Promise<ActionResponse<Appointment>> {
   const validationResult = await action({
     params: params,
     schema: CreateAppointmentSchema,
@@ -41,13 +44,15 @@ export async function createAppointmentAction(params: CreateAppointmentParams) {
       },
     });
 
-    return appointment;
+    return { success: true, data: appointment };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
 }
 
-export async function getAppointmentsAction(params: GetAppointmentsParams) {
+export async function getAppointmentsAction(
+  params: GetAppointmentsParams
+): Promise<ActionResponse<Appointment[]>> {
   const validationResult = await action({
     params: params,
     schema: GetAppointmentsSchema,
@@ -73,7 +78,7 @@ export async function getAppointmentsAction(params: GetAppointmentsParams) {
       skip: offset,
     });
 
-    return appointments;
+    return { success: true, data: appointments };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
@@ -81,7 +86,7 @@ export async function getAppointmentsAction(params: GetAppointmentsParams) {
 
 export async function getUpcomingAppointmentsAction(
   params: GetUpcomingAppointmentsParams
-) {
+): Promise<ActionResponse<Appointment[]>> {
   const validationResult = await action({
     params: params,
     schema: GetUpcomingAppointmentsSchema,
@@ -108,7 +113,7 @@ export async function getUpcomingAppointmentsAction(
       take: limit,
     });
 
-    return appointments;
+    return { success: true, data: appointments };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
@@ -116,7 +121,7 @@ export async function getUpcomingAppointmentsAction(
 
 export async function getAppointmentByIdAction(
   params: GetAppointmentByIdParams
-) {
+): Promise<ActionResponse<Appointment>> {
   const validationResult = await action({
     params: params,
     schema: GetAppointmentByIdSchema,
@@ -138,7 +143,7 @@ export async function getAppointmentByIdAction(
       return handleError(new Error("Appointment not found")) as ErrorResponse;
     }
 
-    return appointment;
+    return { success: true, data: appointment };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }

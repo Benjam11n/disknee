@@ -10,10 +10,13 @@ import {
 import {
   GetLeaderboardByRankParams,
   GetLeaderboardParams,
-} from "../types/leaderboard";
+} from "@/lib/types/leaderboard";
 import { leaderboardByAccuracy, leaderboardByScore } from "@prisma/client";
+import { NotFoundError } from "@/lib/http-errors";
 
-export async function getLeaderboardAction(params: GetLeaderboardParams) {
+export async function getLeaderboardAction(
+  params: GetLeaderboardParams
+): Promise<ActionResponse<leaderboardByScore[] | leaderboardByAccuracy[]>> {
   const validationResult = await action({
     params: params,
     schema: GetLeaderboardSchema,
@@ -28,9 +31,8 @@ export async function getLeaderboardAction(params: GetLeaderboardParams) {
     validationResult.params!;
 
   try {
-    let leaderboard: leaderboardByScore[] | leaderboardByAccuracy[] = [];
     if (rankingType === "accuracy") {
-      leaderboard = await prisma.leaderboardByAccuracy.findMany({
+      const leaderboard = await prisma.leaderboardByAccuracy.findMany({
         where: {
           name: name ? { contains: name, mode: "insensitive" } : undefined,
         },
@@ -39,9 +41,13 @@ export async function getLeaderboardAction(params: GetLeaderboardParams) {
         skip: offset,
       });
 
-      return leaderboard;
+      if (!leaderboard.length) {
+        throw new NotFoundError("Leaderboard not found");
+      }
+
+      return { success: true, data: leaderboard };
     } else {
-      leaderboard = await prisma.leaderboardByScore.findMany({
+      const leaderboard = await prisma.leaderboardByScore.findMany({
         where: {
           name: name ? { contains: name, mode: "insensitive" } : undefined,
         },
@@ -49,8 +55,13 @@ export async function getLeaderboardAction(params: GetLeaderboardParams) {
         take: limit,
         skip: offset,
       });
+
+      if (!leaderboard.length) {
+        throw new NotFoundError("Leaderboard not found");
+      }
+
+      return { success: true, data: leaderboard };
     }
-    return leaderboard;
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
@@ -58,7 +69,7 @@ export async function getLeaderboardAction(params: GetLeaderboardParams) {
 
 export async function getLeaderboardByRankAction(
   params: GetLeaderboardByRankParams & { rankingType?: "score" | "accuracy" }
-) {
+): Promise<ActionResponse<leaderboardByScore[] | leaderboardByAccuracy[]>> {
   const validationResult = await action({
     params: params,
     schema: GetLeaderboardByRankSchema,
@@ -83,7 +94,11 @@ export async function getLeaderboardByRankAction(
         orderBy: { rank: "asc" },
       });
 
-      return leaderboard;
+      if (!leaderboard.length) {
+        throw new NotFoundError("Leaderboard not found");
+      }
+
+      return { success: true, data: leaderboard };
     } else {
       const leaderboard = await prisma.leaderboardByScore.findMany({
         where: {
@@ -95,7 +110,11 @@ export async function getLeaderboardByRankAction(
         orderBy: { rank: "asc" },
       });
 
-      return leaderboard;
+      if (!leaderboard.length) {
+        throw new NotFoundError("Leaderboard not found");
+      }
+
+      return { success: true, data: leaderboard };
     }
   } catch (error) {
     return handleError(error) as ErrorResponse;

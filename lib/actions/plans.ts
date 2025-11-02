@@ -12,9 +12,13 @@ import {
   GetPlanByIdParams,
   GetPlansByDateRangeParams,
   GetPlansParams,
-} from "../types/plans";
+} from "@/lib/types/plans";
+import { Plan } from "@prisma/client";
+import { NotFoundError } from "@/lib/http-errors";
 
-export async function getPlans(params: GetPlansParams) {
+export async function getPlans(
+  params: GetPlansParams
+): Promise<ActionResponse<Plan[]>> {
   const validationResult = await action({
     params: params,
     schema: GetPlansSchema,
@@ -40,13 +44,15 @@ export async function getPlans(params: GetPlansParams) {
       skip: offset,
     });
 
-    return plans;
+    return { success: true, data: plans };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
 }
 
-export async function getPlansByDateRange(params: GetPlansByDateRangeParams) {
+export async function getPlansByDateRange(
+  params: GetPlansByDateRangeParams
+): Promise<ActionResponse<Plan[]>> {
   const validationResult = await action({
     params: params,
     schema: GetPlansByDateRangeSchema,
@@ -70,13 +76,15 @@ export async function getPlansByDateRange(params: GetPlansByDateRangeParams) {
       orderBy: { date: "asc" },
     });
 
-    return plans;
+    return { success: true, data: plans };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
 }
 
-export async function getPlanById(params: GetPlanByIdParams) {
+export async function getPlanById(
+  params: GetPlanByIdParams
+): Promise<ActionResponse<Plan>> {
   const validationResult = await action({
     params: params,
     schema: GetPlanByIdSchema,
@@ -95,10 +103,10 @@ export async function getPlanById(params: GetPlanByIdParams) {
     });
 
     if (!plan) {
-      return handleError(new Error("Plan not found")) as ErrorResponse;
+      throw new NotFoundError("Plan not found");
     }
 
-    return plan;
+    return { success: true, data: plan };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }

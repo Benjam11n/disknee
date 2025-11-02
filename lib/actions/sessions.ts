@@ -5,17 +5,16 @@ import action from "@/lib/handlers/action";
 import handleError from "@/lib/handlers/error";
 import {
   CreateSessionSchema,
-  CreateReflectionSchema,
   GetSessionsSchema,
   GetSessionByIdSchema,
 } from "@/lib/validations/session-schemas";
 import {
-  CreateReflectionParams,
   CreateSessionParams,
   GetSessionByIdParams,
   GetSessionsParams,
-} from "../types/sessions";
+} from "@/lib/types/sessions";
 import { Session } from "@prisma/client";
+import { NotFoundError } from "@/lib/http-errors";
 
 export async function createSessionAction(
   params: CreateSessionParams
@@ -57,13 +56,19 @@ export async function createSessionAction(
       },
     });
 
+    if (!session) {
+      throw new NotFoundError("Session not created");
+    }
+
     return { success: true, data: session };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
 }
 
-export async function getSessionsAction(params: GetSessionsParams) {
+export async function getSessionsAction(
+  params: GetSessionsParams
+): Promise<ActionResponse<Session[]>> {
   const validationResult = await action({
     params: params,
     schema: GetSessionsSchema,
@@ -92,13 +97,15 @@ export async function getSessionsAction(params: GetSessionsParams) {
       },
     });
 
-    return sessions;
+    return { success: true, data: sessions };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
 }
 
-export async function getSessionByIdAction(params: GetSessionByIdParams) {
+export async function getSessionByIdAction(
+  params: GetSessionByIdParams
+): Promise<ActionResponse<Session>> {
   const validationResult = await action({
     params: params,
     schema: GetSessionByIdSchema,
@@ -120,39 +127,10 @@ export async function getSessionByIdAction(params: GetSessionByIdParams) {
     });
 
     if (!session) {
-      return handleError(new Error("Session not found")) as ErrorResponse;
+      throw new NotFoundError("Session not found");
     }
 
-    return session;
-  } catch (error) {
-    return handleError(error) as ErrorResponse;
-  }
-}
-
-export async function createReflectionAction(params: CreateReflectionParams) {
-  const validationResult = await action({
-    params: params,
-    schema: CreateReflectionSchema,
-    authorize: true,
-  });
-
-  if (validationResult instanceof Error) {
-    return handleError(validationResult) as ErrorResponse;
-  }
-
-  const { sessionId, rating, fatigue, feedback } = validationResult.params!;
-
-  try {
-    const reflection = await prisma.reflection.create({
-      data: {
-        sessionId,
-        rating,
-        fatigue,
-        feedback,
-      },
-    });
-
-    return reflection;
+    return { success: true, data: session };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
@@ -166,12 +144,16 @@ export async function updateSessionAction(
     accuracy?: number;
     maxAccuracy?: number;
   }
-) {
+): Promise<ActionResponse<Session>> {
   try {
     const session = await prisma.session.update({
       where: { id: sessionId },
       data,
     });
+
+    if (!session) {
+      throw new NotFoundError("Session not found");
+    }
 
     return { success: true, data: session };
   } catch (error) {
