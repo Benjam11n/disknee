@@ -4,7 +4,7 @@ import {
   GetAppointmentByIdSchema,
   GetAppointmentsSchema,
   GetUpcomingAppointmentsSchema,
-} from "../validations/appointment-schemas";
+} from "@/lib/validations/appointment-schemas";
 
 export type GetAppointmentsParams = z.infer<typeof GetAppointmentsSchema>;
 export type CreateAppointmentParams = z.infer<typeof CreateAppointmentSchema>;

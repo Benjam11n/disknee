@@ -4,7 +4,7 @@ import {
   GetExerciseByIdSchema,
   GetExercisesSchema,
   UpdateExerciseDoneSchema,
-} from "../validations/exercise-schemas";
+} from "@/lib/validations/exercise-schemas";
 
 export type GetExercisesParams = z.infer<typeof GetExercisesSchema>;
 export type GetExerciseByIdParams = z.infer<typeof GetExerciseByIdSchema>;

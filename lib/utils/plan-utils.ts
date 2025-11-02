@@ -1,4 +1,4 @@
-import { sameDay } from "../date-utils";
+import { sameDay } from "@/lib/date-utils";
 
 /**
  * Formats a date string into a human-readable format

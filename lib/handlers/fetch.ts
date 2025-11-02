@@ -1,4 +1,4 @@
-import { RequestError } from "../http-errors";
+import { RequestError } from "@/lib/http-errors";
 import handleError from "./error";
 
 interface FetchOptions extends RequestInit {

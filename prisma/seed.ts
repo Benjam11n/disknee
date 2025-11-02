@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import seedData from "../app/seed.json";
+import seedData from "@/app/seed.json";
 import shopItems from "./shop-seed.json";
 import { Difficulty } from "@prisma/client";
 
@@ -28,7 +28,6 @@ async function main() {
   );
   console.log(`✅ Created ${users.length} users`);
 
-  
   // Create shop items
   const createdShopItems = await Promise.all(
     shopItems.map((item) =>
@@ -112,7 +111,7 @@ async function main() {
           startedAt: new Date(sessionData.startedAt),
           endedAt: new Date(
             new Date(sessionData.startedAt).getTime() +
-            sessionData.duration * 1000
+              sessionData.duration * 1000
           ),
           duration: sessionData.duration,
           repsCompleted: sessionData.repsCompleted,
@@ -121,8 +120,7 @@ async function main() {
           exerciseId: exercises[sessionData.exerciseIndex].id,
           userId: users[sessionData.userIndex].id,
           notes: `Score: ${
-            sessionData.accuracy * 100 +
-            (sessionData.hasReflection ? 20 : 0)
+            sessionData.accuracy * 100 + (sessionData.hasReflection ? 20 : 0)
           }`,
         },
       });
@@ -161,7 +159,9 @@ async function main() {
         where: { id: user.id },
         data: { points: totalScore },
       });
-      console.log(`✅ Updated ${user.name} with ${totalScore} points from ${userSessions.length} sessions`);
+      console.log(
+        `✅ Updated ${user.name} with ${totalScore} points from ${userSessions.length} sessions`
+      );
     }
   }
 
@@ -184,7 +184,8 @@ async function main() {
   console.log(`✅ Given ${donaldDuck.name} starter items`);
 
   const avgAccuracy = seedData.sessions
-    ? seedData.sessions.reduce((sum, s) => sum + s.accuracy, 0) / seedData.sessions.length
+    ? seedData.sessions.reduce((sum, s) => sum + s.accuracy, 0) /
+      seedData.sessions.length
     : 0;
 
   console.log("\n✅ Database seeded successfully!");

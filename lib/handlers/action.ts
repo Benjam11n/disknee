@@ -2,7 +2,7 @@
 
 import { ZodError, ZodSchema } from "zod";
 
-import { ValidationError } from "../http-errors";
+import { ValidationError } from "@/lib/http-errors";
 
 type ActionOptions<T> = {
   params?: T;

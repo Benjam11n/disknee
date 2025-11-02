@@ -14,7 +14,7 @@ import {
   PurchaseItemParams,
   EquipItemParams,
   GetUserInventoryParams,
-} from "../types/shop";
+} from "@/lib/types/shop";
 import { ShopItem, UserInventory } from "@prisma/client";
 
 export async function getShopItemsAction(
