@@ -1,5 +1,6 @@
 import { getLeaderboardAction } from "@/lib/actions/leaderboard";
 import { LeaderboardClient } from "./LeaderboardClient";
+import { getCurrentUserName } from "@/lib/constants/users";
 
 export default async function LeaderboardPage() {
   const initialLeaderboardData = await getLeaderboardAction({
@@ -14,8 +15,7 @@ export default async function LeaderboardPage() {
     ? initialLeaderboardData
     : [];
 
-  // todo: add to a constants file
-  const patientName = "Donald Duck";
+  const patientName = getCurrentUserName();
 
   return (
     <div className="px-6 py-6 max-w-7xl mx-auto">

@@ -6,9 +6,9 @@ import { getUserByIdAction } from "@/lib/actions/users";
 import { getUserInventoryAction } from "@/lib/actions/shop";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
 import { Plan, ShopItem, UserInventory } from "@prisma/client";
+import { getCurrentUserId } from "@/lib/constants/users";
 
-// todo: use a constant for this
-const userId = "cmhgxrmgb00033fzvmx6inphh";
+const userId = getCurrentUserId();
 
 export default async function RehabDashboardPage() {
   const [

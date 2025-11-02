@@ -17,6 +17,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Activity, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { DEMO_CREDENTIALS } from "@/lib/constants/users";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -51,23 +52,9 @@ export default function LoginPage() {
     setError("");
     setIsLoading(true);
 
-    // Simulate API call delay
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // Demo credentials validation
-    const validCredentials = [
-      { email: "demo@disknee.com", password: "demo123", name: "Demo User" },
-      {
-        email: "patient@example.com",
-        password: "patient2024",
-        name: "John Patient",
-      },
-      {
-        email: "physio@example.com",
-        password: "physio2024",
-        name: "Dr. Smith",
-      },
-    ];
+    const validCredentials = DEMO_CREDENTIALS;
 
     const user = validCredentials.find(
       (cred) => cred.email === email && cred.password === password
@@ -184,18 +171,12 @@ export default function LoginPage() {
                 <CardTitle className="text-sm">Demo Credentials</CardTitle>
               </CardHeader>
               <CardContent className="space-y-1">
-                <p className="text-xs">
-                  <span className="font-mono">demo@disknee.com</span> /{" "}
-                  <span className="font-mono">demo123</span>
-                </p>
-                <p className="text-xs">
-                  <span className="font-mono">patient@example.com</span> /{" "}
-                  <span className="font-mono">patient2024</span>
-                </p>
-                <p className="text-xs">
-                  <span className="font-mono">physio@example.com</span> /{" "}
-                  <span className="font-mono">physio2024</span>
-                </p>
+                {DEMO_CREDENTIALS.map((cred, index) => (
+                  <p key={index} className="text-xs">
+                    <span className="font-mono">{cred.email}</span> /{" "}
+                    <span className="font-mono">{cred.password}</span>
+                  </p>
+                ))}
               </CardContent>
             </Card>
             <p className="text-xs text-center text-gray-500">
