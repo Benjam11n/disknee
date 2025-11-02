@@ -31,13 +31,14 @@ import { ROUTES } from "@/lib/constants/routes";
 import { formatTime } from "@/lib/utils/session-utils";
 import { createReflectionAction } from "@/lib/actions/reflections";
 
+// ✅ Import your logic handler + type
+import { handleEx5TiptoeLogic, ExerciseState } from "@/lib/pose-logic/ex5";
+
 interface CallExerciseClientProps {
   exercise: Exercise;
 }
 
-export default function CallExerciseClient({
-  exercise,
-}: CallExerciseClientProps) {
+export default function CallExerciseClient({ exercise }: CallExerciseClientProps) {
   const router = useRouter();
 
   const [isCallActive, setIsCallActive] = useState(false);
@@ -48,6 +49,17 @@ export default function CallExerciseClient({
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [poseLandmarks, setPoseLandmarks] = useState<Landmark[]>([]);
   const [sessionTime, setSessionTime] = useState(0);
+
+  // ✅ Initialize exercise-specific logic state
+  const [ex5State, setEx5State] = useState<ExerciseState>({
+    reps: 0,
+    timerStarted: false,
+    startTime: null,
+    readyForNext: true,
+    currentAngle: 0, // <-- add this
+    holdTime: 0,     // <-- add this
+  });
+
   const sessionStartTime = useRef<number | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -56,9 +68,7 @@ export default function CallExerciseClient({
     if (isCallActive && !sessionStartTime.current) {
       sessionStartTime.current = Date.now();
       intervalRef.current = setInterval(() => {
-        setSessionTime(
-          Math.floor((Date.now() - sessionStartTime.current!) / 1000)
-        );
+        setSessionTime(Math.floor((Date.now() - sessionStartTime.current!) / 1000));
       }, 1000);
     } else if (!isCallActive && sessionStartTime.current) {
       if (intervalRef.current) {
@@ -75,14 +85,25 @@ export default function CallExerciseClient({
     };
   }, [isCallActive]);
 
-  // Update pose landmarks
-  const handlePoseResults = (results: {
-    poseLandmarks: Landmark[];
-    image: HTMLVideoElement;
-  }) => {
-    if (results.poseLandmarks) {
-      setPoseLandmarks(results.poseLandmarks);
+  // ✅ Pose result handler with proper typing
+  const handlePoseResults = (results: { poseLandmarks?: Landmark[] }) => {
+    if (!results.poseLandmarks) return;
+    setPoseLandmarks(results.poseLandmarks);
+
+    // Only run the custom logic for exercise ex5
+    if (exercise.id === "ex5") {
+      setEx5State((prev) =>
+        handleEx5TiptoeLogic(results.poseLandmarks!, prev, (newCount: number) => {
+          toast.success(`Rep ${newCount} completed!`);
+          if (newCount >= 5) {
+            toast.success("🎉 All 5 reps completed! Ending session...");
+            endCall();
+          }
+        })
+      );
     }
+
+
   };
 
   // Start the call
@@ -119,12 +140,20 @@ export default function CallExerciseClient({
       setIsRecording(false);
 
       if (sessionId) {
+        // await updateSessionAction(sessionId, {
+        //   endedAt: new Date(),
+        //   duration: sessionTime,
+        //   accuracy: 85,
+        //   maxAccuracy: 90,
+        //   repsCompleted: ex5State.reps, // ✅ include rep count
+        // });
         await updateSessionAction(sessionId, {
           endedAt: new Date(),
           duration: sessionTime,
           accuracy: 85, // Placeholder accuracy
           maxAccuracy: 90,
         });
+
 
         await updateExerciseDoneAction({
           id: exercise.id,
@@ -140,17 +169,9 @@ export default function CallExerciseClient({
     }
   };
 
-  // Toggle video
-  const toggleVideo = () => {
-    setIsVideoOn(!isVideoOn);
-  };
+  const toggleVideo = () => setIsVideoOn((prev) => !prev);
+  const toggleModelVideo = () => setIsModelPlaying((prev) => !prev);
 
-  // Toggle model video
-  const toggleModelVideo = () => {
-    setIsModelPlaying(!isModelPlaying);
-  };
-
-  // Handle reflection submission
   const handleReflectionSubmit = async (reflection: {
     rating: number;
     fatigue: number;
@@ -175,9 +196,9 @@ export default function CallExerciseClient({
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)]">
-      {/* Video Streams - Taking full width at top */}
+      {/* Video Streams */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 p-6">
-        {/* User Video Stream */}
+        {/* User Video */}
         <Card className="relative bg-black overflow-hidden">
           <VideoStream
             onPoseResults={handlePoseResults}
@@ -185,6 +206,15 @@ export default function CallExerciseClient({
             isCallActive={isCallActive}
           />
           <PoseOverlay landmarks={poseLandmarks} />
+          {/* ✅ Optional rep counter overlay */}
+          {exercise.id === "ex5" && (
+            <div className="absolute top-4 left-4 text-white text-lg font-bold bg-black/40 px-3 py-2 rounded-md space-y-1">
+              <div><p>🦶 Ankle Angle: {ex5State.currentAngle !== null ? ex5State.currentAngle.toFixed(0) + "°" : "Not visible"}</p></div>
+              <div>⏱ Hold Time: {ex5State.holdTime.toFixed(1)}s</div>
+              <div>🔥 Reps: {ex5State.reps}/5</div>
+            </div>
+          )}
+
           {!isVideoOn && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
               <div className="text-center text-white">
@@ -194,8 +224,8 @@ export default function CallExerciseClient({
             </div>
           )}
           {isRecording && (
-            <div className="absolute top-4 left-4 flex items-center gap-2">
-              <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+            <div className="absolute top-4 right-4 flex items-center gap-2">
+              <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
               <span className="text-white text-sm font-medium bg-red-500/20 px-2 py-1 rounded">
                 REC
               </span>
@@ -203,12 +233,9 @@ export default function CallExerciseClient({
           )}
         </Card>
 
-        {/* Model Video Stream */}
+        {/* Model Video */}
         <Card className="relative bg-black overflow-hidden">
-          <ModelVideo
-            isPlaying={isModelPlaying}
-            exerciseType="squat"
-          />
+          <ModelVideo isPlaying={isModelPlaying} exerciseType="squat" />
           <div className="absolute top-4 right-4">
             <Badge variant="secondary" className="bg-black/50 text-white">
               Perfect Form
@@ -217,10 +244,9 @@ export default function CallExerciseClient({
         </Card>
       </div>
 
-      {/* Bottom Section - Exercise Info, Instructions & Controls */}
+      {/* Info, Instructions & Controls */}
       <div className="border-t bg-background p-6">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Exercise Info */}
           <div>
             <h2 className="text-2xl font-bold mb-2">{exercise.title}</h2>
             <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
@@ -229,11 +255,8 @@ export default function CallExerciseClient({
                 {exercise.difficulty.toLowerCase()}
               </span>
               <span>{exercise.estimatedMins} min</span>
-              <span className="text-lg font-mono">
-                {formatTime(sessionTime)}
-              </span>
+              <span className="text-lg font-mono">{formatTime(sessionTime)}</span>
             </div>
-            {/* Pose Detection Status */}
             {poseLandmarks.length > 0 && (
               <div className="flex items-center gap-2 text-sm">
                 <Activity className="h-5 w-5 text-green-500" />
@@ -275,22 +298,14 @@ export default function CallExerciseClient({
                     variant={isVideoOn ? "default" : "secondary"}
                     size="lg"
                   >
-                    {isVideoOn ? (
-                      <VideoOff className="h-5 w-5" />
-                    ) : (
-                      <Video className="h-5 w-5" />
-                    )}
+                    {isVideoOn ? <VideoOff className="h-5 w-5" /> : <Video className="h-5 w-5" />}
                   </Button>
                   <Button
                     onClick={toggleModelVideo}
                     variant={isModelPlaying ? "default" : "secondary"}
                     size="lg"
                   >
-                    {isModelPlaying ? (
-                      <PauseCircle className="h-5 w-5" />
-                    ) : (
-                      <PlayCircle className="h-5 w-5" />
-                    )}
+                    {isModelPlaying ? <PauseCircle className="h-5 w-5" /> : <PlayCircle className="h-5 w-5" />}
                   </Button>
                   <Button
                     onClick={endCall}
@@ -311,8 +326,8 @@ export default function CallExerciseClient({
         isOpen={showReflection}
         sessionData={{
           duration: sessionTime,
-          repsCompleted: 0, // Not tracking reps for now
-          accuracy: 85, // Placeholder accuracy
+          repsCompleted: ex5State.reps,
+          accuracy: 85,
         }}
         onSubmit={handleReflectionSubmit}
         onSkip={() => {

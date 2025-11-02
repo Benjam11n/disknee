@@ -4,37 +4,26 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { PoseLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
 import { Landmark } from "@/lib/pose-utils";
 
-// Performance optimization constants
-const DETECTION_INTERVAL = 2; // Detect pose every 2 frames (30 fps for smoother tracking)
-const DETECTION_FPS = 1000 / 30; // 30 fps = 33ms between detections
+const DETECTION_INTERVAL = 2;
+const DETECTION_FPS = 1000 / 30;
 
-/**
- * VideoStream Component
- *
- * Handles webcam video capture and real-time pose detection using MediaPipe.
- * Features:
- * - 30fps pose detection with frame skipping for performance
- * - Exponential smoothing for jitter-free landmark tracking
- * - Dynamic canvas sizing that adapts to container dimensions
- * - GPU-accelerated pose detection
- *
- * @param onPoseResults - Callback function that receives detected pose landmarks
- * @param isVideoOn - Whether video capture should be active
- * @param isCallActive - Whether the session is active
- */
+interface Overlay {
+  text: string;
+  y: number;
+}
+
 interface VideoStreamProps {
-  onPoseResults?: (results: {
-    poseLandmarks: Landmark[];
-    image: HTMLVideoElement;
-  }) => void;
+  onPoseResults?: (results: { poseLandmarks: Landmark[]; image: HTMLVideoElement }) => void;
   isVideoOn: boolean;
   isCallActive: boolean;
+  overlays?: Overlay[];
 }
 
 export default function VideoStream({
   onPoseResults,
   isVideoOn,
   isCallActive,
+  overlays,
 }: VideoStreamProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -47,23 +36,17 @@ export default function VideoStream({
   const lastLandmarksRef = useRef<Landmark[] | null>(null);
   const lastDetectionTimeRef = useRef<number>(0);
   const smoothedLandmarksRef = useRef<Landmark[] | null>(null);
-  const smoothingFactor = 0.7; // Higher = more smoothing (0.7 = 70% old, 30% new)
+  const smoothingFactor = 0.7;
 
-  /**
-   * Initialize MediaPipe PoseLandmarker with GPU acceleration
-   * Downloads the pose detection model and sets up configuration
-   */
   const initializePoseLandmarker = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
 
-      // Create the vision fileset resolver
       const vision = await FilesetResolver.forVisionTasks(
         "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
       );
 
-      // Create the pose landmarker
       const poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
         baseOptions: {
           modelAssetPath:
@@ -80,33 +63,24 @@ export default function VideoStream({
       poseLandmarkerRef.current = poseLandmarker;
       setIsLoading(false);
     } catch (err) {
-      console.error("Error initializing PoseLandmarker:", err);
+      console.error(err);
       setError("Failed to initialize pose detection");
       setIsLoading(false);
     }
   }, []);
 
-  /**
-   * Initialize webcam video stream with optimal settings
-   * Requests user media permissions and configures video stream
-   */
   const startCamera = useCallback(async () => {
     try {
       if (!videoRef.current || !poseLandmarkerRef.current) return;
 
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: 640,
-          height: 480,
-          facingMode: "user",
-        },
+        video: { width: 640, height: 480, facingMode: "user" },
         audio: false,
       });
 
       streamRef.current = stream;
       videoRef.current.srcObject = stream;
 
-      // Wait for video to be ready
       await new Promise((resolve) => {
         if (videoRef.current) {
           videoRef.current.onloadedmetadata = () => resolve(true);
@@ -115,17 +89,11 @@ export default function VideoStream({
 
       await videoRef.current.play();
     } catch (err) {
-      console.error("Error accessing camera:", err);
-      setError(
-        "Failed to access camera. Please ensure camera permissions are granted."
-      );
+      console.error(err);
+      setError("Failed to access camera.");
     }
   }, []);
 
-  /**
-   * Main pose detection loop running at 60fps
-   * Renders video frames and runs pose detection at 30fps with smoothing
-   */
   const detectPose = useCallback(() => {
     if (
       !videoRef.current ||
@@ -142,109 +110,93 @@ export default function VideoStream({
     const ctx = canvas.getContext("2d");
     const currentTime = performance.now();
 
-    if (ctx) {
-      // Get the actual display dimensions of the canvas element
-      const rect = canvas.getBoundingClientRect();
-      const displayWidth = rect.width;
-      const displayHeight = rect.height;
+    if (!ctx) return;
 
-      // Set canvas internal resolution to match display size
-      if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
-        canvas.width = displayWidth;
-        canvas.height = displayHeight;
-      }
+    const rect = canvas.getBoundingClientRect();
+    const displayWidth = rect.width;
+    const displayHeight = rect.height;
 
-      // Draw video frame to fill the canvas
-      ctx.drawImage(video, 0, 0, displayWidth, displayHeight);
+    if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
+      canvas.width = displayWidth;
+      canvas.height = displayHeight;
+    }
 
-      frameCountRef.current++;
+    // Draw mirrored video
+    ctx.save();
+    ctx.translate(displayWidth, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0, displayWidth, displayHeight);
+    ctx.restore();
 
-      // Only run pose detection every DETECTION_INTERVAL frames
-      const shouldDetect = frameCountRef.current % DETECTION_INTERVAL === 0;
-      const timeSinceLastDetection = currentTime - lastDetectionTimeRef.current;
+    frameCountRef.current++;
+    const shouldDetect = frameCountRef.current % DETECTION_INTERVAL === 0;
+    const timeSinceLastDetection = currentTime - lastDetectionTimeRef.current;
 
-      if (shouldDetect && timeSinceLastDetection >= DETECTION_FPS) {
-        // Run AI pose detection (20fps instead of 60fps)
-        try {
-          const results = poseLandmarkerRef.current.detectForVideo(
-            video,
-            currentTime
-          );
+    if (shouldDetect && timeSinceLastDetection >= DETECTION_FPS) {
+      try {
+        const results = poseLandmarkerRef.current.detectForVideo(video, currentTime);
 
-          if (results.landmarks && results.landmarks.length > 0) {
-            // Convert MediaPipe landmarks to our format
-            const landmarks: Landmark[] = results.landmarks[0].map(
-              (landmark: {
-                x: number;
-                y: number;
-                z?: number;
-                visibility?: number;
-              }) => ({
-                x: landmark.x,
-                y: landmark.y,
-                z: landmark.z || 0,
-                visibility: landmark.visibility || 0,
-              })
-            );
+        if (results.landmarks && results.landmarks.length > 0) {
+          let landmarks: Landmark[] = results.landmarks[0].map((l) => ({
+            x: l.x,
+            y: l.y,
+            z: l.z || 0,
+            visibility: l.visibility || 0,
+          }));
 
-            // Apply smoothing if we have previous landmarks
-            let smoothedLandmarks = landmarks;
-            if (smoothedLandmarksRef.current) {
-              smoothedLandmarks = landmarks.map((landmark, index) => {
-                const prevLandmark = smoothedLandmarksRef.current![index];
-                return {
-                  x: prevLandmark.x * smoothingFactor + landmark.x * (1 - smoothingFactor),
-                  y: prevLandmark.y * smoothingFactor + landmark.y * (1 - smoothingFactor),
-                  z: prevLandmark.z * smoothingFactor + (landmark.z || 0) * (1 - smoothingFactor),
-                  visibility: prevLandmark.visibility * smoothingFactor + landmark.visibility * (1 - smoothingFactor),
-                };
-              });
-            }
-
-            // Store landmarks for next frame
-            lastLandmarksRef.current = smoothedLandmarks;
-            smoothedLandmarksRef.current = smoothedLandmarks;
-            lastDetectionTimeRef.current = currentTime;
-
-            // Send smoothed landmarks to parent component
-            if (onPoseResults) {
-              onPoseResults({
-                poseLandmarks: smoothedLandmarks,
-                image: video,
-              });
-            }
+          // Smooth landmarks
+          if (smoothedLandmarksRef.current) {
+            landmarks = landmarks.map((l, i) => {
+              const prev = smoothedLandmarksRef.current![i];
+              return {
+                x: prev.x * smoothingFactor + l.x * (1 - smoothingFactor),
+                y: prev.y * smoothingFactor + l.y * (1 - smoothingFactor),
+                z: prev.z * smoothingFactor + l.z * (1 - smoothingFactor),
+                visibility: prev.visibility * smoothingFactor + l.visibility * (1 - smoothingFactor),
+              };
+            });
           }
-        } catch (error) {
-          console.error("Pose detection error:", error);
+
+          smoothedLandmarksRef.current = landmarks;
+          lastLandmarksRef.current = landmarks;
+          lastDetectionTimeRef.current = currentTime;
+
+          // Mirror landmarks horizontally for flipped video
+          const mirroredLandmarks = landmarks.map((l) => ({ ...l, x: 1 - l.x }));
+
+          if (onPoseResults) onPoseResults({ poseLandmarks: mirroredLandmarks, image: video });
         }
-      } else if (lastLandmarksRef.current && onPoseResults) {
-        // Send last known landmarks for smooth animation between detections
-        onPoseResults({
-          poseLandmarks: lastLandmarksRef.current,
-          image: video,
-        });
+      } catch (err) {
+        console.error("Pose detection error:", err);
       }
+    } else if (lastLandmarksRef.current && onPoseResults) {
+      const mirroredLandmarks = lastLandmarksRef.current.map((l) => ({ ...l, x: 1 - l.x }));
+      onPoseResults({ poseLandmarks: mirroredLandmarks, image: video });
+    }
+
+    // Draw overlays if any
+    if (overlays && ctx) {
+      ctx.save();
+      ctx.fillStyle = "white";
+      ctx.font = "20px sans-serif";
+      ctx.textAlign = "left";
+      overlays.forEach((o) => ctx.fillText(o.text, 10, o.y));
+      ctx.restore();
     }
 
     animationFrameRef.current = requestAnimationFrame(detectPose);
-  }, [onPoseResults]);
+  }, [onPoseResults, overlays]);
 
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
     }
-
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = null;
     }
-
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-    }
-
-    // Reset smoothed landmarks for next session
+    if (videoRef.current) videoRef.current.srcObject = null;
     lastLandmarksRef.current = null;
     smoothedLandmarksRef.current = null;
     frameCountRef.current = 0;
@@ -252,45 +204,20 @@ export default function VideoStream({
 
   useEffect(() => {
     if (isCallActive && isVideoOn) {
-      initializePoseLandmarker().then(() => {
-        startCamera();
-      });
-    } else {
-      stopCamera();
-    }
-
-    return () => {
-      stopCamera();
-    };
-  }, [
-    isCallActive,
-    isVideoOn,
-    initializePoseLandmarker,
-    startCamera,
-    stopCamera,
-  ]);
+      initializePoseLandmarker().then(() => startCamera());
+    } else stopCamera();
+    return () => stopCamera();
+  }, [isCallActive, isVideoOn, initializePoseLandmarker, startCamera, stopCamera]);
 
   useEffect(() => {
-    // Start pose detection loop when camera is ready
-    if (videoRef.current && videoRef.current.readyState === 4) {
-      detectPose();
-    }
+    if (videoRef.current && videoRef.current.readyState === 4) detectPose();
   }, [detectPose]);
 
   return (
     <div className="relative w-full h-full">
-      {/* Video element for camera feed */}
       <video ref={videoRef} className="hidden" playsInline muted />
+      <canvas ref={canvasRef} className="w-full h-full object-cover" width={640} height={480} />
 
-      {/* Canvas for video display and pose overlay */}
-      <canvas
-        ref={canvasRef}
-        className="w-full h-full object-cover"
-        width={640}
-        height={480}
-      />
-
-      {/* Loading indicator */}
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50">
           <div className="text-white text-center">
@@ -300,34 +227,20 @@ export default function VideoStream({
         </div>
       )}
 
-      {/* Error message */}
       {error && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/70">
           <div className="text-white text-center p-4">
             <p className="text-red-400">{error}</p>
-            <p className="text-sm mt-2">
-              Please ensure camera permissions are granted and try again
-            </p>
+            <p className="text-sm mt-2">Please ensure camera permissions are granted and try again</p>
           </div>
         </div>
       )}
 
-      {/* Video off indicator */}
       {!isVideoOn && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
           <div className="text-gray-400 text-center">
-            <svg
-              className="h-16 w-16 mx-auto mb-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-              />
+            <svg className="h-16 w-16 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
             <p>Camera is off</p>
           </div>
