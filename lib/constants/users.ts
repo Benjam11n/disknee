@@ -3,7 +3,7 @@
 
 export const DEMO_USERS = {
   // Primary demo user (Donald Duck)
-  PRIMARY_ID: "cmhh2sj2q00003fp5nawxj95c",
+  PRIMARY_ID: "cmhhhn7e100003f6bq3kplipv",
   PRIMARY_NAME: "Donald Duck",
 
   // Fallback user for development
