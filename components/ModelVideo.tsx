@@ -59,7 +59,7 @@ export default function ModelVideo({
 
     // For demo purposes, we'll use a placeholder video source
     // In production, you'd have actual demonstration videos
-    video.src = "data:video/mp4;base64,"; // Empty base64 for demo
+    video.src = "spanish-squat.mp4"; // Empty base64 for demo
 
     return () => {
       video.removeEventListener("loadeddata", handleLoad);

@@ -34,6 +34,23 @@ export default function VideoStream({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const crownImage = useRef<HTMLImageElement | null>(null);
+
+
+  // Load crown image once
+  useEffect(() => {
+    const img = new Image();
+    img.src = "/crown.png"; // ensure this exists in /public
+    img.onload = () => {
+      console.log("Crown image loaded successfully");
+      crownImage.current = img;
+    };
+    img.onerror = () => {
+      console.error("Failed to load crown image");
+    };
+  }, []);
+
+
   // Initialize MediaPipe PoseLandmarker
   const initializePoseLandmarker = useCallback(async () => {
     try {
@@ -50,9 +67,6 @@ export default function VideoStream({
         },
         runningMode: "VIDEO" as const,
         numPoses: 1,
-        minPoseDetectionConfidence: 0.5,
-        minPosePresenceConfidence: 0.5,
-        minTrackingConfidence: 0.5,
       });
 
       poseLandmarkerRef.current = poseLandmarker;
@@ -64,9 +78,8 @@ export default function VideoStream({
     }
   }, []);
 
-  // Start camera
   const startCamera = useCallback(async () => {
-    if (!videoRef.current || !poseLandmarkerRef.current) return;
+    if (!videoRef.current) return;
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -87,7 +100,6 @@ export default function VideoStream({
     }
   }, []);
 
-  // Stop camera
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
@@ -95,34 +107,42 @@ export default function VideoStream({
     }
     if (animationRef.current) cancelAnimationFrame(animationRef.current);
     if (videoRef.current) videoRef.current.srcObject = null;
-
     lastLandmarks.current = null;
     smoothedLandmarks.current = null;
     frameCount.current = 0;
   }, []);
 
-  // Draw landmarks and skeleton
-  const drawLandmarks = (ctx: CanvasRenderingContext2D, landmarks: Landmark[], flipped: boolean) => {
+  // Draw skeleton + crown
+  const drawLandmarks = (
+    ctx: CanvasRenderingContext2D,
+    landmarks: Landmark[],
+    flipped: boolean
+  ) => {
     if (!landmarks) return;
 
     const width = ctx.canvas.width;
     const height = ctx.canvas.height;
 
-    // Connections for skeleton
+    // Draw skeleton
     const connections = [
-      [11, 13], [13, 15], // Left arm
-      [12, 14], [14, 16], // Right arm
-      [11, 12], // Shoulders
-      [23, 25], [25, 27], // Left leg
-      [24, 26], [26, 28], // Right leg
-      [23, 24], [11, 23], [12, 24] // Torso
+      [11, 13],
+      [13, 15],
+      [12, 14],
+      [14, 16],
+      [11, 12],
+      [23, 25],
+      [25, 27],
+      [24, 26],
+      [26, 28],
+      [23, 24],
+      [11, 23],
+      [12, 24],
     ];
 
     ctx.strokeStyle = "lime";
     ctx.lineWidth = 2;
     ctx.fillStyle = "red";
 
-    // Draw connections
     connections.forEach(([startIdx, endIdx]) => {
       const start = landmarks[startIdx];
       const end = landmarks[endIdx];
@@ -134,17 +154,43 @@ export default function VideoStream({
       }
     });
 
-    // Draw landmarks
     landmarks.forEach((lm) => {
       ctx.beginPath();
       const x = flipped ? width - lm.x * width : lm.x * width;
       const y = lm.y * height;
-      ctx.arc(x, y, 5, 0, Math.PI * 2);
+      ctx.arc(x, y, 4, 0, Math.PI * 2);
       ctx.fill();
     });
+
+    // --- 👑 Draw Crown Above Nose ---
+    const nose = landmarks[0];
+    if (!nose) return;
+
+    const noseX = flipped ? width - nose.x * width : nose.x * width;
+    const noseY = nose.y * height;
+    const crownY = Math.max(noseY - 180, 0); // ensure it doesn’t go off-screen
+
+    const img = crownImage.current;
+
+    if (img && img.complete && img.naturalWidth > 0) {
+      const crownWidth = 120;
+      const crownHeight = 80;
+      ctx.drawImage(
+        img,
+        noseX - crownWidth / 2,
+        crownY - crownHeight / 2,
+        crownWidth,
+        crownHeight
+      );
+    } else {
+      // fallback emoji crown
+      ctx.font = "80px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("👑", noseX, crownY);
+    }
   };
 
-  // Pose detection loop
+
   const detectPose = useCallback(() => {
     if (!videoRef.current || !canvasRef.current || !poseLandmarkerRef.current) {
       animationRef.current = requestAnimationFrame(detectPose);
@@ -156,13 +202,9 @@ export default function VideoStream({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const rect = canvas.getBoundingClientRect();
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
-
-
-    // Draw mirrored video if flipped
     ctx.save();
     if (flipped) {
       ctx.translate(canvas.width, 0);
@@ -187,7 +229,6 @@ export default function VideoStream({
             visibility: lm.visibility || 0,
           }));
 
-          // Apply smoothing
           let smoothed = landmarks;
           if (smoothedLandmarks.current) {
             smoothed = landmarks.map((lm, i) => {
@@ -196,7 +237,8 @@ export default function VideoStream({
                 x: prev.x * smoothingFactor + lm.x * (1 - smoothingFactor),
                 y: prev.y * smoothingFactor + lm.y * (1 - smoothingFactor),
                 z: prev.z * smoothingFactor + lm.z * (1 - smoothingFactor),
-                visibility: prev.visibility * smoothingFactor + lm.visibility * (1 - smoothingFactor),
+                visibility:
+                  prev.visibility * smoothingFactor + lm.visibility * (1 - smoothingFactor),
               };
             });
           }
@@ -214,8 +256,8 @@ export default function VideoStream({
       onPoseResults?.({ poseLandmarks: lastLandmarks.current, image: video });
     }
 
-    // Draw skeleton overlay
-    if (ctx && lastLandmarks.current) drawLandmarks(ctx, lastLandmarks.current, flipped);
+    if (ctx && lastLandmarks.current)
+      drawLandmarks(ctx, lastLandmarks.current, flipped);
 
     animationRef.current = requestAnimationFrame(detectPose);
   }, [onPoseResults, flipped]);
