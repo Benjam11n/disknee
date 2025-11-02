@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { PoseLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
-import { Landmark } from "@/lib/pose-utils";
+import { PoseSocketClient, PoseResult } from "@/lib/pose-socket-client";
 
-const DETECTION_INTERVAL = 2;
 const DETECTION_FPS = 1000 / 30;
 
 interface Overlay {
@@ -13,68 +11,98 @@ interface Overlay {
 }
 
 interface VideoStreamProps {
-  onPoseResults?: (results: { poseLandmarks: Landmark[]; image: HTMLVideoElement }) => void;
+  exerciseId: string;
+  onPoseResult?: (result: PoseResult) => void;
+  onRepComplete?: (count: number) => void;
   isVideoOn: boolean;
   isCallActive: boolean;
   overlays?: Overlay[];
+  backendUrl?: string;
 }
 
 export default function VideoStream({
-  onPoseResults,
+  exerciseId,
+  onPoseResult,
+  onRepComplete,
   isVideoOn,
   isCallActive,
   overlays,
+  backendUrl = "http://localhost:8000",
 }: VideoStreamProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const poseLandmarkerRef = useRef<PoseLandmarker | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<
+    "disconnected" | "connecting" | "connected"
+  >("disconnected");
+
   const streamRef = useRef<MediaStream | null>(null);
   const animationFrameRef = useRef<number | null>(null);
-  const frameCountRef = useRef<number>(0);
-  const lastLandmarksRef = useRef<Landmark[] | null>(null);
-  const lastDetectionTimeRef = useRef<number>(0);
-  const smoothedLandmarksRef = useRef<Landmark[] | null>(null);
-  const smoothingFactor = 0.7;
+  const lastFrameTimeRef = useRef<number>(0);
+  const poseClientRef = useRef<PoseSocketClient | null>(null);
+  const connectionStartTimeRef = useRef<number>(0);
+  const onPoseResultRef = useRef<typeof onPoseResult | undefined>(onPoseResult);
+  const onRepCompleteRef = useRef<typeof onRepComplete | undefined>(
+    onRepComplete
+  );
 
-  const initializePoseLandmarker = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
+  // Keep latest callbacks without causing reconnects
+  useEffect(() => {
+    onPoseResultRef.current = onPoseResult;
+  }, [onPoseResult]);
 
-      const vision = await FilesetResolver.forVisionTasks(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
-      );
+  useEffect(() => {
+    onRepCompleteRef.current = onRepComplete;
+  }, [onRepComplete]);
 
-      const poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
-        baseOptions: {
-          modelAssetPath:
-            "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
-          delegate: "GPU" as const,
+  // Initialize pose socket client
+  const initializePoseClient = () => {
+    if (!poseClientRef.current) {
+      poseClientRef.current = new PoseSocketClient({
+        baseUrl: backendUrl,
+        exerciseId: exerciseId,
+        onPoseResult: (result: PoseResult) => {
+          const cb = onPoseResultRef.current;
+          if (cb && result.landmarks) {
+            cb(result);
+          }
+          const repCb = onRepCompleteRef.current;
+          if (repCb && result.rep_completed) {
+            repCb(result.exercise_state.reps);
+          }
         },
-        runningMode: "VIDEO" as const,
-        numPoses: 1,
-        minPoseDetectionConfidence: 0.5,
-        minPosePresenceConfidence: 0.5,
-        minTrackingConfidence: 0.5,
+        onConnectionChange: (connected) => {
+          setConnectionStatus(connected ? "connected" : "disconnected");
+          if (connected) {
+            connectionStartTimeRef.current = performance.now();
+            setIsLoading(false);
+            setError(null);
+          }
+        },
+        onError: (error) => {
+          console.error("Pose detection error:", error);
+          setError(error.message);
+        },
+        frameSkip: 3,
+        quality: 0.6,
       });
-
-      poseLandmarkerRef.current = poseLandmarker;
-      setIsLoading(false);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to initialize pose detection");
-      setIsLoading(false);
     }
-  }, []);
+  };
 
+  // Start camera
   const startCamera = useCallback(async () => {
     try {
-      if (!videoRef.current || !poseLandmarkerRef.current) return;
+      if (!videoRef.current) return;
 
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 640, height: 480, facingMode: "user" },
+        video: {
+          width: 640,
+          height: 480,
+          facingMode: "user",
+          // Optimize for performance
+          frameRate: { ideal: 30, max: 30 },
+        },
         audio: false,
       });
 
@@ -94,14 +122,33 @@ export default function VideoStream({
     }
   }, []);
 
-  const detectPose = useCallback(() => {
-    if (
-      !videoRef.current ||
-      !canvasRef.current ||
-      !poseLandmarkerRef.current ||
-      videoRef.current.readyState !== 4
-    ) {
-      animationFrameRef.current = requestAnimationFrame(detectPose);
+  // Connect to backend and start processing
+  const connectAndStart = async () => {
+    setIsLoading(true);
+    setConnectionStatus("connecting");
+    setError(null);
+
+    initializePoseClient();
+
+    if (poseClientRef.current) {
+      try {
+        await poseClientRef.current.connect();
+        await startCamera();
+        // Begin render loop immediately after camera starts
+        renderVideo();
+        setIsLoading(false);
+      } catch (err) {
+        setError("Failed to connect to pose detection server.");
+        setIsLoading(false);
+        setConnectionStatus("disconnected");
+      }
+    }
+  };
+
+  // Render video loop
+  const renderVideo = useCallback(() => {
+    if (!videoRef.current || !canvasRef.current) {
+      animationFrameRef.current = requestAnimationFrame(renderVideo);
       return;
     }
 
@@ -112,6 +159,7 @@ export default function VideoStream({
 
     if (!ctx) return;
 
+    // Set canvas size
     const rect = canvas.getBoundingClientRect();
     const displayWidth = rect.width;
     const displayHeight = rect.height;
@@ -128,65 +176,58 @@ export default function VideoStream({
     ctx.drawImage(video, 0, 0, displayWidth, displayHeight);
     ctx.restore();
 
-    frameCountRef.current++;
-    const shouldDetect = frameCountRef.current % DETECTION_INTERVAL === 0;
-    const timeSinceLastDetection = currentTime - lastDetectionTimeRef.current;
-
-    if (shouldDetect && timeSinceLastDetection >= DETECTION_FPS) {
-      try {
-        const results = poseLandmarkerRef.current.detectForVideo(video, currentTime);
-
-        if (results.landmarks && results.landmarks.length > 0) {
-          let landmarks: Landmark[] = results.landmarks[0].map((l) => ({
-            x: l.x,
-            y: l.y,
-            z: l.z || 0,
-            visibility: l.visibility || 0,
-          }));
-
-          // Smooth landmarks
-          if (smoothedLandmarksRef.current) {
-            landmarks = landmarks.map((l, i) => {
-              const prev = smoothedLandmarksRef.current![i];
-              return {
-                x: prev.x * smoothingFactor + l.x * (1 - smoothingFactor),
-                y: prev.y * smoothingFactor + l.y * (1 - smoothingFactor),
-                z: prev.z * smoothingFactor + l.z * (1 - smoothingFactor),
-                visibility: prev.visibility * smoothingFactor + l.visibility * (1 - smoothingFactor),
-              };
-            });
-          }
-
-          smoothedLandmarksRef.current = landmarks;
-          lastLandmarksRef.current = landmarks;
-          lastDetectionTimeRef.current = currentTime;
-
-          // Mirror landmarks horizontally for flipped video
-          const mirroredLandmarks = landmarks.map((l) => ({ ...l, x: 1 - l.x }));
-
-          if (onPoseResults) onPoseResults({ poseLandmarks: mirroredLandmarks, image: video });
-        }
-      } catch (err) {
-        console.error("Pose detection error:", err);
+    // Send frame to pose detection server (with FPS limiting)
+    // Wait 1 second after connection before sending frames
+    const timeSinceConnection = currentTime - connectionStartTimeRef.current;
+    if (currentTime - lastFrameTimeRef.current >= DETECTION_FPS) {
+      if (
+        poseClientRef.current?.connected() &&
+        video.readyState === 4 &&
+        timeSinceConnection > 1000
+      ) {
+        poseClientRef.current.sendFrame(video);
       }
-    } else if (lastLandmarksRef.current && onPoseResults) {
-      const mirroredLandmarks = lastLandmarksRef.current.map((l) => ({ ...l, x: 1 - l.x }));
-      onPoseResults({ poseLandmarks: mirroredLandmarks, image: video });
+      lastFrameTimeRef.current = currentTime;
     }
 
-    // Draw overlays if any
-    if (overlays && ctx) {
+    // Draw overlays
+    if (overlays) {
       ctx.save();
       ctx.fillStyle = "white";
       ctx.font = "20px sans-serif";
       ctx.textAlign = "left";
-      overlays.forEach((o) => ctx.fillText(o.text, 10, o.y));
+      ctx.shadowColor = "black";
+      ctx.shadowBlur = 4;
+      ctx.lineWidth = 3;
+      overlays.forEach((o) => {
+        ctx.strokeText(o.text, 10, o.y);
+        ctx.fillText(o.text, 10, o.y);
+      });
       ctx.restore();
     }
 
-    animationFrameRef.current = requestAnimationFrame(detectPose);
-  }, [onPoseResults, overlays]);
+    // Draw connection status
+    if (!poseClientRef.current?.connected()) {
+      ctx.save();
+      ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+      ctx.fillRect(0, 0, displayWidth, 40);
+      ctx.fillStyle = connectionStatus === "connecting" ? "yellow" : "red";
+      ctx.font = "16px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(
+        connectionStatus === "connecting"
+          ? "Connecting to pose server..."
+          : "Disconnected from pose server",
+        displayWidth / 2,
+        25
+      );
+      ctx.restore();
+    }
 
+    animationFrameRef.current = requestAnimationFrame(renderVideo);
+  }, [overlays, connectionStatus]);
+
+  // Stop camera and cleanup
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop());
@@ -197,50 +238,101 @@ export default function VideoStream({
       animationFrameRef.current = null;
     }
     if (videoRef.current) videoRef.current.srcObject = null;
-    lastLandmarksRef.current = null;
-    smoothedLandmarksRef.current = null;
-    frameCountRef.current = 0;
+    if (poseClientRef.current) {
+      poseClientRef.current.disconnect();
+    }
   }, []);
 
+  // Handle exercise state changes
+  useEffect(() => {
+    if (onPoseResult) {
+      // This effect can be used to handle additional pose result logic
+    }
+  }, [onPoseResult]);
+
+  // Start when call and video are active
   useEffect(() => {
     if (isCallActive && isVideoOn) {
-      initializePoseLandmarker().then(() => startCamera());
-    } else stopCamera();
-    return () => stopCamera();
-  }, [isCallActive, isVideoOn, initializePoseLandmarker, startCamera, stopCamera]);
+      void connectAndStart();
+    }
+  }, [isCallActive, isVideoOn, exerciseId, backendUrl]);
 
+  // Stop when either toggles off
   useEffect(() => {
-    if (videoRef.current && videoRef.current.readyState === 4) detectPose();
-  }, [detectPose]);
+    if (!isCallActive || !isVideoOn) {
+      stopCamera();
+    }
+  }, [isCallActive, isVideoOn]);
+
+  // Start rendering once video is ready
+  useEffect(() => {
+    if (videoRef.current && videoRef.current.readyState === 4) {
+      renderVideo();
+    }
+  }, [renderVideo]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      stopCamera();
+    };
+  }, [stopCamera]);
 
   return (
     <div className="relative w-full h-full">
       <video ref={videoRef} className="hidden" playsInline muted />
-      <canvas ref={canvasRef} className="w-full h-full object-cover" width={640} height={480} />
+      <canvas
+        ref={canvasRef}
+        className="w-full h-full object-cover"
+        width={640}
+        height={480}
+      />
 
+      {/* Loading overlay */}
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50">
           <div className="text-white text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-2"></div>
-            <p>Initializing pose detection...</p>
+            <p>
+              {connectionStatus === "connecting"
+                ? "Connecting to pose detection server..."
+                : "Initializing camera..."}
+            </p>
           </div>
         </div>
       )}
 
+      {/* Error overlay */}
       {error && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/70">
           <div className="text-white text-center p-4">
             <p className="text-red-400">{error}</p>
-            <p className="text-sm mt-2">Please ensure camera permissions are granted and try again</p>
+            <button
+              onClick={connectAndStart}
+              className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors"
+            >
+              Retry
+            </button>
           </div>
         </div>
       )}
 
+      {/* Camera off overlay */}
       {!isVideoOn && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
           <div className="text-gray-400 text-center">
-            <svg className="h-16 w-16 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            <svg
+              className="h-16 w-16 mx-auto mb-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+              />
             </svg>
             <p>Camera is off</p>
           </div>

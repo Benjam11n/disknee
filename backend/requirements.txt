@@ -1,0 +1,32 @@
+# Core dependencies
+fastapi==0.115.11
+uvicorn[standard]==0.34.0
+websockets==14.0
+python-multipart==0.0.20
+
+# Pose detection and image processing
+mediapipe==0.10.21
+opencv-python==4.10.0.84
+numpy>=1.26.0
+
+# Data validation and serialization
+pydantic==2.10.6
+
+# Environment and configuration
+python-dotenv==1.0.1
+
+# Logging and monitoring
+structlog==24.4.0
+
+# System monitoring
+psutil==6.1.0
+
+# Optional: GPU acceleration (uncomment if using NVIDIA GPU)
+# opencv-python-headless==4.10.0.84
+
+# Development dependencies
+pytest==8.3.4
+pytest-asyncio==0.25.3
+httpx==0.28.1
+black==24.10.0
+ruff==0.9.1

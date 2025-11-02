@@ -122,15 +122,7 @@ export function SidebarNavigation({ children }: { children: React.ReactNode }) {
                           <div className="flex-1 text-left">
                             <span>{item.name}</span>
                           </div>
-                          {item.badge && (
-                            <Badge
-                              variant={isActive ? "secondary" : "default"}
-                              className="ml-auto text-xs px-1.5 py-0.5 h-5"
-                            >
-                              {item.badge}
-                            </Badge>
-                          )}
-                        </Link>
+                          </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   );

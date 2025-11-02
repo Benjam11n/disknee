@@ -22,6 +22,7 @@ import PoseOverlay from "@/components/PoseOverlay";
 import ModelVideo from "@/components/ModelVideo";
 import { ReflectionDialog } from "@/components/ReflectionDialog";
 import { Landmark } from "@/lib/pose-utils";
+import { PoseResult } from "@/lib/pose-socket-client";
 import {
   createSessionAction,
   updateSessionAction,
@@ -31,14 +32,22 @@ import { ROUTES } from "@/lib/constants/routes";
 import { formatTime } from "@/lib/utils/session-utils";
 import { createReflectionAction } from "@/lib/actions/reflections";
 
-// ✅ Import your logic handler + type
-import { handleEx5TiptoeLogic, ExerciseState } from "@/lib/pose-logic/ex5";
+interface ExerciseState {
+  reps: number;
+  timerStarted: boolean;
+  startTime: number | null;
+  readyForNext: boolean;
+  currentAngle: number | null;
+  holdTime: number;
+}
 
 interface CallExerciseClientProps {
   exercise: Exercise;
 }
 
-export default function CallExerciseClient({ exercise }: CallExerciseClientProps) {
+export default function CallExerciseClient({
+  exercise,
+}: CallExerciseClientProps) {
   const router = useRouter();
 
   const [isCallActive, setIsCallActive] = useState(false);
@@ -50,14 +59,13 @@ export default function CallExerciseClient({ exercise }: CallExerciseClientProps
   const [poseLandmarks, setPoseLandmarks] = useState<Landmark[]>([]);
   const [sessionTime, setSessionTime] = useState(0);
 
-  // ✅ Initialize exercise-specific logic state
   const [ex5State, setEx5State] = useState<ExerciseState>({
     reps: 0,
     timerStarted: false,
     startTime: null,
     readyForNext: true,
     currentAngle: 0, // <-- add this
-    holdTime: 0,     // <-- add this
+    holdTime: 0, // <-- add this
   });
 
   const sessionStartTime = useRef<number | null>(null);
@@ -68,7 +76,9 @@ export default function CallExerciseClient({ exercise }: CallExerciseClientProps
     if (isCallActive && !sessionStartTime.current) {
       sessionStartTime.current = Date.now();
       intervalRef.current = setInterval(() => {
-        setSessionTime(Math.floor((Date.now() - sessionStartTime.current!) / 1000));
+        setSessionTime(
+          Math.floor((Date.now() - sessionStartTime.current!) / 1000)
+        );
       }, 1000);
     } else if (!isCallActive && sessionStartTime.current) {
       if (intervalRef.current) {
@@ -85,25 +95,41 @@ export default function CallExerciseClient({ exercise }: CallExerciseClientProps
     };
   }, [isCallActive]);
 
-  // ✅ Pose result handler with proper typing
-  const handlePoseResults = (results: { poseLandmarks?: Landmark[] }) => {
-    if (!results.poseLandmarks) return;
-    setPoseLandmarks(results.poseLandmarks);
-
-    // Only run the custom logic for exercise ex5
-    if (exercise.id === "ex5") {
-      setEx5State((prev) =>
-        handleEx5TiptoeLogic(results.poseLandmarks!, prev, (newCount: number) => {
-          toast.success(`Rep ${newCount} completed!`);
-          if (newCount >= 5) {
-            toast.success("🎉 All 5 reps completed! Ending session...");
-            endCall();
-          }
-        })
-      );
+  // Handle pose results from backend
+  const handleBackendPoseResult = (result: PoseResult) => {
+    // Update landmarks if they exist
+    if (result.landmarks && result.pose_detected) {
+      setPoseLandmarks(result.landmarks);
     }
 
+    // Update exercise state for ex5 (map snake_case to camelCase)
+    if (exercise.id === "ex5" && result.exercise_state) {
+      const s = result.exercise_state as any;
+      setEx5State((prev) => ({
+        reps: typeof s.reps === "number" ? s.reps : prev.reps,
+        timerStarted:
+          typeof s.timer_started === "boolean"
+            ? s.timer_started
+            : prev.timerStarted,
+        startTime: prev.startTime,
+        readyForNext:
+          typeof s.ready_for_next === "boolean"
+            ? s.ready_for_next
+            : prev.readyForNext,
+        currentAngle:
+          typeof s.current_angle === "number" ? s.current_angle : null,
+        holdTime: typeof s.hold_time === "number" ? s.hold_time : 0,
+      }));
+    }
+  };
 
+  // Handle rep completion from backend
+  const handleRepComplete = (count: number) => {
+    toast.success(`Rep ${count} completed!`);
+    if (count >= 5) {
+      toast.success("🎉 All 5 reps completed! Ending session...");
+      endCall();
+    }
   };
 
   // Start the call
@@ -140,20 +166,12 @@ export default function CallExerciseClient({ exercise }: CallExerciseClientProps
       setIsRecording(false);
 
       if (sessionId) {
-        // await updateSessionAction(sessionId, {
-        //   endedAt: new Date(),
-        //   duration: sessionTime,
-        //   accuracy: 85,
-        //   maxAccuracy: 90,
-        //   repsCompleted: ex5State.reps, // ✅ include rep count
-        // });
         await updateSessionAction(sessionId, {
           endedAt: new Date(),
           duration: sessionTime,
           accuracy: 85, // Placeholder accuracy
           maxAccuracy: 90,
         });
-
 
         await updateExerciseDoneAction({
           id: exercise.id,
@@ -201,16 +219,26 @@ export default function CallExerciseClient({ exercise }: CallExerciseClientProps
         {/* User Video */}
         <Card className="relative bg-black overflow-hidden">
           <VideoStream
-            onPoseResults={handlePoseResults}
+            exerciseId="ex5"
             isVideoOn={isVideoOn}
             isCallActive={isCallActive}
+            onPoseResult={(result) => handleBackendPoseResult(result)}
+            onRepComplete={(count) => handleRepComplete(count)}
+            backendUrl="http://localhost:8000"
           />
           <PoseOverlay landmarks={poseLandmarks} />
-          {/* ✅ Optional rep counter overlay */}
+
           {exercise.id === "ex5" && (
             <div className="absolute top-4 left-4 text-white text-lg font-bold bg-black/40 px-3 py-2 rounded-md space-y-1">
-              <div><p>🦶 Ankle Angle: {ex5State.currentAngle !== null ? ex5State.currentAngle.toFixed(0) + "°" : "Not visible"}</p></div>
-              <div>⏱ Hold Time: {ex5State.holdTime.toFixed(1)}s</div>
+              <div>
+                <p>
+                  🦶 Ankle Angle:{" "}
+                  {ex5State.currentAngle != null
+                    ? ex5State.currentAngle.toFixed(0) + "°"
+                    : "Not visible"}
+                </p>
+              </div>
+              <div>⏱ Hold Time: {(ex5State.holdTime ?? 0).toFixed(1)}s</div>
               <div>🔥 Reps: {ex5State.reps}/5</div>
             </div>
           )}
@@ -255,7 +283,9 @@ export default function CallExerciseClient({ exercise }: CallExerciseClientProps
                 {exercise.difficulty.toLowerCase()}
               </span>
               <span>{exercise.estimatedMins} min</span>
-              <span className="text-lg font-mono">{formatTime(sessionTime)}</span>
+              <span className="text-lg font-mono">
+                {formatTime(sessionTime)}
+              </span>
             </div>
             {poseLandmarks.length > 0 && (
               <div className="flex items-center gap-2 text-sm">
@@ -298,14 +328,22 @@ export default function CallExerciseClient({ exercise }: CallExerciseClientProps
                     variant={isVideoOn ? "default" : "secondary"}
                     size="lg"
                   >
-                    {isVideoOn ? <VideoOff className="h-5 w-5" /> : <Video className="h-5 w-5" />}
+                    {isVideoOn ? (
+                      <VideoOff className="h-5 w-5" />
+                    ) : (
+                      <Video className="h-5 w-5" />
+                    )}
                   </Button>
                   <Button
                     onClick={toggleModelVideo}
                     variant={isModelPlaying ? "default" : "secondary"}
                     size="lg"
                   >
-                    {isModelPlaying ? <PauseCircle className="h-5 w-5" /> : <PlayCircle className="h-5 w-5" />}
+                    {isModelPlaying ? (
+                      <PauseCircle className="h-5 w-5" />
+                    ) : (
+                      <PlayCircle className="h-5 w-5" />
+                    )}
                   </Button>
                   <Button
                     onClick={endCall}
