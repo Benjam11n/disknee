@@ -5,20 +5,20 @@ import { getLeaderboardAction } from "@/lib/actions/leaderboard";
 import { getUserByIdAction } from "@/lib/actions/users";
 import { getUserInventoryAction } from "@/lib/actions/shop";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
-import { Plan, ShopItem, UserInventory } from "@prisma/client";
+import { Plan, ShopItem, UserInventory, User } from "@prisma/client";
 import { getCurrentUserId } from "@/lib/constants/users";
 
 const userId = getCurrentUserId();
 
 export default async function RehabDashboardPage() {
   const [
-    exercisesData,
-    appointmentsData,
-    plansData,
-    leaderboardData,
-    userData,
-    inventoryData,
-  ] = await Promise.allSettled([
+    exercisesResponse,
+    appointmentsResponse,
+    plansResponse,
+    leaderboardResponse,
+    userResponse,
+    inventoryResponse,
+  ] = await Promise.all([
     getExercisesAction({ page: 1, limit: 50 }),
     getAppointmentsAction({ limit: 50, offset: 0 }),
     getPlans({ limit: 100, offset: 0, include: { exercises: true } }),
@@ -33,59 +33,42 @@ export default async function RehabDashboardPage() {
     getUserInventoryAction({ userId }),
   ]);
 
-  const exercises =
-    exercisesData.status === "fulfilled" && !("success" in exercisesData.value)
-      ? exercisesData.value
-      : [];
+  // Handle exercises data
+  const exercises = exercisesResponse.success
+    ? exercisesResponse.data || []
+    : [];
 
-  const appointments =
-    appointmentsData.status === "fulfilled" &&
-    !("success" in appointmentsData.value)
-      ? appointmentsData.value
-      : [];
+  // Handle appointments data
+  const appointments = appointmentsResponse.success
+    ? appointmentsResponse.data || []
+    : [];
 
+  // Handle plans data - filter for current month
   const today = new Date();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
   let plans: Plan[] = [];
 
-  if (
-    plansData.status === "fulfilled" &&
-    plansData.value.success &&
-    plansData.value.data
-  ) {
-    plans = plansData.value.data.filter((plan) => {
+  if (plansResponse.success && plansResponse.data) {
+    plans = plansResponse.data.filter((plan) => {
       const planDate = new Date(plan.date);
       return planDate >= startOfMonth && planDate <= endOfMonth;
     });
   }
 
-  const leaderboard =
-    leaderboardData.status === "fulfilled" &&
-    !("success" in leaderboardData.value)
-      ? leaderboardData.value
-      : [];
+  const leaderboard = leaderboardResponse.success
+    ? leaderboardResponse.data || []
+    : [];
 
-  const user =
-    userData.status === "fulfilled" && !("error" in userData.value)
-      ? (
-          userData.value as {
-            success: boolean;
-            data: { name: string; id: string; points: number };
-          }
-        ).data
-      : { points: 0, name: "Donald Duck", id: "default" };
+  const user: User =
+    userResponse.success && userResponse.data
+      ? userResponse.data
+      : ({ id: "default", name: "Donald Duck", points: 0 } as User);
 
-  const inventory =
-    inventoryData.status === "fulfilled" && !("error" in inventoryData.value)
-      ? (
-          inventoryData.value as {
-            success: boolean;
-            data: (UserInventory & { item: ShopItem })[];
-          }
-        ).data
-      : [];
+  const inventory = inventoryResponse.success
+    ? (inventoryResponse.data as (UserInventory & { item: ShopItem })[]) || []
+    : [];
 
   const equippedItems = inventory
     .filter((item) => item.isEquipped)
