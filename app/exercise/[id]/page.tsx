@@ -53,11 +53,12 @@ export default function ExerciseDetailPage() {
         setLoading(true);
         const result = await getExerciseByIdAction({ id: exerciseId });
 
-        if (result && !("error" in result)) {
-          setExercise(result as Exercise);
-        } else {
-          setError("Exercise not found");
+        if (!result || !result.success || !result.data) {
+          setError("Failed to load exercise");
+          return;
         }
+
+        setExercise(result.data);
       } catch (err) {
         setError("Failed to load exercise");
         console.error("Error fetching exercise:", err);
@@ -146,7 +147,10 @@ export default function ExerciseDetailPage() {
                     {exercise.difficulty.toLowerCase()}
                   </Badge>
                   {exercise.done && (
-                    <Badge variant="outline" className="text-green-600 border-green-600">
+                    <Badge
+                      variant="outline"
+                      className="text-green-600 border-green-600"
+                    >
                       Completed
                     </Badge>
                   )}
@@ -157,11 +161,13 @@ export default function ExerciseDetailPage() {
           <CardContent className="space-y-6">
             {/* Exercise Description Placeholder */}
             <div>
-              <h3 className="text-lg font-semibold mb-2">About this exercise</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                About this exercise
+              </h3>
               <p className="text-muted-foreground">
                 This exercise is designed to improve your strength and mobility.
-                Follow the perfect form demonstration on the right side of your screen
-                while performing the movements.
+                Follow the perfect form demonstration on the right side of your
+                screen while performing the movements.
               </p>
             </div>
 
@@ -184,13 +190,22 @@ export default function ExerciseDetailPage() {
             {/* Difficulty Details */}
             <div>
               <h3 className="text-lg font-semibold mb-2">Difficulty Level</h3>
-              <div className={`flex items-center gap-2 ${getDifficultyColor(exercise.difficulty)}`}>
+              <div
+                className={`flex items-center gap-2 ${getDifficultyColor(
+                  exercise.difficulty
+                )}`}
+              >
                 <Target className="h-5 w-5" />
-                <span className="font-medium capitalize">{exercise.difficulty.toLowerCase()}</span>
+                <span className="font-medium capitalize">
+                  {exercise.difficulty.toLowerCase()}
+                </span>
                 <span className="text-sm text-muted-foreground">
-                  {exercise.difficulty === Difficulty.EASY && "- Great for beginners"}
-                  {exercise.difficulty === Difficulty.MODERATE && "- Some experience recommended"}
-                  {exercise.difficulty === Difficulty.HARD && "- Challenging workout"}
+                  {exercise.difficulty === Difficulty.EASY &&
+                    "- Great for beginners"}
+                  {exercise.difficulty === Difficulty.MODERATE &&
+                    "- Some experience recommended"}
+                  {exercise.difficulty === Difficulty.HARD &&
+                    "- Challenging workout"}
                 </span>
               </div>
             </div>
@@ -208,7 +223,8 @@ export default function ExerciseDetailPage() {
               </Button>
               {exercise.done && (
                 <p className="text-sm text-muted-foreground mt-2">
-                  You have already completed this exercise. Check your dashboard for progress.
+                  You have already completed this exercise. Check your dashboard
+                  for progress.
                 </p>
               )}
             </div>

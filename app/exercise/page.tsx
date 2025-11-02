@@ -1,20 +1,24 @@
 import { getExercisesAction } from "@/lib/actions/exercises";
 
 import { ExerciseList } from "@/components/dashboard/ExerciseList";
-import { Exercise } from "@prisma/client";
+import { notFound } from "next/navigation";
 
 export default async function ExercisePage() {
-  // Fetch exercises
-  const exercisesData = await getExercisesAction({ page: 1, limit: 50 });
+  const exercisesResponse = await getExercisesAction({ page: 1, limit: 50 });
 
-  const exercises: Exercise[] =
-    exercisesData && !("error" in exercisesData)
-      ? (exercisesData as Exercise[])
-      : [];
+  if (!exercisesResponse.success) {
+    throw new Error(
+      exercisesResponse.error?.message ?? `Failed to fetch exercises`
+    );
+  }
 
-  // For demo purposes, assume all exercises are for this week
+  if (!exercisesResponse.data) {
+    return notFound();
+  }
+
+  // todo: For demo purposes, assume all exercises are for this week
   // In a real app, you'd filter based on plan dates
-  const weeklyExercises = exercises;
+  const weeklyExercises = exercisesResponse.data;
 
   const completedCount = weeklyExercises.filter((ex) => ex.done).length;
   const totalCount = weeklyExercises.length;
@@ -29,7 +33,7 @@ export default async function ExercisePage() {
     <div className="p-6">
       <div className="max-w-4xl mx-auto">
         <ExerciseList
-          exercises={exercises}
+          exercises={weeklyExercises}
           pillPercent={pillPercent}
           weeklyTotalMins={weeklyTotalMins}
         />

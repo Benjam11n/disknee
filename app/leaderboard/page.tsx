@@ -14,6 +14,7 @@ export default async function LeaderboardPage() {
     ? initialLeaderboardData
     : [];
 
+  // todo: add to a constants file
   const patientName = "Donald Duck";
 
   return (

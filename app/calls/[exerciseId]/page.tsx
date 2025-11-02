@@ -24,13 +24,13 @@ import ModelVideo from "@/components/ModelVideo";
 import { ReflectionDialog } from "@/components/ReflectionDialog";
 import { Landmark } from "@/lib/pose-utils";
 import {
-  createReflectionAction,
   createSessionAction,
   updateSessionAction,
 } from "@/lib/actions/sessions";
 import { updateExerciseDoneAction } from "@/lib/actions/exercises";
 import { ROUTES } from "@/lib/constants/routes";
 import { formatTime } from "@/lib/utils/session-utils";
+import { createReflectionAction } from "@/lib/actions/reflections";
 
 export default function CallExercisePage() {
   const params = useParams();
@@ -151,7 +151,9 @@ export default function CallExercisePage() {
     const sessionAccuracy = 85; // This should come from the actual session
     const calculatedScore = sessionAccuracy * 100 + 20;
 
-    console.log(`Score calculated: ${sessionAccuracy} * 100 + 20 = ${calculatedScore}`);
+    console.log(
+      `Score calculated: ${sessionAccuracy} * 100 + 20 = ${calculatedScore}`
+    );
 
     if (data && sessionId) {
       try {

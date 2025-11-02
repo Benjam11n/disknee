@@ -5,7 +5,7 @@ import { getLeaderboardAction } from "@/lib/actions/leaderboard";
 import { getUserByIdAction } from "@/lib/actions/users";
 import { getUserInventoryAction } from "@/lib/actions/shop";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
-import { ShopItem, UserInventory } from "@prisma/client";
+import { Plan, ShopItem, UserInventory } from "@prisma/client";
 
 // todo: use a constant for this
 const userId = "cmhgxrmgb00033fzvmx6inphh";
@@ -48,13 +48,18 @@ export default async function RehabDashboardPage() {
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
-  const plans =
-    plansData.status === "fulfilled" && !("success" in plansData.value)
-      ? plansData.value.filter((plan) => {
-          const planDate = new Date(plan.date);
-          return planDate >= startOfMonth && planDate <= endOfMonth;
-        })
-      : [];
+  let plans: Plan[] = [];
+
+  if (
+    plansData.status === "fulfilled" &&
+    plansData.value.success &&
+    plansData.value.data
+  ) {
+    plans = plansData.value.data.filter((plan) => {
+      const planDate = new Date(plan.date);
+      return planDate >= startOfMonth && planDate <= endOfMonth;
+    });
+  }
 
   const leaderboard =
     leaderboardData.status === "fulfilled" &&
