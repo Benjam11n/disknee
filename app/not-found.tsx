@@ -7,12 +7,12 @@ import { Search, Home, ArrowLeft } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-              <Search className="h-8 w-8 text-blue-600" />
+            <div className="w-16 h-16 rounded-full flex items-center justify-center">
+              <Search className="h-8 w-8" />
             </div>
           </div>
           <CardTitle className="text-2xl font-bold text-gray-900">
