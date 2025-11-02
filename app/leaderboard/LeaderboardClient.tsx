@@ -24,14 +24,22 @@ export function LeaderboardClient({
   const fetchLeaderboard = useCallback(async (type: "score" | "accuracy") => {
     setLoading(true);
     try {
-      const data = await getLeaderboardAction({
+      const leaderboardResponse = await getLeaderboardAction({
         limit: 50,
         offset: 0,
         sortBy: "rank",
         sortOrder: "asc",
         rankingType: type,
       });
-      const formattedData = Array.isArray(data) ? data : [];
+
+      if (!leaderboardResponse.success || !leaderboardResponse.data) {
+        setLeaderboardData([]);
+        return;
+      }
+
+      const formattedData = Array.isArray(leaderboardResponse.data)
+        ? leaderboardResponse.data
+        : [];
       setLeaderboardData(formattedData);
     } catch (error) {
       console.error("Failed to fetch leaderboard:", error);

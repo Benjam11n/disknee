@@ -1,9 +1,10 @@
 import { getLeaderboardAction } from "@/lib/actions/leaderboard";
 import { LeaderboardClient } from "./LeaderboardClient";
 import { getCurrentUserName } from "@/lib/constants/users";
+import { notFound } from "next/navigation";
 
 export default async function LeaderboardPage() {
-  const initialLeaderboardData = await getLeaderboardAction({
+  const leaderboardResponse = await getLeaderboardAction({
     limit: 50,
     offset: 0,
     sortBy: "rank",
@@ -11,16 +12,16 @@ export default async function LeaderboardPage() {
     rankingType: "score",
   });
 
-  const initialLeaderboard = Array.isArray(initialLeaderboardData)
-    ? initialLeaderboardData
-    : [];
+  if (!leaderboardResponse.success || !leaderboardResponse.data) {
+    return notFound();
+  }
 
   const patientName = getCurrentUserName();
 
   return (
     <div className="px-6 py-6 max-w-7xl mx-auto">
       <LeaderboardClient
-        initialLeaderboard={initialLeaderboard}
+        initialLeaderboard={leaderboardResponse.data}
         patientName={patientName}
       />
     </div>
