@@ -7,7 +7,7 @@ import {
   GetPlansSchema,
   GetPlansByDateRangeSchema,
   GetPlanByIdSchema,
-} from "@/lib/validations/plan-schemas";
+} from "@/lib/validations/plan-validations";
 import {
   GetPlanByIdParams,
   GetPlansByDateRangeParams,

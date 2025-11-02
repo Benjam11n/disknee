@@ -8,7 +8,7 @@ import {
   GetAppointmentsSchema,
   GetUpcomingAppointmentsSchema,
   GetAppointmentByIdSchema,
-} from "@/lib/validations/appointment-schemas";
+} from "@/lib/validations/appointment-validations";
 import {
   CreateAppointmentParams,
   GetAppointmentByIdParams,

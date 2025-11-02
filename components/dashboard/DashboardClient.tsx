@@ -33,7 +33,6 @@ interface DashboardClientProps {
   initialData: DashboardData;
 }
 
-// todo: break this component down for maintainability
 export function DashboardClient({
   initialData,
 }: DashboardClientProps): JSX.Element {

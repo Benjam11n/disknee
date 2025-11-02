@@ -8,7 +8,7 @@ import {
   PurchaseItemSchema,
   EquipItemSchema,
   GetUserInventorySchema,
-} from "@/lib/validations/shop-schemas";
+} from "@/lib/validations/shop-validations";
 import {
   GetShopItemsParams,
   PurchaseItemParams,

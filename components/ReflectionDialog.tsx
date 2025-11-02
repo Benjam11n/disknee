@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
-import { reflectionSchema, ReflectionFormData } from "@/lib/validations/reflection-schemas";
+import { reflectionSchema, ReflectionFormData } from "@/lib/validations/reflection-validations";
 import { getFatigueLabel } from "@/lib/utils/session-utils";
 import { SessionSummary } from "@/components/dashboard/SessionSummary";
 

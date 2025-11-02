@@ -3,7 +3,7 @@
 import { Reflection } from "@prisma/client";
 import { CreateReflectionParams } from "@/lib/types/sessions";
 import action from "@/lib/handlers/action";
-import { CreateReflectionSchema } from "@/lib/validations/session-schemas";
+import { CreateReflectionSchema } from "@/lib/validations/session-validations";
 import handleError from "@/lib/handlers/error";
 import { prisma } from "@/lib/prisma";
 

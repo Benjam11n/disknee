@@ -8,7 +8,7 @@ import {
   GetExercisesSchema,
   GetExerciseByIdSchema,
   UpdateExerciseDoneSchema,
-} from "@/lib/validations/exercise-schemas";
+} from "@/lib/validations/exercise-validations";
 import {
   CreateExerciseParams,
   GetExerciseByIdParams,

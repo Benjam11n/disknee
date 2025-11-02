@@ -3,7 +3,7 @@ import {
   GetPlanByIdSchema,
   GetPlansByDateRangeSchema,
   GetPlansSchema,
-} from "@/lib/validations/plan-schemas";
+} from "@/lib/validations/plan-validations";
 import { Prisma } from "@prisma/client";
 
 export type GetPlansParams = z.infer<typeof GetPlansSchema>;

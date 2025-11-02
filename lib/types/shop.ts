@@ -4,7 +4,7 @@ import {
   GetUserInventorySchema,
   PurchaseItemSchema,
   EquipItemSchema,
-} from "@/lib/validations/shop-schemas";
+} from "@/lib/validations/shop-validations";
 
 export type GetShopItemsParams = z.infer<typeof GetShopItemsSchema>;
 export type GetUserInventoryParams = z.infer<typeof GetUserInventorySchema>;

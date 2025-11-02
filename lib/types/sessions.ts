@@ -4,7 +4,7 @@ import {
   CreateSessionSchema,
   GetSessionByIdSchema,
   GetSessionsSchema,
-} from "@/lib/validations/session-schemas";
+} from "@/lib/validations/session-validations";
 
 export type CreateSessionParams = z.infer<typeof CreateSessionSchema>;
 export type CreateReflectionParams = z.infer<typeof CreateReflectionSchema>;

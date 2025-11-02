@@ -7,7 +7,7 @@ import {
   CreateSessionSchema,
   GetSessionsSchema,
   GetSessionByIdSchema,
-} from "@/lib/validations/session-schemas";
+} from "@/lib/validations/session-validations";
 import {
   CreateSessionParams,
   GetSessionByIdParams,

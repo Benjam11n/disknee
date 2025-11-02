@@ -6,7 +6,7 @@ import handleError from "@/lib/handlers/error";
 import {
   GetLeaderboardSchema,
   GetLeaderboardByRankSchema,
-} from "@/lib/validations/leaderboard-schemas";
+} from "@/lib/validations/leaderboard-validations";
 import {
   GetLeaderboardByRankParams,
   GetLeaderboardParams,

@@ -4,7 +4,7 @@ import handleError from "@/lib/handlers/error";
 import { NotFoundError } from "@/lib/http-errors";
 import { prisma } from "@/lib/prisma";
 import { GetUserByIdParams } from "@/lib/types/users";
-import { GetUserByIdSchema } from "@/lib/validations/users-schemas";
+import { GetUserByIdSchema } from "@/lib/validations/users-validations";
 
 export async function getUserByIdAction(
   params: GetUserByIdParams
