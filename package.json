@@ -47,6 +47,7 @@
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",
+    "uvicorn": "^0.0.1-security",
     "zod": "^4.1.12"
   },
   "devDependencies": {
