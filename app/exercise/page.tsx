@@ -1,5 +1,5 @@
 import { getExercisesAction } from "@/lib/actions/exercises";
-import { getPlans } from "@/lib/actions/plans";
+
 import { ExerciseList } from "@/components/dashboard/ExerciseList";
 import { Exercise } from "@prisma/client";
 
@@ -9,7 +9,7 @@ export default async function ExercisePage() {
 
   const exercises: Exercise[] =
     exercisesData && !("error" in exercisesData)
-      ? exercisesData
+      ? (exercisesData as Exercise[])
       : [];
 
   // For demo purposes, assume all exercises are for this week
@@ -18,7 +18,8 @@ export default async function ExercisePage() {
 
   const completedCount = weeklyExercises.filter((ex) => ex.done).length;
   const totalCount = weeklyExercises.length;
-  const pillPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  const pillPercent =
+    totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   const weeklyTotalMins = weeklyExercises.reduce((total, exercise) => {
     return total + (exercise.estimatedMins || 0);

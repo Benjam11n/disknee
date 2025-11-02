@@ -13,4 +13,5 @@ export const ROUTES = {
     detail: (id: string) => `/exercise/${id}`,
   },
   LEADERBOARD: "/leaderboard",
+  SHOP: "/shop",
 } as const;

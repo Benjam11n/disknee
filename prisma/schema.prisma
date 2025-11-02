@@ -18,8 +18,12 @@ enum Difficulty {
 model User {
   id        String   @id @default(cuid())
   name      String   @unique
+  points    Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  inventory UserInventory[]
+  sessions  Session[]
 
   @@map("users")
 }
@@ -74,11 +78,13 @@ model Session {
   videoUrl      String?
   notes         String?
   exerciseId    String?   // Optional link to an exercise
+  userId        String?   // Optional link to a user
   createdAt     DateTime  @default(now())
 
   // Relations
   reflection Reflection?
   exercise    Exercise?  @relation(fields: [exerciseId], references: [id], onDelete: SetNull)
+  user        User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@map("sessions")
 }
@@ -101,7 +107,7 @@ view leaderboardByScore {
   rank               Int
   name               String
   weeks              Int
-  accuracyPercentage Int
+  accuracypercentage Int
   score              Int
 
   @@map("leaderboard_by_score")
@@ -111,8 +117,40 @@ view leaderboardByAccuracy {
   rank               Int
   name               String
   weeks              Int
-  accuracyPercentage Int
+  accuracypercentage Int
   score              Int
 
   @@map("leaderboard_by_accuracy")
+}
+
+model ShopItem {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Int      // Cost in points
+  type        String   // e.g., "hat", "accessory"
+  icon        String   // Emoji or icon representation
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  inventory UserInventory[]
+
+  @@map("shop_items")
+}
+
+model UserInventory {
+  id        String   @id @default(cuid())
+  userId    String
+  itemId    String
+  isEquipped Boolean  @default(false)
+  purchasedAt DateTime @default(now())
+
+  // Relations
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item    ShopItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, itemId])
+  @@map("user_inventory")
 }

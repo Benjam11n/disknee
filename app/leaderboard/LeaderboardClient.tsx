@@ -5,17 +5,10 @@ import { Leaderboard } from "@/components/dashboard/Leaderboard";
 import { getLeaderboardAction } from "@/lib/actions/leaderboard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-
-interface LeaderboardEntry {
-  rank: number;
-  name: string;
-  weeks: number;
-  accuracyPercentage: number;
-  score: number;
-}
+import { leaderboardByScore } from "@prisma/client";
 
 interface LeaderboardClientProps {
-  initialLeaderboard: LeaderboardEntry[];
+  initialLeaderboard: leaderboardByScore[];
   patientName: string;
 }
 
@@ -24,7 +17,7 @@ export function LeaderboardClient({
   patientName,
 }: LeaderboardClientProps) {
   const [leaderboardData, setLeaderboardData] =
-    useState<LeaderboardEntry[]>(initialLeaderboard);
+    useState<leaderboardByScore[]>(initialLeaderboard);
   const [rankingType, setRankingType] = useState<"score" | "accuracy">("score");
   const [loading, setLoading] = useState(false);
 
@@ -38,15 +31,7 @@ export function LeaderboardClient({
         sortOrder: "asc",
         rankingType: type,
       });
-      const formattedData = Array.isArray(data)
-        ? data.map((entry) => ({
-            rank: entry.rank,
-            name: entry.name,
-            weeks: entry.weeks,
-            accuracyPercentage: entry.accuracyPercentage,
-            score: entry.score,
-          }))
-        : [];
+      const formattedData = Array.isArray(data) ? data : [];
       setLeaderboardData(formattedData);
     } catch (error) {
       console.error("Failed to fetch leaderboard:", error);

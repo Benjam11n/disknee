@@ -1,17 +1,10 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { getRankDisplay } from "@/lib/utils";
-
-interface LeaderboardRow {
-  rank: number;
-  name: string;
-  weeks: number;
-  accuracyPercentage: number;
-  score: number;
-}
+import { leaderboardByScore } from "@prisma/client";
 
 interface LeaderboardItemProps {
-  row: LeaderboardRow;
+  row: leaderboardByScore;
   isCurrentUser?: boolean;
   showRank?: boolean;
   compact?: boolean;
@@ -88,7 +81,7 @@ export function LeaderboardItem({
           `}
         >
           {displayValue === "accuracy"
-            ? `${row.accuracyPercentage}%`
+            ? `${row.accuracypercentage}%`
             : row.score}
         </span>
       </div>

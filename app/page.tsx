@@ -2,22 +2,36 @@ import { getExercisesAction } from "@/lib/actions/exercises";
 import { getAppointmentsAction } from "@/lib/actions/appointments";
 import { getPlans } from "@/lib/actions/plans";
 import { getLeaderboardAction } from "@/lib/actions/leaderboard";
+import { getUserByIdAction } from "@/lib/actions/users";
+import { getUserInventoryAction } from "@/lib/actions/shop";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
+import { ShopItem, UserInventory } from "@prisma/client";
+
+// todo: use a constant for this
+const userId = "cmhgxrmgb00033fzvmx6inphh";
 
 export default async function RehabDashboardPage() {
-  const [exercisesData, appointmentsData, plansData, leaderboardData] =
-    await Promise.allSettled([
-      getExercisesAction({ page: 1, limit: 50 }),
-      getAppointmentsAction({ limit: 50, offset: 0 }),
-      getPlans({ limit: 100, offset: 0, include: { exercises: true } }),
-      getLeaderboardAction({
-        limit: 50,
-        offset: 0,
-        sortBy: "rank",
-        sortOrder: "asc",
-        rankingType: "score",
-      }),
-    ]);
+  const [
+    exercisesData,
+    appointmentsData,
+    plansData,
+    leaderboardData,
+    userData,
+    inventoryData,
+  ] = await Promise.allSettled([
+    getExercisesAction({ page: 1, limit: 50 }),
+    getAppointmentsAction({ limit: 50, offset: 0 }),
+    getPlans({ limit: 100, offset: 0, include: { exercises: true } }),
+    getLeaderboardAction({
+      limit: 50,
+      offset: 0,
+      sortBy: "rank",
+      sortOrder: "asc",
+      rankingType: "score",
+    }),
+    getUserByIdAction({ userId }),
+    getUserInventoryAction({ userId }),
+  ]);
 
   const exercises =
     exercisesData.status === "fulfilled" && !("success" in exercisesData.value)
@@ -48,12 +62,32 @@ export default async function RehabDashboardPage() {
       ? leaderboardData.value
       : [];
 
-  // TODO: For demo purposes, use Donald Duck as patient name
-  // In a real app, this would come from authentication
-  const patientName = "Donald Duck";
+  const user =
+    userData.status === "fulfilled" && !("error" in userData.value)
+      ? (
+          userData.value as {
+            success: boolean;
+            data: { name: string; id: string; points: number };
+          }
+        ).data
+      : { points: 0, name: "Donald Duck", id: "default" };
+
+  const inventory =
+    inventoryData.status === "fulfilled" && !("error" in inventoryData.value)
+      ? (
+          inventoryData.value as {
+            success: boolean;
+            data: (UserInventory & { item: ShopItem })[];
+          }
+        ).data
+      : [];
+
+  const equippedItems = inventory
+    .filter((item) => item.isEquipped)
+    .map((item) => item.item);
 
   const initialData = {
-    patientName,
+    patientName: user.name,
     exercises,
     leaderboard,
     appointments,
@@ -61,6 +95,8 @@ export default async function RehabDashboardPage() {
     overallPercent: undefined,
     programWeeks: 10,
     weeksCompleted: 0,
+    userPoints: user.points,
+    equippedItems,
   };
 
   return <DashboardClient initialData={initialData} />;

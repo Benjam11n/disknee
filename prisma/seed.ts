@@ -1,11 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import seedData from "../app/seed.json";
+import shopItems from "./shop-seed.json";
 import { Difficulty } from "@prisma/client";
 
 async function main() {
   console.log("🌱 Seeding database with JSON data...");
 
   // Clean up existing data
+  await prisma.userInventory.deleteMany();
+  await prisma.shopItem.deleteMany();
   await prisma.reflection.deleteMany();
   await prisma.session.deleteMany();
   await prisma.exercise.deleteMany();
@@ -24,6 +27,25 @@ async function main() {
     )
   );
   console.log(`✅ Created ${users.length} users`);
+
+  
+  // Create shop items
+  const createdShopItems = await Promise.all(
+    shopItems.map((item) =>
+      prisma.shopItem.create({
+        data: {
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          icon: item.icon,
+          type: item.type,
+          price: item.price,
+          isActive: item.active,
+        },
+      })
+    )
+  );
+  console.log(`✅ Created ${createdShopItems.length} shop items`);
 
   // Create plans
   const plans = await Promise.all(
@@ -97,6 +119,7 @@ async function main() {
           accuracy: sessionData.accuracy,
           maxAccuracy: sessionData.maxAccuracy,
           exerciseId: exercises[sessionData.exerciseIndex].id,
+          userId: users[sessionData.userIndex].id,
           notes: `Score: ${
             sessionData.accuracy * 100 +
             (sessionData.hasReflection ? 20 : 0)
@@ -118,25 +141,50 @@ async function main() {
     console.log(`✅ Created ${seedData.sessions.length} sessions`);
   }
 
-  // Calculate score summary for Donald Duck (index 0)
-  const donaldDuckSessions = await prisma.session.findMany({
-    where: {
-      // Note: We're filtering by recent sessions since we don't have user relation
-      createdAt: {
-        gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+  // Calculate and update points for all users
+  for (const user of users) {
+    const userSessions = await prisma.session.findMany({
+      where: {
+        userId: user.id,
       },
-    },
-    include: {
-      reflection: true,
-    },
+      include: {
+        reflection: true,
+      },
+    });
+
+    const totalScore = userSessions.reduce((sum, session) => {
+      return sum + (session.accuracy * 100 + (session.reflection ? 20 : 0));
+    }, 0);
+
+    if (userSessions.length > 0) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { points: totalScore },
+      });
+      console.log(`✅ Updated ${user.name} with ${totalScore} points from ${userSessions.length} sessions`);
+    }
+  }
+
+  // Give Donald Duck some starter items
+  const donaldDuck = users[0];
+  await prisma.userInventory.createMany({
+    data: [
+      {
+        userId: donaldDuck.id,
+        itemId: "hat-baseball",
+        isEquipped: true,
+      },
+      {
+        userId: donaldDuck.id,
+        itemId: "accessory-glasses",
+        isEquipped: true,
+      },
+    ],
   });
+  console.log(`✅ Given ${donaldDuck.name} starter items`);
 
-  const totalScore = donaldDuckSessions.reduce((sum, session) => {
-    return sum + (session.accuracy * 100 + (session.reflection ? 20 : 0));
-  }, 0);
-
-  const avgAccuracy = donaldDuckSessions.length > 0
-    ? donaldDuckSessions.reduce((sum, session) => sum + session.accuracy, 0) / donaldDuckSessions.length
+  const avgAccuracy = seedData.sessions
+    ? seedData.sessions.reduce((sum, s) => sum + s.accuracy, 0) / seedData.sessions.length
     : 0;
 
   console.log("\n✅ Database seeded successfully!");
@@ -145,11 +193,12 @@ async function main() {
   console.log(`  - Plans: ${plans.length}`);
   console.log(`  - Exercises: ${exercises.length}`);
   console.log(`  - Sessions: ${seedData.sessions?.length || 0}`);
-  console.log(`  - Total score (last 30 days): ${totalScore}`);
+  console.log(`  - Shop items: ${createdShopItems.length}`);
   console.log(`  - Average accuracy: ${avgAccuracy.toFixed(1)}%`);
 
   console.log("\n💡 Score formula: (accuracy × 100) + 20 bonus for reflection");
-  console.log("\n🎯 Leaderboard will show rankings based on session performance!");
+  console.log("\n🛍️  Shop is ready with hats and accessories!");
+  console.log("\n🎯 Leaderboard will show rankings for all users!");
 }
 
 main()

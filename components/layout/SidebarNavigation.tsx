@@ -11,7 +11,7 @@ import {
   SidebarProvider,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { Home, Trophy, Activity, Settings, HelpCircle } from "lucide-react";
+import { Home, Trophy, Activity, ShoppingBag, Settings, HelpCircle } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
@@ -26,15 +26,20 @@ const navigation = [
     icon: Home,
   },
   {
-    name: "Leaderboard",
-    href: "/leaderboard",
-    icon: Trophy,
-  },
-  {
     name: "Exercises",
     href: "/exercise",
     icon: Activity,
     badge: "3 new",
+  },
+  {
+    name: "Shop",
+    href: "/shop",
+    icon: ShoppingBag,
+  },
+  {
+    name: "Leaderboard",
+    href: "/leaderboard",
+    icon: Trophy,
   },
 ];
 

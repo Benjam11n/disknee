@@ -54,7 +54,7 @@ export default function ExerciseDetailPage() {
         const result = await getExerciseByIdAction({ id: exerciseId });
 
         if (result && !("error" in result)) {
-          setExercise(result);
+          setExercise(result as Exercise);
         } else {
           setError("Exercise not found");
         }

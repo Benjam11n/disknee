@@ -9,22 +9,18 @@ import { UpcomingAppointments } from "@/components/dashboard/UpcomingAppointment
 import { ProgressSummary } from "@/components/dashboard/ProgressSummary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buildMonthMatrix, formatYMD, formatTime } from "@/lib/date-utils";
-import { Appointment, Exercise, Plan } from "@prisma/client";
+import {
+  Appointment,
+  Exercise,
+  leaderboardByScore,
+  Plan,
+} from "@prisma/client";
 import { PlanWithExercises } from "@/lib/types/plans";
-
-// todo
-interface LeaderboardEntry {
-  rank: number;
-  name: string;
-  weeks: number;
-  accuracyPercentage: number;
-  score: number;
-}
 
 interface DashboardData {
   patientName: string;
   exercises: Exercise[];
-  leaderboard: LeaderboardEntry[];
+  leaderboard: leaderboardByScore[];
   appointments: Appointment[];
   plans: Plan[];
   overallPercent?: number;

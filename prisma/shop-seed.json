@@ -1,0 +1,74 @@
+[
+  {
+    "id": "hat-baseball",
+    "name": "Baseball Cap",
+    "description": "A classic baseball cap for sporty looks",
+    "icon": "🧢",
+    "type": "hat",
+    "price": 100,
+    "active": true
+  },
+  {
+    "id": "hat-crown",
+    "name": "Golden Crown",
+    "description": "A majestic crown for true champions",
+    "icon": "👑",
+    "type": "hat",
+    "price": 500,
+    "active": true
+  },
+  {
+    "id": "hat-wizard",
+    "name": "Wizard Hat",
+    "description": "Magical hat for the wise and mysterious",
+    "icon": "🎩",
+    "type": "hat",
+    "price": 300,
+    "active": true
+  },
+  {
+    "id": "hat-santa",
+    "name": "Santa Hat",
+    "description": "Festive hat for holiday cheer",
+    "icon": "🎅",
+    "type": "hat",
+    "price": 200,
+    "active": true
+  },
+  {
+    "id": "hat-top",
+    "name": "Top Hat",
+    "description": "Elegant top hat for sophisticated looks",
+    "icon": "🎩",
+    "type": "hat",
+    "price": 250,
+    "active": true
+  },
+  {
+    "id": "accessory-glasses",
+    "name": "Cool Shades",
+    "description": "Stylish sunglasses for cool vibes",
+    "icon": "🕶️",
+    "type": "accessory",
+    "price": 150,
+    "active": true
+  },
+  {
+    "id": "accessory-monocle",
+    "name": "Monocle",
+    "description": "A sophisticated monocle for gentlemen",
+    "icon": "🧐",
+    "type": "accessory",
+    "price": 180,
+    "active": true
+  },
+  {
+    "id": "accessory-patch",
+    "name": "Eye Patch",
+    "description": "Pirate-worthy eye patch",
+    "icon": "🏴‍☠️",
+    "type": "accessory",
+    "price": 120,
+    "active": true
+  }
+]

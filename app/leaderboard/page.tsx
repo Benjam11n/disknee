@@ -14,7 +14,6 @@ export default async function LeaderboardPage() {
     ? initialLeaderboardData
     : [];
 
-  console.log(initialLeaderboard);
   const patientName = "Donald Duck";
 
   return (

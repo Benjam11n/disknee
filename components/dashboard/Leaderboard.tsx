@@ -2,20 +2,18 @@
 
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
 import { LeaderboardItem } from "./LeaderboardItem";
-
-interface LeaderboardRow {
-  rank: number;
-  name: string;
-  weeks: number;
-  accuracyPercentage: number;
-  score: number;
-}
+import { leaderboardByScore } from "@prisma/client";
 
 interface LeaderboardProps {
-  leaderboard: LeaderboardRow[];
+  leaderboard: leaderboardByScore[];
   patientName: string;
   showAll?: boolean;
   maxItems?: number;
@@ -33,7 +31,7 @@ export function Leaderboard({
 }: LeaderboardProps) {
   const sortedLeaderboard = [...leaderboard].sort((a, b) => {
     if (rankingType === "accuracy") {
-      return b.accuracyPercentage - a.accuracyPercentage || a.rank - b.rank;
+      return b.accuracypercentage - a.accuracypercentage || a.rank - b.rank;
     }
     return b.score - a.score || a.rank - b.rank;
   });
@@ -52,7 +50,8 @@ export function Leaderboard({
         <div>
           <div className="flex items-center gap-2 mb-3">
             <p className="text-sm text-muted-foreground">
-              Top performers by {rankingType === "accuracy" ? "accuracy" : "score"}
+              Top performers by{" "}
+              {rankingType === "accuracy" ? "accuracy" : "score"}
             </p>
             {rankingType === "score" && (
               <Tooltip>
@@ -87,90 +86,93 @@ export function Leaderboard({
           )}
         </div>
 
-      {/* Top entries */}
-      <div className="space-y-2">
-        {/* First place */}
-        {topEntries[0] && (
-          <LeaderboardItem
-            key={topEntries[0].rank}
-            row={topEntries[0]}
-            isCurrentUser={isLeaderboardMe(topEntries[0], patientName)}
-            displayValue={rankingType}
-          />
-        )}
-
-        {/* Second and Third place */}
-        <div className="grid grid-cols-2 gap-2">
-          {topEntries[1] && (
+        {/* Top entries */}
+        <div className="space-y-2">
+          {/* First place */}
+          {topEntries[0] && (
             <LeaderboardItem
-              key={topEntries[1].rank}
-              row={topEntries[1]}
-              isCurrentUser={isLeaderboardMe(topEntries[1], patientName)}
+              key={topEntries[0].rank}
+              row={topEntries[0]}
+              isCurrentUser={isLeaderboardMe(topEntries[0], patientName)}
               displayValue={rankingType}
             />
           )}
-          {topEntries[2] && (
-            <LeaderboardItem
-              key={topEntries[2].rank}
-              row={topEntries[2]}
-              isCurrentUser={isLeaderboardMe(topEntries[2], patientName)}
-              displayValue={rankingType}
-            />
+
+          {/* Second and Third place */}
+          <div className="grid grid-cols-2 gap-2">
+            {topEntries[1] && (
+              <LeaderboardItem
+                key={topEntries[1].rank}
+                row={topEntries[1]}
+                isCurrentUser={isLeaderboardMe(topEntries[1], patientName)}
+                displayValue={rankingType}
+              />
+            )}
+            {topEntries[2] && (
+              <LeaderboardItem
+                key={topEntries[2].rank}
+                row={topEntries[2]}
+                isCurrentUser={isLeaderboardMe(topEntries[2], patientName)}
+                displayValue={rankingType}
+              />
+            )}
+          </div>
+
+          {/* Fourth and Fifth place */}
+          {maxItems >= 5 && (
+            <div className="grid grid-cols-2 gap-2">
+              {topEntries[3] && (
+                <LeaderboardItem
+                  key={topEntries[3].rank}
+                  row={topEntries[3]}
+                  isCurrentUser={isLeaderboardMe(topEntries[3], patientName)}
+                  displayValue={rankingType}
+                />
+              )}
+              {topEntries[4] && (
+                <LeaderboardItem
+                  key={topEntries[4].rank}
+                  row={topEntries[4]}
+                  isCurrentUser={isLeaderboardMe(topEntries[4], patientName)}
+                  displayValue={rankingType}
+                />
+              )}
+            </div>
           )}
         </div>
 
-        {/* Fourth and Fifth place */}
-        {maxItems >= 5 && (
-          <div className="grid grid-cols-2 gap-2">
-            {topEntries[3] && (
-              <LeaderboardItem
-                key={topEntries[3].rank}
-                row={topEntries[3]}
-                isCurrentUser={isLeaderboardMe(topEntries[3], patientName)}
-                displayValue={rankingType}
-              />
-            )}
-            {topEntries[4] && (
-              <LeaderboardItem
-                key={topEntries[4].rank}
-                row={topEntries[4]}
-                isCurrentUser={isLeaderboardMe(topEntries[4], patientName)}
-                displayValue={rankingType}
-              />
-            )}
-          </div>
+        {/* Current user if not in top */}
+        {!isUserInTop && currentUserData && (
+          <>
+            <Separator />
+            <LeaderboardItem
+              row={currentUserData}
+              isCurrentUser={true}
+              displayValue={rankingType}
+            />
+          </>
         )}
-      </div>
 
-      {/* Current user if not in top */}
-      {!isUserInTop && currentUserData && (
-        <>
-          <Separator />
-          <LeaderboardItem
-            row={currentUserData}
-            isCurrentUser={true}
-            displayValue={rankingType}
-          />
-        </>
-      )}
-
-      {/* Show more */}
-      {showAll && sortedLeaderboard.length > maxItems && (
-        <>
-          <Separator />
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">
-              Showing {Math.min(maxItems, sortedLeaderboard.length)} of{" "}
-              {sortedLeaderboard.length} total
-            </p>
-          </div>
-        </>
-      )}
+        {/* Show more */}
+        {showAll && sortedLeaderboard.length > maxItems && (
+          <>
+            <Separator />
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground">
+                Showing {Math.min(maxItems, sortedLeaderboard.length)} of{" "}
+                {sortedLeaderboard.length} total
+              </p>
+            </div>
+          </>
+        )}
       </div>
     </TooltipProvider>
   );
 }
 
-function isLeaderboardMe(row: LeaderboardRow, patientName: string): boolean {
+function isLeaderboardMe(
+  row: leaderboardByScore,
+  patientName: string
+): boolean {
   return row?.name === patientName;
 }
