@@ -137,7 +137,18 @@ async function main() {
 
   // Create exercise sessions and reflections
   if (seedData.sessions) {
+    let sessionCount = 0;
     for (const sessionData of seedData.sessions) {
+      // Check if the exercise and user indices are valid
+      if (sessionData.exerciseIndex >= exercises.length) {
+        console.warn(`⚠️ Skipping session with invalid exerciseIndex: ${sessionData.exerciseIndex}`);
+        continue;
+      }
+      if (sessionData.userIndex >= users.length) {
+        console.warn(`⚠️ Skipping session with invalid userIndex: ${sessionData.userIndex}`);
+        continue;
+      }
+
       const exerciseSession = await prisma.exerciseSession.create({
         data: {
           startedAt: new Date(sessionData.startedAt),
@@ -167,8 +178,9 @@ async function main() {
           },
         });
       }
+      sessionCount++;
     }
-    console.log(`✅ Created ${seedData.sessions.length} exercise sessions`);
+    console.log(`✅ Created ${sessionCount} exercise sessions`);
   }
 
   // Calculate and update points for all users
