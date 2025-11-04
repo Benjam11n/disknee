@@ -18,6 +18,7 @@ import {
   ShoppingBag,
   Settings,
   HelpCircle,
+  LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -25,39 +26,46 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { ROUTES } from "@/lib/constants/routes";
 
-const navigation = [
+type NavigationItem = {
+  name: string;
+  href: string;
+  icon: LucideIcon;
+};
+
+const navigation: NavigationItem[] = [
   {
     name: "Dashboard",
-    href: "/",
+    href: ROUTES.HOME,
     icon: Home,
   },
   {
     name: "Exercises",
-    href: "/exercise",
+    href: ROUTES.EXERCISE.BASE,
     icon: Activity,
   },
   {
     name: "Shop",
-    href: "/shop",
+    href: ROUTES.SHOP,
     icon: ShoppingBag,
   },
   {
     name: "Leaderboard",
-    href: "/leaderboard",
+    href: ROUTES.LEADERBOARD,
     icon: Trophy,
   },
 ];
 
-const secondaryNavigation = [
+const secondaryNavigation: NavigationItem[] = [
   {
     name: "Settings",
-    href: "/settings",
+    href: ROUTES.SETTINGS,
     icon: Settings,
   },
   {
     name: "Help & Support",
-    href: "/help",
+    href: ROUTES.HELP,
     icon: HelpCircle,
   },
 ];

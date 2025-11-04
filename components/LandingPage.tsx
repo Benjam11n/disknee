@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { GlowBlob } from "@/components/glow-blob";
+import { LandingPageNavbar } from "@/components/LandingPageNavbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -15,10 +15,9 @@ import {
   Users,
   Award,
 } from "lucide-react";
+import { ROUTES } from "@/lib/constants/routes";
 
 export function LandingPage() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
   const scrollToFeatures = () => {
     const element = document.getElementById("features");
     element?.scrollIntoView({ behavior: "smooth" });
@@ -26,109 +25,11 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">
-                  D
-                </span>
-              </div>
-              <span className="font-bold text-xl">DisKnee</span>
-            </div>
-
-            <div className="hidden md:flex items-center space-x-8">
-              <a
-                href="#features"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Features
-              </a>
-              <a
-                href="#how-it-works"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                How It Works
-              </a>
-              <a
-                href="#testimonials"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Testimonials
-              </a>
-              <Link href="/login">
-                <Button>Sign In</Button>
-              </Link>
-            </div>
-
-            <div className="md:hidden">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-              >
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  {isMenuOpen ? (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  ) : (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
-                  )}
-                </svg>
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile menu */}
-        {isMenuOpen && (
-          <div className="md:hidden bg-background border-b">
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              <a
-                href="#features"
-                className="block px-3 py-2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Features
-              </a>
-              <a
-                href="#how-it-works"
-                className="block px-3 py-2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                How It Works
-              </a>
-              <a
-                href="#testimonials"
-                className="block px-3 py-2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Testimonials
-              </a>
-              <Link href="/login" className="block px-3 py-2">
-                <Button className="w-full">Sign In</Button>
-              </Link>
-            </div>
-          </div>
-        )}
-      </nav>
+      <LandingPageNavbar scrollToFeatures={scrollToFeatures} />
 
       {/* Hero Section with GlowBlob */}
-      <GlowBlob className="min-h-[600px] flex items-center">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <GlowBlob className="min-h-[600px] flex items-center justify-center">
+        <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
               <div className="space-y-4">
@@ -144,7 +45,7 @@ export function LandingPage() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/login">
+                <Link href={ROUTES.LOGIN}>
                   <Button size="lg" className="text-lg px-8 py-6 h-auto">
                     Get Started Today
                   </Button>
@@ -306,7 +207,7 @@ export function LandingPage() {
               Join thousands of patients who have transformed their recovery
               with DisKnee.
             </p>
-            <Link href="/login">
+            <Link href={ROUTES.LOGIN}>
               <Button size="lg" className="text-lg px-12 py-6 h-auto">
                 Get Started Now
               </Button>
