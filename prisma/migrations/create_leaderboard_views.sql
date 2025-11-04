@@ -1,4 +1,4 @@
--- Create leaderboard views based on session data
+-- Create leaderboard views based on exercise session data
 -- These views calculate rankings based on score and accuracy
 
 -- View for leaderboard by score
@@ -12,15 +12,15 @@ SELECT
 FROM (
     SELECT
         u.name,
-        COUNT(DISTINCT DATE_TRUNC('week', s."startedAt")) as total_weeks,
-        COALESCE(AVG(s.accuracy), 0) as avg_accuracy,
-        COALESCE(SUM(s.accuracy * 100 + CASE WHEN r.id IS NOT NULL THEN 20 ELSE 0 END), 0) as total_score
+        COUNT(DISTINCT DATE_TRUNC('week', es."startedAt")) as total_weeks,
+        COALESCE(AVG(es.accuracy), 0) as avg_accuracy,
+        COALESCE(SUM(es.accuracy * 100 + CASE WHEN r.id IS NOT NULL THEN 20 ELSE 0 END), 0) as total_score
     FROM users u
-    LEFT JOIN sessions s ON u.id = s."userId"
-    LEFT JOIN reflections r ON s.id = r."sessionId"
-    WHERE s."createdAt" >= NOW() - INTERVAL '12 months' OR s."createdAt" IS NULL
+    LEFT JOIN "exercise_sessions" es ON u.id = es."userId"
+    LEFT JOIN reflections r ON es.id = r."exerciseSessionId"
+    WHERE es."createdAt" >= NOW() - INTERVAL '12 months' OR es."createdAt" IS NULL
     GROUP BY u.id, u.name
-    HAVING COUNT(s.id) > 0
+    HAVING COUNT(es.id) > 0
 ) user_stats
 ORDER BY total_score DESC;
 
@@ -35,14 +35,14 @@ SELECT
 FROM (
     SELECT
         u.name,
-        COUNT(DISTINCT DATE_TRUNC('week', s."startedAt")) as total_weeks,
-        COALESCE(AVG(s.accuracy), 0) as avg_accuracy,
-        COALESCE(SUM(s.accuracy * 100 + CASE WHEN r.id IS NOT NULL THEN 20 ELSE 0 END), 0) as total_score
+        COUNT(DISTINCT DATE_TRUNC('week', es."startedAt")) as total_weeks,
+        COALESCE(AVG(es.accuracy), 0) as avg_accuracy,
+        COALESCE(SUM(es.accuracy * 100 + CASE WHEN r.id IS NOT NULL THEN 20 ELSE 0 END), 0) as total_score
     FROM users u
-    LEFT JOIN sessions s ON u.id = s."userId"
-    LEFT JOIN reflections r ON s.id = r."sessionId"
-    WHERE s."createdAt" >= NOW() - INTERVAL '12 months' OR s."createdAt" IS NULL
+    LEFT JOIN "exercise_sessions" es ON u.id = es."userId"
+    LEFT JOIN reflections r ON es.id = r."exerciseSessionId"
+    WHERE es."createdAt" >= NOW() - INTERVAL '12 months' OR es."createdAt" IS NULL
     GROUP BY u.id, u.name
-    HAVING COUNT(s.id) > 0
+    HAVING COUNT(es.id) > 0
 ) user_stats
 ORDER BY avg_accuracy DESC;
