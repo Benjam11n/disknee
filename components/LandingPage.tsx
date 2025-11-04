@@ -38,7 +38,7 @@ export function LandingPage() {
                   AI-Powered Virtual Physiotherapy for
                   <span className="text-primary"> Knee Rehabilitation</span>
                 </h1>
-                <p className="text-xl text-muted-foreground lg:text-2xl">
+                <p className="text-xl text-muted-foreground lg:text-2xl mb-8">
                   Recover smarter with personalized exercise plans, real-time AI
                   feedback, and comprehensive progress tracking—all from the
                   comfort of your home.
@@ -208,7 +208,7 @@ export function LandingPage() {
               Join thousands of patients who have transformed their recovery
               with DisKnee.
             </p>
-            <Link href={ROUTES.LOGIN}>
+            <Link href={ROUTES.LOGIN} className="block">
               <Button size="lg" className="text-lg px-12 py-6 h-auto">
                 Get Started Now
               </Button>
