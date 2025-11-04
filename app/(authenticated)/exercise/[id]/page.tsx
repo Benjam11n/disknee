@@ -11,21 +11,7 @@ import { ExerciseDifficulty, Exercise } from "@prisma/client";
 import { ROUTES } from "@/lib/constants/routes";
 import { getExerciseByIdAction } from "@/lib/actions/exercises";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getDifficultyBadgeVariant } from "@/lib/utils";
-
-// todo: move to utils file
-function getDifficultyColor(difficulty?: ExerciseDifficulty) {
-  switch (difficulty) {
-    case ExerciseDifficulty.EASY:
-      return "text-emerald-600 dark:text-emerald-400";
-    case ExerciseDifficulty.MODERATE:
-      return "text-amber-600 dark:text-amber-400";
-    case ExerciseDifficulty.HARD:
-      return "text-rose-600 dark:text-rose-400";
-    default:
-      return "text-muted-foreground";
-  }
-}
+import { getDifficultyBadgeVariant, getDifficultyColor } from "@/lib/utils";
 
 export default function ExerciseDetailPage() {
   const params = useParams();

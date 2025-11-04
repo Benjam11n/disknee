@@ -29,6 +29,19 @@ export function getDifficultyBadgeVariant(difficulty?: ExerciseDifficulty) {
   }
 }
 
+export function getDifficultyColor(difficulty?: ExerciseDifficulty) {
+  switch (difficulty) {
+    case ExerciseDifficulty.EASY:
+      return "text-emerald-600 dark:text-emerald-400";
+    case ExerciseDifficulty.MODERATE:
+      return "text-amber-600 dark:text-amber-400";
+    case ExerciseDifficulty.HARD:
+      return "text-rose-600 dark:text-rose-400";
+    default:
+      return "text-muted-foreground";
+  }
+}
+
 export function getDifficultyStyles(difficulty?: ExerciseDifficulty) {
   switch (difficulty) {
     case ExerciseDifficulty.EASY:
