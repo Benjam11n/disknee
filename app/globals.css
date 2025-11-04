@@ -3,17 +3,17 @@
 @tailwind utilities;
 
 :root {
-  --background: 53.3333 39.1304% 95.4902%;
+  --background: 54 100% 98.0392%;
   --foreground: 0 0% 35.6863%;
-  --card: 42 100% 96.0784%;
+  --card: 0 0% 100%;
   --card-foreground: 0 0% 35.6863%;
   --popover: 0 0% 100%;
   --popover-foreground: 0 0% 35.6863%;
-  --primary: 12.809 91.7526% 80.9804%;
+  --primary: 12.8926 88.3212% 73.1373%;
   --primary-foreground: 0 0% 100%;
   --secondary: 18.0347 100% 66.0784%;
   --secondary-foreground: 0 0% 20%;
-  --muted: 190.5263 58.7629% 80.9804%;
+  --muted: 38.3333 100% 92.9412%;
   --muted-foreground: 0 0% 47.8431%;
   --accent: 42.3529 100% 90%;
   --accent-foreground: 0 0% 20%;
@@ -27,11 +27,11 @@
   --chart-3: 42.1429 91.3043% 81.9608%;
   --chart-4: 329.6386 77.5701% 79.0196%;
   --chart-5: 330.6294 64.1256% 56.2745%;
-  --sidebar: 326.25 69.5652% 90.9804%;
+  --sidebar: 54 100% 98.0392%;
   --sidebar-foreground: 0 0% 20%;
   --sidebar-primary: 330.3659 81.1881% 60.3922%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 327.4074 87.0968% 81.7647%;
+  --sidebar-accent: 38.3333 100% 92.9412%;
   --sidebar-accent-foreground: 0 0% 20%;
   --sidebar-border: 268.6957 100% 95.4902%;
   --sidebar-ring: 330.3659 81.1881% 60.3922%;
@@ -69,13 +69,13 @@
   --card-foreground: 333.75 40% 92.1569%;
   --popover: 201.4286 33.3333% 16.4706%;
   --popover-foreground: 333.75 40% 92.1569%;
-  --primary: 42.2951 100% 88.0392%;
+  --primary: 41.7391 100% 81.9608%;
   --primary-foreground: 201.4286 43.75% 12.549%;
   --secondary: 346.2295 100% 76.0784%;
   --secondary-foreground: 201.4286 43.75% 12.549%;
   --muted: 214.2857 8.8608% 15.4902%;
   --muted-foreground: 346.3636 55% 76.4706%;
-  --accent: 338.4 39.6825% 62.9412%;
+  --accent: 338.0645 37.9592% 51.9608%;
   --accent-foreground: 333.75 40% 92.1569%;
   --destructive: 328.4211 70.3704% 62.9412%;
   --destructive-foreground: 201.4286 43.75% 12.549%;
@@ -87,14 +87,14 @@
   --chart-3: 338.4 39.6825% 62.9412%;
   --chart-4: 191.2941 64.8855% 25.6863%;
   --chart-5: 214.2857 8.8608% 15.4902%;
-  --sidebar: 202.5 42.8571% 10.9804%;
+  --sidebar: 0 0% 0%;
   --sidebar-foreground: 220 14.2857% 95.8824%;
   --sidebar-primary: 330.3659 81.1881% 60.3922%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 327.4074 87.0968% 81.7647%;
+  --sidebar-accent: 28.9655 100% 82.9412%;
   --sidebar-accent-foreground: 215 27.907% 16.8627%;
   --sidebar-border: 216.9231 19.1176% 26.6667%;
-  --sidebar-ring: 330.3659 81.1881% 60.3922%;
+  --sidebar-ring: 28.9655 100% 82.9412%;
   --font-sans: Plus Jakarta Sans, ui-sans-serif, sans-serif, system-ui;
   --font-serif: Lora, serif;
   --font-mono: JetBrains Mono, ui-monospace, monospace;
@@ -104,20 +104,20 @@
   --shadow-blur: 10px;
   --shadow-spread: 0px;
   --shadow-opacity: 0.3;
-  --shadow-color: #324859;
-  --shadow-2xs: 3px 3px 10px 0px hsl(206.1538 28.0576% 27.2549% / 0.15);
-  --shadow-xs: 3px 3px 10px 0px hsl(206.1538 28.0576% 27.2549% / 0.15);
-  --shadow-sm: 3px 3px 10px 0px hsl(206.1538 28.0576% 27.2549% / 0.3),
-    3px 1px 2px -1px hsl(206.1538 28.0576% 27.2549% / 0.3);
-  --shadow: 3px 3px 10px 0px hsl(206.1538 28.0576% 27.2549% / 0.3),
-    3px 1px 2px -1px hsl(206.1538 28.0576% 27.2549% / 0.3);
-  --shadow-md: 3px 3px 10px 0px hsl(206.1538 28.0576% 27.2549% / 0.3),
-    3px 2px 4px -1px hsl(206.1538 28.0576% 27.2549% / 0.3);
-  --shadow-lg: 3px 3px 10px 0px hsl(206.1538 28.0576% 27.2549% / 0.3),
-    3px 4px 6px -1px hsl(206.1538 28.0576% 27.2549% / 0.3);
-  --shadow-xl: 3px 3px 10px 0px hsl(206.1538 28.0576% 27.2549% / 0.3),
-    3px 8px 10px -1px hsl(206.1538 28.0576% 27.2549% / 0.3);
-  --shadow-2xl: 3px 3px 10px 0px hsl(206.1538 28.0576% 27.2549% / 0.75);
+  --shadow-color: #2a3741;
+  --shadow-2xs: 3px 3px 10px 0px hsl(206.087 21.4953% 20.9804% / 0.15);
+  --shadow-xs: 3px 3px 10px 0px hsl(206.087 21.4953% 20.9804% / 0.15);
+  --shadow-sm: 3px 3px 10px 0px hsl(206.087 21.4953% 20.9804% / 0.3),
+    3px 1px 2px -1px hsl(206.087 21.4953% 20.9804% / 0.3);
+  --shadow: 3px 3px 10px 0px hsl(206.087 21.4953% 20.9804% / 0.3),
+    3px 1px 2px -1px hsl(206.087 21.4953% 20.9804% / 0.3);
+  --shadow-md: 3px 3px 10px 0px hsl(206.087 21.4953% 20.9804% / 0.3),
+    3px 2px 4px -1px hsl(206.087 21.4953% 20.9804% / 0.3);
+  --shadow-lg: 3px 3px 10px 0px hsl(206.087 21.4953% 20.9804% / 0.3),
+    3px 4px 6px -1px hsl(206.087 21.4953% 20.9804% / 0.3);
+  --shadow-xl: 3px 3px 10px 0px hsl(206.087 21.4953% 20.9804% / 0.3),
+    3px 8px 10px -1px hsl(206.087 21.4953% 20.9804% / 0.3);
+  --shadow-2xl: 3px 3px 10px 0px hsl(206.087 21.4953% 20.9804% / 0.75);
 }
 
 @layer base {
@@ -166,7 +166,8 @@
 
   /* Pulse animation for points */
   @keyframes pulse-glow {
-    0%, 100% {
+    0%,
+    100% {
       opacity: 1;
     }
     50% {
