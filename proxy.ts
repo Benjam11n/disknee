@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import type { Session } from "@/lib/auth";
 import { ROUTES } from "./lib/constants/routes";
 import { logger } from "./lib/logger";
+import { env } from "./env";
 
 const PUBLIC_ROUTES = [ROUTES.HOME, ROUTES.LOGIN];
 
