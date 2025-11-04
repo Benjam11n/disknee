@@ -3,9 +3,10 @@ import seedData from "./seed.json";
 import shopItems from "./shop-seed.json";
 import { ExerciseDifficulty } from "@prisma/client";
 import { createSeedUser } from "@/lib/seed-users";
+import { logger } from "@/lib/logger";
 
 async function main() {
-  console.log("🌱 Seeding database with JSON data...");
+  logger.info("🌱 Seeding database with JSON data...");
 
   // Clean up existing data
   await prisma.userInventory.deleteMany();
@@ -19,7 +20,7 @@ async function main() {
   await prisma.account.deleteMany();
   await prisma.user.deleteMany();
 
-  console.log("🧹 Cleaned existing data");
+  logger.info("🧹 Cleaned existing data");
 
   // Create users with Better Auth
   const userCredentials = [
@@ -38,9 +39,9 @@ async function main() {
       try {
         const user = await createSeedUser(userCred);
         users.push(user);
-        console.log(`✅ Created user: ${userCred.name} (${userCred.email})`);
+        logger.info(`✅ Created user: ${userCred.name} (${userCred.email})`);
       } catch (error) {
-        console.error(`❌ Error creating user ${userCred.email}:`, error);
+        logger.error(error, `❌ Error creating user ${userCred.email}:`);
         continue;
       }
     }
@@ -62,7 +63,7 @@ async function main() {
       })
     )
   );
-  console.log(`✅ Created ${createdShopItems.length} shop items`);
+  logger.info(`✅ Created ${createdShopItems.length} shop items`);
 
   // Create plans
   const plans = await Promise.all(
@@ -77,7 +78,7 @@ async function main() {
       })
     )
   );
-  console.log(`✅ Created ${plans.length} plans`);
+  logger.info(`✅ Created ${plans.length} plans`);
 
   // Create exercises
   const exercises = await Promise.all(
@@ -100,7 +101,7 @@ async function main() {
       });
     })
   );
-  console.log(`✅ Created ${exercises.length} exercises`);
+  logger.info(`✅ Created ${exercises.length} exercises`);
 
   // Create appointments
   if (seedData.appointments) {
@@ -118,7 +119,7 @@ async function main() {
         })
       )
     );
-    console.log(`✅ Created ${seedData.appointments.length} appointments`);
+    logger.info(`✅ Created ${seedData.appointments.length} appointments`);
   }
 
   // Create exercise sessions and reflections
@@ -127,13 +128,13 @@ async function main() {
     for (const sessionData of seedData.sessions) {
       // Check if the exercise and user indices are valid
       if (sessionData.exerciseIndex >= exercises.length) {
-        console.warn(
+        logger.warn(
           `⚠️ Skipping session with invalid exerciseIndex: ${sessionData.exerciseIndex}`
         );
         continue;
       }
       if (sessionData.userIndex >= users.length) {
-        console.warn(
+        logger.warn(
           `⚠️ Skipping session with invalid userIndex: ${sessionData.userIndex}`
         );
         continue;
@@ -170,7 +171,7 @@ async function main() {
       }
       sessionCount++;
     }
-    console.log(`✅ Created ${sessionCount} exercise sessions`);
+    logger.info(`✅ Created ${sessionCount} exercise sessions`);
   }
 
   // Calculate and update points for all users
@@ -193,7 +194,7 @@ async function main() {
         where: { id: user.id },
         data: { points: totalScore },
       });
-      console.log(
+      logger.info(
         `✅ Updated ${user.name} with ${totalScore} points from ${userSessions.length} sessions`
       );
     }
@@ -215,30 +216,30 @@ async function main() {
       },
     ],
   });
-  console.log(`✅ Given ${donaldDuck.name} starter items`);
+  logger.info(`✅ Given ${donaldDuck.name} starter items`);
 
   const avgAccuracy = seedData.sessions
     ? seedData.sessions.reduce((sum, s) => sum + s.accuracy, 0) /
       seedData.sessions.length
     : 0;
 
-  console.log("\n✅ Database seeded successfully!");
-  console.log("\n📊 Summary:");
-  console.log(`  - Users: ${users.length}`);
-  console.log(`  - Plans: ${plans.length}`);
-  console.log(`  - Exercises: ${exercises.length}`);
-  console.log(`  - Sessions: ${seedData.sessions?.length || 0}`);
-  console.log(`  - Shop items: ${createdShopItems.length}`);
-  console.log(`  - Average accuracy: ${avgAccuracy.toFixed(1)}%`);
+  logger.info("\n✅ Database seeded successfully!");
+  logger.info("\n📊 Summary:");
+  logger.info(`  - Users: ${users.length}`);
+  logger.info(`  - Plans: ${plans.length}`);
+  logger.info(`  - Exercises: ${exercises.length}`);
+  logger.info(`  - Sessions: ${seedData.sessions?.length || 0}`);
+  logger.info(`  - Shop items: ${createdShopItems.length}`);
+  logger.info(`  - Average accuracy: ${avgAccuracy.toFixed(1)}%`);
 
-  console.log("\n💡 Score formula: (accuracy × 100) + 20 bonus for reflection");
-  console.log("\n🛍️  Shop is ready with hats and accessories!");
-  console.log("\n🎯 Leaderboard will show rankings for all users!");
+  logger.info("\n💡 Score formula: (accuracy × 100) + 20 bonus for reflection");
+  logger.info("\n🛍️  Shop is ready with hats and accessories!");
+  logger.info("\n🎯 Leaderboard will show rankings for all users!");
 
-  console.log("\n🔐 Login Credentials:");
-  console.log("  • demo@disknee.com / demo123");
-  console.log("  • patient@example.com / patient2024");
-  console.log("  • physio@example.com / physio2024");
+  logger.info("\n🔐 Login Credentials:");
+  logger.info("  • demo@disknee.com / demo123");
+  logger.info("  • patient@example.com / patient2024");
+  logger.info("  • physio@example.com / physio2024");
 }
 
 main()
@@ -246,7 +247,7 @@ main()
     await prisma.$disconnect();
   })
   .catch(async (e) => {
-    console.error("❌ Error seeding database:", e);
+    logger.error("❌ Error seeding database:", e);
     await prisma.$disconnect();
     process.exit(1);
   });

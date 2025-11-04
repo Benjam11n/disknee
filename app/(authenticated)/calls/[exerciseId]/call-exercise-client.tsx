@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Exercise } from "@prisma/client";
+import { logger } from "@/lib/logger";
 
 import { VideoStream } from "@/components/video-stream";
 import { ModelVideo } from "@/components/model-video";
@@ -80,9 +81,9 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
     if (!isCallActive) return;
 
     wsRef.current = new WebSocket("ws://localhost:8000");
-    wsRef.current.onopen = () => console.log("WebSocket connected");
-    wsRef.current.onclose = () => console.log("WebSocket closed");
-    wsRef.current.onerror = (e) => console.error("WebSocket error", e);
+    wsRef.current.onopen = () => logger.info("WebSocket connected");
+    wsRef.current.onclose = () => logger.info("WebSocket closed");
+    wsRef.current.onerror = (e) => logger.error(e, "WebSocket error");
 
     wsRef.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -114,7 +115,7 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
       if (exerciseSession.success && exerciseSession.data)
         setExerciseSessionId(exerciseSession.data.id);
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       toast.error("Failed to start session");
     }
   };
@@ -134,7 +135,7 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
         toast.success("Session completed!");
         setShowReflection(true);
       } catch (err) {
-        console.error(err);
+        logger.error(err);
         toast.error("Failed to end session");
       }
     }
@@ -156,7 +157,7 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
       setShowReflection(false);
       router.push(ROUTES.DASHBOARD);
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       toast.error("Failed to save reflection");
     }
   };

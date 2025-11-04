@@ -1,5 +1,6 @@
 import { RequestError } from "@/lib/http-errors";
 import { handleError } from "./error";
+import { logger } from "@/lib/logger";
 
 interface FetchOptions extends RequestInit {
   timeout?: number;
@@ -38,6 +39,15 @@ export async function fetchHandler<T>(
     credentials: authorize ? "include" : restOptions.credentials,
   };
 
+  logger.debug(
+    {
+      method: config.method || "GET",
+      timeout,
+      authorize,
+    },
+    `Making request to ${url}`
+  );
+
   try {
     const response = await fetch(url, config);
 
@@ -47,14 +57,35 @@ export async function fetchHandler<T>(
       throw new RequestError(response.status, `HTTP error: ${response.status}`);
     }
 
+    logger.debug(
+      {
+        status: response.status,
+      },
+      `Request to ${url} successful`
+    );
+
     return await response.json();
   } catch (err) {
     const error = isError(err) ? err : new Error("Unknown error");
 
     if (error.name === "AbortError") {
-      console.warn(`Request to ${url} timed out`);
+      logger.warn(
+        {
+          timeout,
+          url,
+        },
+        `Request to ${url} timed out after ${timeout}ms`
+      );
     } else {
-      console.error(`Error fetching ${url}: ${error.message}`);
+      logger.error(
+        {
+          url,
+          method: config.method || "GET",
+          error: error.name,
+          stack: error.stack,
+        },
+        `Error fetching ${url}: ${error.message}`
+      );
     }
 
     return handleError(error) as ActionResponse<T>;

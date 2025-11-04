@@ -30,6 +30,7 @@ import {
   type LoginFormData,
 } from "@/lib/validations/auth-validations";
 import { useState } from "react";
+import { logger } from "@/lib/logger";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -55,13 +56,13 @@ export default function LoginPage() {
       },
       {
         onSuccess(context) {
-          console.log("context", context);
+          logger.info(context, "context");
           toast.success("Successfully signed in!");
           router.push(ROUTES.DASHBOARD);
           router.refresh();
         },
         onError(ctx) {
-          console.log("ctx", ctx);
+          logger.error(ctx, "ctx");
           toast.error(ctx.error.message || "Invalid credentials");
         },
       }

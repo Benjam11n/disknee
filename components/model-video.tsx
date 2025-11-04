@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { logger } from "@/lib/logger";
 
 interface ModelVideoProps {
   isPlaying: boolean;
@@ -25,7 +26,7 @@ export function ModelVideo({
     // Handle play/pause
     if (isPlaying && isLoaded) {
       video.play().catch((err) => {
-        console.error("Error playing video:", err);
+        logger.error("Error playing video:", err);
         setError("Could not play demonstration video");
       });
     } else if (!isPlaying) {

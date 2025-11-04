@@ -6,6 +6,7 @@ import { getLeaderboardAction } from "@/lib/actions/leaderboard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { leaderboardByScore } from "@prisma/client";
+import { logger } from "@/lib/logger";
 
 interface LeaderboardClientProps {
   initialLeaderboard: leaderboardByScore[];
@@ -42,7 +43,7 @@ export function LeaderboardClient({
         : [];
       setLeaderboardData(formattedData);
     } catch (error) {
-      console.error("Failed to fetch leaderboard:", error);
+      logger.error(error, "Failed to fetch leaderboard:");
       setLeaderboardData([]);
     } finally {
       setLoading(false);

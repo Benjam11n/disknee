@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { PoseLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
 import { Landmark } from "@/lib/pose-utils";
+import { logger } from "@/lib/logger";
 
 const DETECTION_INTERVAL = 2; // Detect every 2 frames (~30fps)
 const DETECTION_FPS = 1000 / 30; // 30fps interval
@@ -44,11 +45,11 @@ export function VideoStream({
     const img = new Image();
     img.src = "/crown.png"; // ensure this exists in /public
     img.onload = () => {
-      console.log("Crown image loaded successfully");
+      logger.info("Crown image loaded successfully");
       crownImage.current = img;
     };
     img.onerror = () => {
-      console.error("Failed to load crown image");
+      logger.error("Failed to load crown image");
     };
   }, []);
 
@@ -73,7 +74,7 @@ export function VideoStream({
       poseLandmarkerRef.current = poseLandmarker;
       setIsLoading(false);
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       setError("Failed to initialize pose detection");
       setIsLoading(false);
     }
@@ -96,7 +97,7 @@ export function VideoStream({
 
       await videoRef.current.play();
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       setError("Failed to access camera. Grant permissions and reload.");
     }
   }, []);
@@ -257,7 +258,7 @@ export function VideoStream({
           onPoseResults?.({ poseLandmarks: smoothed, image: video });
         }
       } catch (err) {
-        console.error("Pose detection error:", err);
+        logger.error(err, "Pose detection error:");
       }
     } else if (lastLandmarks.current) {
       onPoseResults?.({ poseLandmarks: lastLandmarks.current, image: video });

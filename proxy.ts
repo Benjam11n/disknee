@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import type { Session } from "@/lib/auth";
 import { ROUTES } from "./lib/constants/routes";
+import { logger } from "./lib/logger";
 
 const PUBLIC_ROUTES = [ROUTES.HOME, ROUTES.LOGIN];
 
@@ -12,7 +13,7 @@ async function getSession(request: NextRequest): Promise<Session | null> {
     });
     return session ?? null;
   } catch (error) {
-    console.error("Failed to fetch session:", error);
+    logger.error(error, "Failed to fetch session:");
     return null;
   }
 }
@@ -41,7 +42,7 @@ export async function proxy(request: NextRequest) {
     pathName.startsWith("/images/") ||
     pathName.startsWith("/icon/") ||
     pathName.startsWith("/logo/") ||
-    pathName.startsWith("/api/auth/")  // Exclude Better Auth API routes
+    pathName.startsWith("/api/auth/") // Exclude Better Auth API routes
   ) {
     return NextResponse.next();
   }

@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { ROUTES } from "@/lib/constants/routes";
+import { logger } from "@/lib/logger";
 import { FormDialog } from "@/components/ui/form-dialog";
 import {
   Form,
@@ -17,7 +18,10 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
-import { reflectionSchema, ReflectionFormData } from "@/lib/validations/reflection-validations";
+import {
+  reflectionSchema,
+  ReflectionFormData,
+} from "@/lib/validations/reflection-validations";
 import { getFatigueLabel } from "@/lib/utils/session-utils";
 import { SessionSummary } from "@/components/dashboard/session-summary";
 
@@ -66,11 +70,14 @@ export function ReflectionDialog({
     };
 
     // Log reflection data (for future database integration)
-    console.log("Session Reflection:", {
-      ...reflectionData,
-      sessionData,
-      timestamp: new Date().toISOString(),
-    });
+    logger.info(
+      {
+        ...reflectionData,
+        sessionData,
+        timestamp: new Date().toISOString(),
+      },
+      "Session Reflection:"
+    );
 
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -81,7 +88,7 @@ export function ReflectionDialog({
   };
 
   const handleSkip = () => {
-    console.log("User skipped reflection");
+    logger.info("User skipped reflection");
     toast.success("Session completed! Keep up the great work!");
     onSkip();
     router.push(ROUTES.DASHBOARD);

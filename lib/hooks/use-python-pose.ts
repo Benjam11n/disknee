@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { logger } from "@/lib/logger";
 
 export interface Landmark {
   x: number;
@@ -25,19 +26,19 @@ export function usePythonPose(wsUrl: string) {
     const connect = () => {
       ws = new WebSocket(wsUrl);
 
-      ws.onopen = () => console.log("WebSocket connected");
+      ws.onopen = () => logger.info("WebSocket connected");
       ws.onclose = () => {
-        console.log("WebSocket closed, reconnecting...");
+        logger.info("WebSocket closed, reconnecting...");
         reconnectTimeout = setTimeout(connect, 2000);
       };
-      ws.onerror = (err) => console.error("WebSocket error", err);
+      ws.onerror = (err) => logger.error(err, "WebSocket error:");
 
       ws.onmessage = (event) => {
         try {
           const data: PoseData = JSON.parse(event.data);
           setPoseData(data);
         } catch (err) {
-          console.error("Failed to parse pose data", err);
+          logger.error(err, "Failed to parse pose data:");
         }
       };
     };
