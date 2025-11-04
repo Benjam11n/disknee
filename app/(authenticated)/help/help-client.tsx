@@ -21,13 +21,8 @@ import {
   PlayCircle,
   MessageCircle,
   Phone,
-  AlertTriangle,
-  CheckCircle,
-  Star,
-  Activity,
   Video,
   Mail,
-  Shield,
   HelpCircle,
 } from "lucide-react";
 
@@ -235,8 +230,9 @@ export function HelpClient() {
                 <div>
                   <h4 className="font-semibold">Set Your Schedule</h4>
                   <p className="text-sm text-muted-foreground">
-                    Schedule your exercise sessions according to your doctor's plan.
-                    Mark them in your calendar like important appointments with yourself.
+                    Schedule your exercise sessions according to your doctor's
+                    plan. Mark them in your calendar like important appointments
+                    with yourself.
                   </p>
                 </div>
               </div>
