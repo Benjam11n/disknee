@@ -1,9 +1,9 @@
-// User constants for demo and development purposes
+// TODO: User constants for demo and development purposes
 // In production, these should come from authentication context
 
 export const DEMO_USERS = {
   // Primary demo user (Donald Duck)
-  PRIMARY_ID: "cmhh2sj2q00003fp5nawxj95c",
+  PRIMARY_ID: "cmhhhn7ne00043f6bnva8up6p",
   PRIMARY_NAME: "Donald Duck",
 
   // Fallback user for development
