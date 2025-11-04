@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { ROUTES } from "@/lib/constants/routes";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 interface LandingPageNavbarProps {
   scrollToFeatures?: () => void;
@@ -47,9 +48,11 @@ export function LandingPageNavbar({
             <Link href={ROUTES.LOGIN}>
               <Button>Sign In</Button>
             </Link>
+            <ThemeToggle />
           </div>
 
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-2">
+            <ThemeToggle />
             <Button
               variant="ghost"
               size="icon"
