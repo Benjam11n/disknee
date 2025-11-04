@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import logoIcon from "@/public/logo.png";
-import logoText from "@/public/logo_text.png";
+import logoText from "@/public/logo-text.png";
 
 interface LogoProps {
   variant?: "icon" | "text";

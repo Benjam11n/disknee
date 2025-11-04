@@ -17,9 +17,9 @@ import {
 import { toast } from "sonner";
 import { Exercise } from "@prisma/client";
 
-import { VideoStream } from "@/components/VideoStream";
-import { ModelVideo } from "@/components/ModelVideo";
-import { ReflectionDialog } from "@/components/ReflectionDialog";
+import { VideoStream } from "@/components/video-stream";
+import { ModelVideo } from "@/components/model-video";
+import { ReflectionDialog } from "@/components/reflection-dialog";
 import { Landmark } from "@/lib/pose-utils";
 import {
   createExerciseSessionAction,

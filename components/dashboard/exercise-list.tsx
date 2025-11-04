@@ -1,6 +1,6 @@
 "use client";
 
-import { ExerciseItem } from "./ExerciseItem";
+import { ExerciseItem } from "./exercise-item";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Exercise } from "@prisma/client";

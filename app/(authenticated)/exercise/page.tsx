@@ -1,7 +1,7 @@
 import { getExercisesAction } from "@/lib/actions/exercises";
 import { getPlansAction } from "@/lib/actions/plans";
 import { auth } from "@/lib/auth";
-import { ExerciseList } from "@/components/dashboard/ExerciseList";
+import { ExerciseList } from "@/components/dashboard/exercise-list";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 

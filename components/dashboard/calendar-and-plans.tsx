@@ -1,8 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Calendar } from "./Calendar";
-import { ProgressRing } from "./ProgressRing";
-import { PlanningList } from "./PlanningList";
+import { Calendar } from "./calendar";
+import { ProgressRing } from "./progress-ring";
+import { PlanningList } from "./planning-list";
 import { PlanWithExercises } from "@/lib/types/plans";
 
 interface CalendarAndPlansProps {

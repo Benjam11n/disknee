@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ExerciseList } from "./ExerciseList";
+import { ExerciseList } from "./exercise-list";
 import { Exercise } from "@prisma/client";
 
 interface ExerciseProgressCardProps {

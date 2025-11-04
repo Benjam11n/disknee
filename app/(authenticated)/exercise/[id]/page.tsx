@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { getExerciseByIdAction } from "@/lib/actions/exercises";
-import { ExerciseDetailClient } from "./ExerciseDetailClient";
+import { ExerciseDetailClient } from "./exercise-detail-client";
 
 export default async function ExerciseDetailPage({ params }: RouteParams) {
   const { id } = await params;

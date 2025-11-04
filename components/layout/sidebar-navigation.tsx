@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Logo } from "@/components/Logo";
+import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { ROUTES } from "@/lib/constants/routes";

@@ -19,7 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { reflectionSchema, ReflectionFormData } from "@/lib/validations/reflection-validations";
 import { getFatigueLabel } from "@/lib/utils/session-utils";
-import { SessionSummary } from "@/components/dashboard/SessionSummary";
+import { SessionSummary } from "@/components/dashboard/session-summary";
 
 interface SessionData {
   duration: number;

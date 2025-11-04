@@ -1,5 +1,5 @@
 import { getLeaderboardAction } from "@/lib/actions/leaderboard";
-import { LeaderboardClient } from "./LeaderboardClient";
+import { LeaderboardClient } from "./leaderboard-client";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";

@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AppointmentCard } from "./AppointmentCard";
+import { AppointmentCard } from "./appointment-card";
 import { Appointment } from "@prisma/client";
 
 interface UpcomingAppointmentsProps {

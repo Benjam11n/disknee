@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { PlanWithExercises } from "@/lib/types/plans";
-import { PlanCard } from "./PlanCard";
+import { PlanCard } from "./plan-card";
 
 interface PlanningListProps {
   plans: PlanWithExercises[];

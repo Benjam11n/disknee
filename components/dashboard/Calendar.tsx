@@ -1,7 +1,7 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { CalendarDay } from "./CalendarDay";
+import { CalendarDay } from "./calendar-day";
 import { sameDay, formatYMD } from "@/lib/date-utils";
 
 interface CalendarProps {

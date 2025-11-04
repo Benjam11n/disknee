@@ -3,9 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Logo } from "@/components/Logo";
+import { Logo } from "@/components/logo";
 import { ROUTES } from "@/lib/constants/routes";
-import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 interface LandingPageNavbarProps {
   scrollToFeatures?: () => void;

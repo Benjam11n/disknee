@@ -9,7 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
-import { LeaderboardItem } from "./LeaderboardItem";
+import { LeaderboardItem } from "./leaderboard-item";
 import { leaderboardByScore } from "@prisma/client";
 
 interface LeaderboardProps {

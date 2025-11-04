@@ -2,11 +2,11 @@
 
 import { JSX, useMemo, useState } from "react";
 
-import { Leaderboard } from "@/components/dashboard/Leaderboard";
-import { CalendarAndPlans } from "@/components/dashboard/CalendarAndPlans";
-import { ExerciseProgressCard } from "@/components/dashboard/ExerciseProgressCard";
-import { UpcomingAppointments } from "@/components/dashboard/UpcomingAppointments";
-import { ProgressSummary } from "@/components/dashboard/ProgressSummary";
+import { Leaderboard } from "@/components/dashboard/leaderboard";
+import { CalendarAndPlans } from "@/components/dashboard/calendar-and-plans";
+import { ExerciseProgressCard } from "@/components/dashboard/exercise-progress-card";
+import { UpcomingAppointments } from "@/components/dashboard/upcoming-appointments";
+import { ProgressSummary } from "@/components/dashboard/progress-summary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buildMonthMatrix, formatYMD, formatTime } from "@/lib/date-utils";
 import {

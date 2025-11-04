@@ -4,14 +4,11 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ShopItemCard } from "@/components/shop/ShopItemCard";
-import { PointsDisplay } from "@/components/shop/PointsDisplay";
+import { ShopItemCard } from "@/components/shop/shop-item-card";
+import { PointsDisplay } from "@/components/shop/points-display";
 import { ShopItem, UserInventory } from "@prisma/client";
 import { toast } from "sonner";
-import {
-  purchaseItemAction,
-  equipItemAction,
-} from "@/lib/actions/shop";
+import { purchaseItemAction, equipItemAction } from "@/lib/actions/shop";
 
 interface ShopClientProps {
   shopItems: ShopItem[];
@@ -20,8 +17,14 @@ interface ShopClientProps {
   initialInventory?: (UserInventory & { item: ShopItem })[];
 }
 
-export function ShopClient({ shopItems, userPoints, userId, initialInventory = [] }: ShopClientProps) {
-  const [userInventory, setUserInventory] = useState<(UserInventory & { item: ShopItem })[]>(initialInventory);
+export function ShopClient({
+  shopItems,
+  userPoints,
+  userId,
+  initialInventory = [],
+}: ShopClientProps) {
+  const [userInventory, setUserInventory] =
+    useState<(UserInventory & { item: ShopItem })[]>(initialInventory);
   const [points, setPoints] = useState(userPoints);
   const [isPurchasing, setIsPurchasing] = useState<string | null>(null);
 
@@ -41,7 +44,10 @@ export function ShopClient({ shopItems, userPoints, userId, initialInventory = [
 
       if (result.success && result.data) {
         setPoints((prev) => prev - price);
-        setUserInventory((prev) => [...prev, result.data as UserInventory & { item: ShopItem }]);
+        setUserInventory((prev) => [
+          ...prev,
+          result.data as UserInventory & { item: ShopItem },
+        ]);
         toast.success("Item purchased successfully!");
       }
     } catch (error: unknown) {
@@ -78,9 +84,7 @@ export function ShopClient({ shopItems, userPoints, userId, initialInventory = [
   };
 
   const getEquippedItems = () => {
-    return userInventory
-      .filter((inv) => inv.isEquipped)
-      .map((inv) => inv.item);
+    return userInventory.filter((inv) => inv.isEquipped).map((inv) => inv.item);
   };
 
   return (
@@ -138,12 +142,14 @@ export function ShopClient({ shopItems, userPoints, userId, initialInventory = [
               <h3 className="font-semibold">How to earn points</h3>
             </div>
             <p className="text-sm text-muted-foreground">
-              Complete exercises and submit reflections to earn points.
-              Each session gives you points based on your accuracy, with a bonus for leaving feedback!
+              Complete exercises and submit reflections to earn points. Each
+              session gives you points based on your accuracy, with a bonus for
+              leaving feedback!
             </p>
             <Separator className="my-2" />
             <p className="text-sm text-muted-foreground">
-              <strong>Score Formula:</strong> (Accuracy × 100) + 20 bonus for reflection
+              <strong>Score Formula:</strong> (Accuracy × 100) + 20 bonus for
+              reflection
             </p>
           </CardContent>
         </Card>

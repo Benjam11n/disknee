@@ -1,7 +1,7 @@
 import { getShopItemsAction } from "@/lib/actions/shop";
 import { getUserByIdAction } from "@/lib/actions/users";
 import { getUserInventoryAction } from "@/lib/actions/shop";
-import { ShopClient } from "./ShopClient";
+import { ShopClient } from "./shop-client";
 import { ShopItem, UserInventory } from "@prisma/client";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
