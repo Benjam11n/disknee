@@ -3,23 +3,41 @@
 import { Appointment } from "@prisma/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { CalendarDays, LogOut } from "lucide-react";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { ROUTES } from "@/lib/constants/routes";
 
 interface NavbarProps {
   label?: string;
-  name?: string;
   nextAppt?: Appointment | null;
   primaryDoctorText?: string;
 }
 
 export function Navbar({
   label = "No appointment",
-  name = "",
   nextAppt,
   primaryDoctorText,
 }: NavbarProps) {
-  const patientName = name || "";
+  const { data: session } = authClient.useSession();
+  const router = useRouter();
+
+  const patientName = session?.user?.name!;
+
+  const handleSignOut = async () => {
+    await authClient.signOut();
+    toast.success("Signed out successfully");
+    router.push(ROUTES.LOGIN);
+  };
 
   return (
     <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
@@ -105,17 +123,31 @@ export function Navbar({
               )}
             </div>
 
-            <Avatar className="h-8 w-8 sm:h-9 sm:w-9">
-              <AvatarImage src="" alt={patientName} />
-              <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                {patientName
-                  .split(" ")
-                  .map((word) => word[0])
-                  .join("")
-                  .toUpperCase()
-                  .slice(0, 2)}
-              </AvatarFallback>
-            </Avatar>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Avatar className="h-8 w-8 sm:h-9 sm:w-9 cursor-pointer">
+                  <AvatarImage src="" alt={patientName} />
+                  <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                    {patientName
+                      .split(" ")
+                      .map((word) => word[0])
+                      .join("")
+                      .toUpperCase()
+                      .slice(0, 2)}
+                  </AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <div className="px-2 py-1.5 text-sm font-medium">
+                  {patientName}
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { hash } from "bcryptjs";
 import seedData from "@/app/seed.json";
 import shopItems from "./shop-seed.json";
 import { Difficulty } from "@prisma/client";
@@ -14,19 +15,45 @@ async function main() {
   await prisma.exercise.deleteMany();
   await prisma.plan.deleteMany();
   await prisma.appointment.deleteMany();
+    await prisma.account.deleteMany();
   await prisma.user.deleteMany();
 
   console.log("🧹 Cleaned existing data");
 
-  // Create users
-  const users = await Promise.all(
-    seedData.users.map((user) =>
-      prisma.user.create({
-        data: { name: user.name },
-      })
-    )
-  );
-  console.log(`✅ Created ${users.length} users`);
+  // Create users with Better Auth
+  const userCredentials = [
+    { name: "Donald Duck", email: "demo@disknee.com", password: "demo123" },
+    { name: "John Patient", email: "patient@example.com", password: "patient2024" },
+    { name: "Dr. Smith", email: "physio@example.com", password: "physio2024" },
+  ];
+
+  const users = [];
+  for (const [index, userCred] of userCredentials.entries()) {
+    if (index < seedData.users.length) {
+      // Create user directly in database with email/password fields
+      const user = await prisma.user.create({
+        data: {
+          name: userCred.name,
+          email: userCred.email,
+          emailVerified: true, // Mark as verified for demo
+        },
+      });
+
+      // Create account record for email/password with hashed password
+      const hashedPassword = await hash(userCred.password, 10);
+      await prisma.account.create({
+        data: {
+          providerId: "credential",
+          accountId: userCred.email,
+          userId: user.id,
+          password: hashedPassword,
+        },
+      });
+
+      users.push(user);
+      console.log(`✅ Created user: ${userCred.name} (${userCred.email})`);
+    }
+  }
 
   // Create shop items
   const createdShopItems = await Promise.all(
@@ -108,6 +135,11 @@ async function main() {
     for (const sessionData of seedData.sessions) {
       const session = await prisma.session.create({
         data: {
+          // Better Auth required fields
+          token: `session-token-${Math.random().toString(36).substring(2)}`,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+
+          // App-specific session data
           startedAt: new Date(sessionData.startedAt),
           endedAt: new Date(
             new Date(sessionData.startedAt).getTime() +
@@ -200,6 +232,11 @@ async function main() {
   console.log("\n💡 Score formula: (accuracy × 100) + 20 bonus for reflection");
   console.log("\n🛍️  Shop is ready with hats and accessories!");
   console.log("\n🎯 Leaderboard will show rankings for all users!");
+
+  console.log("\n🔐 Login Credentials:");
+  console.log("  • demo@disknee.com / demo123");
+  console.log("  • patient@example.com / patient2024");
+  console.log("  • physio@example.com / physio2024");
 }
 
 main()

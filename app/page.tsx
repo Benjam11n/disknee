@@ -6,11 +6,22 @@ import { getUserByIdAction } from "@/lib/actions/users";
 import { getUserInventoryAction } from "@/lib/actions/shop";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
 import { Plan, ShopItem, UserInventory, User } from "@prisma/client";
-import { getCurrentUserId } from "@/lib/constants/users";
-
-const userId = getCurrentUserId();
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { ROUTES } from "@/lib/constants/routes";
 
 export default async function RehabDashboardPage() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) {
+    redirect(ROUTES.LOGIN);
+  }
+
+  const userId = session.user.id;
+
   const [
     exercisesResponse,
     appointmentsResponse,

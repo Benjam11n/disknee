@@ -16,14 +16,19 @@ enum Difficulty {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  points    Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  points        Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
+  // Relations
   inventory UserInventory[]
   sessions  Session[]
+  accounts  Account[]
 
   @@map("users")
 }
@@ -68,23 +73,29 @@ model Appointment {
 }
 
 model Session {
-  id            String    @id @default(cuid())
-  startedAt     DateTime  @default(now())
-  endedAt       DateTime?
-  duration      Int?      // Duration in seconds
-  repsCompleted Int       @default(0)
-  accuracy      Int       @default(0)
-  maxAccuracy   Int?
-  videoUrl      String?
-  notes         String?
-  exerciseId    String?   // Optional link to an exercise
-  userId        String?   // Optional link to a user
-  createdAt     DateTime  @default(now())
+  id             String    @id @default(cuid())
+  expiresAt      DateTime
+  token          String    @unique
+  ipAddress      String?
+  userAgent      String?
+  userId         String?
+  user           User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // App-specific session data (for exercise sessions)
+  startedAt      DateTime  @default(now())
+  endedAt        DateTime?
+  duration       Int?      // Duration in seconds
+  repsCompleted  Int       @default(0)
+  accuracy       Int       @default(0)
+  maxAccuracy    Int?
+  videoUrl       String?
+  notes          String?
+  exerciseId     String?   // Optional link to an exercise
+  createdAt      DateTime  @default(now())
 
   // Relations
   reflection Reflection?
   exercise    Exercise?  @relation(fields: [exerciseId], references: [id], onDelete: SetNull)
-  user        User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@map("sessions")
 }
@@ -153,4 +164,37 @@ model UserInventory {
 
   @@unique([userId, itemId])
   @@map("user_inventory")
+}
+
+// Better Auth models
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@unique([providerId, accountId])
+  @@map("accounts")
+}
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@unique([identifier, value])
+  @@map("verifications")
 }

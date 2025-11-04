@@ -3,12 +3,22 @@ import { getUserByIdAction } from "@/lib/actions/users";
 import { getUserInventoryAction } from "@/lib/actions/shop";
 import { ShopClient } from "./ShopClient";
 import { ShopItem, UserInventory } from "@prisma/client";
-import { notFound } from "next/navigation";
-import { getCurrentUserId } from "@/lib/constants/users";
-
-const userId = getCurrentUserId();
+import { notFound, redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { ROUTES } from "@/lib/constants/routes";
 
 export default async function ShopPage() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) {
+    redirect(ROUTES.LOGIN);
+  }
+
+  const userId = session.user.id;
+
   const shopItems = await getShopItemsAction({ activeOnly: true });
 
   if (!shopItems.success) {

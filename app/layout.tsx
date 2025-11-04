@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
-import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { SidebarNavigation } from "@/components/layout/SidebarNavigation";
-import { NavbarWrapper } from "@/components/layout/NavbarWrapper";
+import { Navbar } from "@/components/Navbar";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
@@ -36,22 +35,20 @@ export default function RootLayout({
       <body
         className={`${plusJakartaSans.variable} ${jetBrainsMono.variable} antialiased`}
       >
-        <AuthProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <TooltipProvider>
-              <SidebarNavigation>
-                <NavbarWrapper patientName="Donald Duck">
-                  {children}
-                </NavbarWrapper>
-              </SidebarNavigation>
-            </TooltipProvider>
-          </ThemeProvider>
-        </AuthProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <TooltipProvider>
+            <SidebarNavigation>
+              {/* todo: fix this */}
+              <Navbar label="Dashboard" primaryDoctorText="Smith" />
+              {children}
+            </SidebarNavigation>
+          </TooltipProvider>
+        </ThemeProvider>
         <Toaster
           position="top-right"
           visibleToasts={5}

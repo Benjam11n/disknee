@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { ROUTES } from "@/lib/constants/routes";
 import {
   Card,
@@ -13,62 +14,42 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Activity, Eye, EyeOff } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import { DEMO_CREDENTIALS } from "@/lib/constants/users";
+import { authClient } from "@/lib/auth-client";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { login, isAuthenticated } = useAuth();
   const router = useRouter();
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push(ROUTES.HOME);
-    }
-  }, [isAuthenticated, router]);
-
-  useEffect(() => {
-    const savedEmail = localStorage.getItem("disknee_email");
-    if (savedEmail) {
-      setEmail(savedEmail);
-      setRememberMe(true);
-    }
-  }, []);
-
-  if (isAuthenticated) {
-    return null;
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setIsLoading(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    const validCredentials = DEMO_CREDENTIALS;
-
-    const user = validCredentials.find(
-      (cred) => cred.email === email && cred.password === password
-    );
-
-    if (user) {
-      login({ email: user.email, name: user.name });
-      if (rememberMe) {
-        localStorage.setItem("disknee_email", email);
+    await authClient.signIn.email(
+      {
+        email,
+        password,
+        callbackURL: ROUTES.HOME,
+      },
+      {
+        onSuccess: () => {
+          if (rememberMe) {
+            localStorage.setItem("disknee_email", email);
+          }
+          toast.success("Successfully signed in!");
+          router.push(ROUTES.HOME);
+          router.refresh();
+        },
+        onError: (ctx) => {
+          toast.error(ctx.error.message || "Invalid credentials");
+        },
       }
-      router.push(ROUTES.HOME);
-    } else {
-      setError("Invalid credentials. Try demo@disknee.com / demo123");
-    }
+    );
 
     setIsLoading(false);
   };
@@ -141,14 +122,6 @@ export default function LoginPage() {
               </Label>
             </div>
 
-            {error && (
-              <Alert className="border-red-200 bg-red-50">
-                <AlertDescription className="text-red-800">
-                  {error}
-                </AlertDescription>
-              </Alert>
-            )}
-
             <Button
               type="submit"
               className="w-full text-black"
@@ -165,20 +138,7 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <div className="mt-6 pt-6 border-t space-y-2">
-            <Card>
-              <CardHeader className="py-3">
-                <CardTitle className="text-sm">Demo Credentials</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-1">
-                {DEMO_CREDENTIALS.map((cred, index) => (
-                  <p key={index} className="text-xs">
-                    <span className="font-mono">{cred.email}</span> /{" "}
-                    <span className="font-mono">{cred.password}</span>
-                  </p>
-                ))}
-              </CardContent>
-            </Card>
+          <div className="mt-6 pt-6 border-t">
             <p className="text-xs text-center text-gray-500">
               AI-powered physiotherapy for knee rehabilitation
             </p>
