@@ -5,17 +5,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Play, Clock, Target } from "lucide-react";
+import { ArrowLeft, Play, Clock, Target, Lock } from "lucide-react";
 import { ExerciseDifficulty, Exercise } from "@prisma/client";
 import { ROUTES } from "@/lib/constants/routes";
 import { getDifficultyBadgeVariant, getDifficultyColor } from "@/lib/utils";
+import { canStartExercise } from "@/lib/utils/exercise-utils";
 
 interface ExerciseDetailClientProps {
   exercise: Exercise;
+  planExercises: Exercise[];
 }
 
-export function ExerciseDetailClient({ exercise }: ExerciseDetailClientProps) {
+export function ExerciseDetailClient({
+  exercise,
+  planExercises,
+}: ExerciseDetailClientProps) {
   const router = useRouter();
+
+  const canStart = canStartExercise(planExercises, exercise.id);
+  const isLocked = !canStart && !exercise.done;
 
   const handleStartExercise = () => {
     router.push(ROUTES.CALL.detail(exercise.id));
@@ -119,19 +127,37 @@ export function ExerciseDetailClient({ exercise }: ExerciseDetailClientProps) {
 
             {/* Start Exercise Button */}
             <div className="pt-4">
-              <Button
-                onClick={handleStartExercise}
-                disabled={exercise.done}
-                size="lg"
-                className="w-full sm:w-auto"
-              >
-                <Play className="h-4 w-4 mr-2" />
-                {exercise.done ? "Already Completed" : "Start Exercise"}
-              </Button>
+              {isLocked ? (
+                <Button
+                  disabled={true}
+                  size="lg"
+                  className="w-full sm:w-auto"
+                  variant="outline"
+                >
+                  <Lock className="h-4 w-4 mr-2" />
+                  Locked
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleStartExercise}
+                  disabled={exercise.done}
+                  size="lg"
+                  className="w-full sm:w-auto"
+                >
+                  <Play className="h-4 w-4 mr-2" />
+                  {exercise.done ? "Already Completed" : "Start Exercise"}
+                </Button>
+              )}
               {exercise.done && (
                 <p className="text-sm text-muted-foreground mt-2">
                   You have already completed this exercise. Check your dashboard
                   for progress.
+                </p>
+              )}
+              {isLocked && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  You need to complete the previous exercises in this plan
+                  before starting this one.
                 </p>
               )}
             </div>

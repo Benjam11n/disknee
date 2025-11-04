@@ -20,6 +20,7 @@ export const CreateExerciseSchema = ExerciseBaseSchema.extend({
 export const GetExercisesSchema = z.object({
   difficulty: z.nativeEnum(ExerciseDifficulty).optional(),
   done: z.coerce.boolean().optional(),
+  planId: z.string().optional(),
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(10),
 });

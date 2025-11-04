@@ -97,7 +97,7 @@ export function ExerciseItem({
           size="sm"
           className="group-hover:bg-accent"
           aria-label={`Open ${exercise.title}`}
-          onClick={() => router.push(ROUTES.CALL.detail(exercise.id))}
+          onClick={() => router.push(ROUTES.EXERCISE.detail(exercise.id))}
           disabled={exercise.done || isDisabled}
         >
           <div className="flex items-center gap-1 text-xs">

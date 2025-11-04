@@ -35,12 +35,20 @@ export async function createExerciseAction(
     validationResult.params!;
 
   try {
+    const lastExercise = await prisma.exercise.findFirst({
+      where: { planId },
+      orderBy: { sequence: "desc" },
+    });
+
+    const nextSequence = lastExercise ? lastExercise.sequence + 1 : 1;
+
     const exercise = await prisma.exercise.create({
       data: {
         title,
         estimatedMins,
         difficulty,
         done: done || false,
+        sequence: nextSequence,
         planId: planId,
       },
     });
@@ -68,7 +76,7 @@ export async function getExercisesAction(
     return handleError(validationResult) as ErrorResponse;
   }
 
-  const { difficulty, done, page, limit } = validationResult.params!;
+  const { difficulty, done, planId, page, limit } = validationResult.params!;
   const skip = (page - 1) * limit;
 
   try {
@@ -76,8 +84,11 @@ export async function getExercisesAction(
       where: {
         difficulty: difficulty || undefined,
         done: done !== undefined ? done : undefined,
+        planId: planId || undefined,
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: planId
+        ? [{ sequence: "asc" }, { createdAt: "asc" }] // Order by sequence if planId is specified
+        : { createdAt: "desc" }, // Default ordering for general queries
       take: limit,
       skip,
     });

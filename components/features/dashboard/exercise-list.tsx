@@ -4,6 +4,7 @@ import { ExerciseItem } from "./exercise-item";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Exercise } from "@prisma/client";
+import { canStartExercise } from "@/lib/utils/exercise-utils";
 
 interface ExerciseListProps {
   exercises: Exercise[];
@@ -16,6 +17,7 @@ export function ExerciseList({
   pillPercent,
   weeklyTotalMins,
 }: ExerciseListProps) {
+  // The exercises should already be sorted by sequence from the query
   const nextExerciseIndex = exercises.findIndex((ex) => !ex.done);
 
   return (
@@ -45,7 +47,7 @@ export function ExerciseList({
           <ExerciseItem
             key={exercise.id}
             exercise={exercise}
-            isDisabled={index !== nextExerciseIndex}
+            isDisabled={!canStartExercise(exercises, exercise.id)}
           />
         ))}
       </ul>

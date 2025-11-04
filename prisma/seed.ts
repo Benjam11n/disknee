@@ -84,6 +84,8 @@ async function main() {
   const exercises = await Promise.all(
     seedData.exercises.map((ex, index) => {
       const planIndex = index % plans.length;
+      // Calculate sequence number (1-based) within each plan
+      const exercisesInThisPlan = Math.ceil((index + 1) / plans.length);
       return prisma.exercise.create({
         data: {
           id: ex.id,
@@ -96,6 +98,7 @@ async function main() {
               ? ExerciseDifficulty.MODERATE
               : ExerciseDifficulty.HARD,
           done: ex.done,
+          sequence: exercisesInThisPlan, // This will work after you add the sequence column to DB
           planId: plans[planIndex].id,
         },
       });

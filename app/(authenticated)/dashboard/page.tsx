@@ -22,15 +22,18 @@ export default async function RehabDashboardPage() {
 
   const userId = session.user.id;
 
+  // Get plans for current month first
+  const today = new Date();
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
   const [
-    exercisesResponse,
     appointmentsResponse,
     plansResponse,
     leaderboardResponse,
     userResponse,
     inventoryResponse,
   ] = await Promise.all([
-    getExercisesAction({ page: 1, limit: 50 }),
     getAppointmentsAction({ limit: 50, offset: 0 }),
     getPlansAction({ limit: 100, offset: 0, include: { exercises: true } }),
     getLeaderboardAction({
@@ -44,21 +47,7 @@ export default async function RehabDashboardPage() {
     getUserInventoryAction({ userId }),
   ]);
 
-  // Handle exercises data
-  const exercises = exercisesResponse.success
-    ? exercisesResponse.data || []
-    : [];
-
-  // Handle appointments data
-  const appointments = appointmentsResponse.success
-    ? appointmentsResponse.data || []
-    : [];
-
   // Handle plans data - filter for current month
-  const today = new Date();
-  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-
   let plans: Plan[] = [];
 
   if (plansResponse.success && plansResponse.data) {
@@ -67,6 +56,23 @@ export default async function RehabDashboardPage() {
       return planDate >= startOfMonth && planDate <= endOfMonth;
     });
   }
+
+  // Now fetch exercises for the filtered plans
+  const exercisesPromises = plans.map((plan) =>
+    getExercisesAction({ planId: plan.id, page: 1, limit: 100 })
+  );
+
+  const exercisesResponses = await Promise.all(exercisesPromises);
+
+  // Combine all exercises from all plans
+  const exercises = exercisesResponses.flatMap(
+    (response) => (response.success ? response.data || [] : [])
+  ).sort((a, b) => a.sequence - b.sequence); // Sort by sequence across all plans
+
+  // Handle appointments data
+  const appointments = appointmentsResponse.success
+    ? appointmentsResponse.data || []
+    : [];
 
   const leaderboard = leaderboardResponse.success
     ? leaderboardResponse.data || []

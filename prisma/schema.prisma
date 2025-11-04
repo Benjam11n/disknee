@@ -39,6 +39,7 @@ model Exercise {
   estimatedMins Int
   difficulty    ExerciseDifficulty
   done          Boolean            @default(false)
+  sequence      Int                // Order in which exercises should be completed
   planId        String
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
