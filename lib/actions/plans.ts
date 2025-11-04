@@ -16,7 +16,7 @@ import {
 import { Plan } from "@prisma/client";
 import { NotFoundError } from "@/lib/http-errors";
 
-export async function getPlans(
+export async function getPlansAction(
   params: GetPlansParams
 ): Promise<ActionResponse<Plan[]>> {
   const validationResult = await action({
@@ -50,39 +50,7 @@ export async function getPlans(
   }
 }
 
-export async function getPlansByDateRange(
-  params: GetPlansByDateRangeParams
-): Promise<ActionResponse<Plan[]>> {
-  const validationResult = await action({
-    params: params,
-    schema: GetPlansByDateRangeSchema,
-    authorize: true,
-  });
-
-  if (validationResult instanceof Error) {
-    return handleError(validationResult) as ErrorResponse;
-  }
-
-  const { startDate, endDate } = validationResult.params!;
-
-  try {
-    const plans = await prisma.plan.findMany({
-      where: {
-        date: {
-          gte: new Date(startDate),
-          lte: new Date(endDate),
-        },
-      },
-      orderBy: { date: "asc" },
-    });
-
-    return { success: true, data: plans };
-  } catch (error) {
-    return handleError(error) as ErrorResponse;
-  }
-}
-
-export async function getPlanById(
+export async function getPlanByIdAction(
   params: GetPlanByIdParams
 ): Promise<ActionResponse<Plan>> {
   const validationResult = await action({
