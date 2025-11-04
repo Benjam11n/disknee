@@ -1,6 +1,9 @@
 "use server";
 
 import { ZodError, ZodSchema } from "zod";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
+import { UnauthorizedError } from "@/lib/http-errors";
 
 import { ValidationError } from "@/lib/http-errors";
 
@@ -15,7 +18,11 @@ type ActionOptions<T> = {
 // 3. Connecting to the database.
 // 4. Returning the params and session.
 
-export async function action<T>({ params, schema }: ActionOptions<T>) {
+export async function action<T>({
+  params,
+  schema,
+  authorize = true,
+}: ActionOptions<T>) {
   if (schema && params) {
     try {
       schema.parse(params);
@@ -30,5 +37,20 @@ export async function action<T>({ params, schema }: ActionOptions<T>) {
     }
   }
 
-  return { params };
+  let session = null;
+  if (authorize) {
+    try {
+      session = await auth.api.getSession({
+        headers: await headers(),
+      });
+
+      if (!session) {
+        return new UnauthorizedError("Authentication required");
+      }
+    } catch (error) {
+      return new UnauthorizedError("Failed to authenticate");
+    }
+  }
+
+  return { params, session };
 }

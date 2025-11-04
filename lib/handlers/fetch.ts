@@ -3,6 +3,7 @@ import { handleError } from "./error";
 
 interface FetchOptions extends RequestInit {
   timeout?: number;
+  authorize?: boolean;
 }
 
 function isError(error: unknown): error is Error {
@@ -16,6 +17,7 @@ export async function fetchHandler<T>(
   const {
     timeout = 5000,
     headers: customHeaders = {},
+    authorize = true,
     ...restOptions
   } = options;
 
@@ -27,11 +29,13 @@ export async function fetchHandler<T>(
     Accept: "application/json",
   };
 
-  const headers: HeadersInit = { ...defaultHeaders, ...customHeaders };
+  let headers: HeadersInit = { ...defaultHeaders, ...customHeaders };
+
   const config: RequestInit = {
     ...restOptions,
     headers,
     signal: controller.signal,
+    credentials: authorize ? "include" : restOptions.credentials,
   };
 
   try {
