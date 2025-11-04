@@ -31,7 +31,7 @@ export function Navbar({
   const { data: session } = authClient.useSession();
   const router = useRouter();
 
-  const patientName = session?.user?.name!;
+  const patientName = session?.user?.name;
 
   const handleSignOut = async () => {
     await authClient.signOut();
@@ -129,7 +129,7 @@ export function Navbar({
                   <AvatarImage src="" alt={patientName} />
                   <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                     {patientName
-                      .split(" ")
+                      ?.split(" ")
                       .map((word) => word[0])
                       .join("")
                       .toUpperCase()
