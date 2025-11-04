@@ -9,6 +9,8 @@ export default async function RootPage() {
     headers: await headers(),
   });
 
+  console.log(session, "session");
+
   if (session?.user) {
     redirect(ROUTES.DASHBOARD);
   }

@@ -77,14 +77,14 @@ export function ReflectionDialog({
 
     toast.success("Thank you for your feedback! Session completed.");
     onSubmit(reflectionData);
-    router.push(ROUTES.HOME);
+    router.push(ROUTES.DASHBOARD);
   };
 
   const handleSkip = () => {
     console.log("User skipped reflection");
     toast.success("Session completed! Keep up the great work!");
     onSkip();
-    router.push(ROUTES.HOME);
+    router.push(ROUTES.DASHBOARD);
   };
 
   return (

@@ -51,12 +51,12 @@ export default function LoginPage() {
       {
         email: data.email,
         password: data.password,
-        callbackURL: ROUTES.HOME,
+        callbackURL: ROUTES.DASHBOARD,
       },
       {
         onSuccess: () => {
           toast.success("Successfully signed in!");
-          router.push(ROUTES.HOME);
+          router.push(ROUTES.DASHBOARD);
           router.refresh();
         },
         onError: (ctx) => {

@@ -4,7 +4,7 @@
 // todo: update DASHBOARD ROUTE
 export const ROUTES = {
   HOME: "/",
-  DASHBOARD: "/",
+  DASHBOARD: "/dashboard",
   LOGIN: "/login",
   CALLS: "/calls",
   CALL: {

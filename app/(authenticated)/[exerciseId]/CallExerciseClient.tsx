@@ -156,7 +156,7 @@ export default function CallExerciseClient({
       });
       toast.success("Reflection saved!");
       setShowReflection(false);
-      router.push(ROUTES.HOME);
+      router.push(ROUTES.DASHBOARD);
     } catch (err) {
       console.error(err);
       toast.error("Failed to save reflection");
@@ -284,7 +284,7 @@ export default function CallExerciseClient({
         onSubmit={handleReflectionSubmit}
         onSkip={() => {
           setShowReflection(false);
-          router.push(ROUTES.HOME);
+          router.push(ROUTES.DASHBOARD);
         }}
       />
     </div>
