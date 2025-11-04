@@ -17,6 +17,7 @@ import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ROUTES } from "@/lib/constants/routes";
+import { formatDateTime } from "@/lib/date-utils";
 
 interface NavbarProps {
   nextAppt?: Appointment | null;
@@ -65,7 +66,9 @@ export function Navbar({ nextAppt }: NavbarProps) {
               suppressHydrationWarning
             >
               <span className="hidden sm:inline">
-                {nextAppt?.start ? "Upcoming appointment" : "No appointment"}
+                {nextAppt?.start
+                  ? formatDateTime(nextAppt.start.toISOString())
+                  : "No appointment"}
               </span>
               <span className="sm:hidden">
                 {nextAppt?.start ? "—" : "No appointment"}
