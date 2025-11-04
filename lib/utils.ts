@@ -1,15 +1,9 @@
+import { Difficulty } from "@prisma/client";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
-}
-
-/**
- * Format a number with commas
- */
-export function formatNumber(num: number): string {
-  return new Intl.NumberFormat().format(num);
 }
 
 /**
@@ -22,75 +16,48 @@ export function getRankDisplay(rank: number): string {
   return rank.toString();
 }
 
-/**
- * Format a percentage value
- */
-export function formatPercent(value: number, decimals: number = 0): string {
-  return `${value.toFixed(decimals)}%`;
+export function getDifficultyBadgeVariant(difficulty?: Difficulty) {
+  switch (difficulty) {
+    case Difficulty.EASY:
+      return "default";
+    case Difficulty.MODERATE:
+      return "secondary";
+    case Difficulty.HARD:
+      return "destructive";
+    default:
+      return "outline";
+  }
 }
 
-/**
- * Get difficulty color classes based on difficulty level
- */
-export function getDifficultyStyles(difficulty?: "easy" | "moderate" | "hard") {
+export function getDifficultyStyles(difficulty?: Difficulty) {
   switch (difficulty) {
-    case "easy":
+    case Difficulty.EASY:
       return {
-        row: "bg-emerald-50 border-emerald-200",
-        box: "border-emerald-500",
-        badge: "bg-emerald-100 text-emerald-800 border border-emerald-300",
+        row: "border-l-4 border-l-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/50",
+        toggle: "border-emerald-500 text-emerald-600 dark:text-emerald-50",
+        toggleChecked:
+          "bg-emerald-500 text-emerald-50 border-emerald-600 dark:border-emerald-700",
       };
-    case "moderate":
+    case Difficulty.MODERATE:
       return {
-        row: "bg-amber-50 border-amber-200",
-        box: "border-amber-500",
-        badge: "bg-amber-100 text-amber-800 border border-amber-300",
+        row: "border-l-4 border-l-amber-500 bg-amber-50/50 dark:bg-amber-900/50",
+        toggle: "border-amber-500 text-amber-600 dark:text-amber-50",
+        toggleChecked:
+          "bg-amber-500 text-amber-50 border-amber-600 dark:border-amber-700",
       };
-    case "hard":
+    case Difficulty.HARD:
       return {
-        row: "bg-rose-50 border-rose-200",
-        box: "border-rose-500",
-        badge: "bg-rose-100 text-rose-800 border border-rose-300",
+        row: "border-l-4 border-l-rose-500 bg-rose-50/50 dark:bg-rose-900/50",
+        toggle: "border-rose-500 text-rose-600 dark:text-rose-50",
+        toggleChecked:
+          "bg-rose-500 text-rose-50 border-rose-600 dark:border-rose-700",
       };
     default:
       return {
-        row: "bg-white border-gray-300",
-        box: "border-gray-800",
-        badge: "bg-gray-100 text-gray-700 border border-gray-300",
+        row: "border-l-4 border-l-muted dark:border-l-muted-foreground",
+        toggle: "border-muted text-muted-foreground dark:text-muted-foreground",
+        toggleChecked:
+          "bg-muted text-muted-foreground dark:bg-muted-foreground",
       };
   }
-}
-
-/**
- * Truncate text to a specified length with ellipsis
- */
-export function truncateText(text: string, maxLength: number): string {
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength).trim() + "...";
-}
-
-/**
- * Generate a unique ID
- */
-export function generateId(): string {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2);
-}
-
-/**
- * Deep clone an object
- */
-export function deepClone<T>(obj: T): T {
-  if (obj === null || typeof obj !== "object") return obj;
-  if (obj instanceof Date) return new Date(obj.getTime()) as T;
-  if (obj instanceof Array) return obj.map((item) => deepClone(item)) as T;
-  if (typeof obj === "object") {
-    const clonedObj = {} as T;
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        clonedObj[key] = deepClone(obj[key]);
-      }
-    }
-    return clonedObj;
-  }
-  return obj;
 }

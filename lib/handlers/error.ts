@@ -3,7 +3,7 @@ import { ZodError } from "zod";
 
 import { RequestError, ValidationError } from "@/lib/http-errors";
 
-export type ResponseType = "api" | "server";
+type ResponseType = "api" | "server";
 
 const formatResponse = (
   responseType: ResponseType,

@@ -6,5 +6,3 @@ export const authClient = createAuthClient({
       ? process.env.NEXT_PUBLIC_APP_URL
       : globalThis.window.location.origin,
 });
-
-export const { signIn, signUp, signOut, getSession, useSession } = authClient;
