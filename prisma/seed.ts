@@ -1,8 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { hash } from "bcryptjs";
 import seedData from "./seed.json";
 import shopItems from "./shop-seed.json";
 import { ExerciseDifficulty } from "@prisma/client";
+import { createSeedUser } from "@/lib/seed-users";
 
 async function main() {
   console.log("🌱 Seeding database with JSON data...");
@@ -35,28 +35,14 @@ async function main() {
   const users = [];
   for (const [index, userCred] of userCredentials.entries()) {
     if (index < seedData.users.length) {
-      // Create user directly in database with email/password fields
-      const user = await prisma.user.create({
-        data: {
-          name: userCred.name,
-          email: userCred.email,
-          emailVerified: true, // Mark as verified for demo
-        },
-      });
-
-      // Create account record for email/password with hashed password
-      const hashedPassword = await hash(userCred.password, 10);
-      await prisma.account.create({
-        data: {
-          providerId: "credential",
-          accountId: userCred.email,
-          userId: user.id,
-          password: hashedPassword,
-        },
-      });
-
-      users.push(user);
-      console.log(`✅ Created user: ${userCred.name} (${userCred.email})`);
+      try {
+        const user = await createSeedUser(userCred);
+        users.push(user);
+        console.log(`✅ Created user: ${userCred.name} (${userCred.email})`);
+      } catch (error) {
+        console.error(`❌ Error creating user ${userCred.email}:`, error);
+        continue;
+      }
     }
   }
 
@@ -141,11 +127,15 @@ async function main() {
     for (const sessionData of seedData.sessions) {
       // Check if the exercise and user indices are valid
       if (sessionData.exerciseIndex >= exercises.length) {
-        console.warn(`⚠️ Skipping session with invalid exerciseIndex: ${sessionData.exerciseIndex}`);
+        console.warn(
+          `⚠️ Skipping session with invalid exerciseIndex: ${sessionData.exerciseIndex}`
+        );
         continue;
       }
       if (sessionData.userIndex >= users.length) {
-        console.warn(`⚠️ Skipping session with invalid userIndex: ${sessionData.userIndex}`);
+        console.warn(
+          `⚠️ Skipping session with invalid userIndex: ${sessionData.userIndex}`
+        );
         continue;
       }
 

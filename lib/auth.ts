@@ -10,8 +10,9 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: false,
+    minPasswordLength: 6, // Allow shorter passwords for demo
   },
-  trustHost: true,
   plugins: [nextCookies()],
 });
 

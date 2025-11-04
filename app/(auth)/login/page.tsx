@@ -45,13 +45,13 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (data: LoginFormData) => {
+    const { email, password } = data;
     setIsLoading(true);
 
     await authClient.signIn.email(
       {
-        email: data.email,
-        password: data.password,
-        callbackURL: ROUTES.DASHBOARD,
+        email,
+        password,
       },
       {
         onSuccess(context) {
@@ -61,6 +61,7 @@ export default function LoginPage() {
           router.refresh();
         },
         onError(ctx) {
+          console.log("ctx", ctx);
           toast.error(ctx.error.message || "Invalid credentials");
         },
       }
@@ -76,9 +77,7 @@ export default function LoginPage() {
           <div className="flex justify-center mb-4">
             <Logo variant="icon" size={64} />
           </div>
-          <CardTitle className="text-2xl font-bold text-gray-900">
-            DisKnee
-          </CardTitle>
+          <CardTitle className="text-2xl font-bold">DisKnee</CardTitle>
           <CardDescription>Virtual Physiotherapy Assistant</CardDescription>
         </CardHeader>
         <CardContent>

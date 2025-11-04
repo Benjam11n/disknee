@@ -1,5 +1,7 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import logoIcon from "@/public/logo.png";
+import logoText from "@/public/logo_text.png";
 
 interface LogoProps {
   variant?: "icon" | "text";
@@ -16,13 +18,19 @@ export function Logo({
 }: LogoProps) {
   if (variant === "text") {
     return (
-      <div className={cn("flex items-center", className)}>
+      <div
+        className={cn(
+          "flex items-center dark:bg-primary rounded-2xl",
+          className
+        )}
+      >
         <Image
-          src="/logo.png"
+          src={logoText}
           alt="DisKnee"
-          width={size * 4} // logo_text is wider
+          width={size * 4}
           height={size}
           className="object-contain"
+          unoptimized
         />
       </div>
     );
@@ -35,7 +43,7 @@ export function Logo({
         style={{ width: size, height: size }}
       >
         <Image
-          src="/logo.png"
+          src={logoIcon}
           alt="DisKnee Logo"
           fill
           className="object-contain p-1"
