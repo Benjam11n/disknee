@@ -1,5 +1,6 @@
 import { Logo } from "@/components/shared/logo";
 
+// todo: all the links are for show
 export function LandingPageFooter() {
   return (
     <footer className="py-12 border-t bg-background">
@@ -25,11 +26,6 @@ export function LandingPageFooter() {
                   How It Works
                 </a>
               </li>
-              <li>
-                <a href="#pricing" className="hover:text-foreground">
-                  Pricing
-                </a>
-              </li>
             </ul>
           </div>
 
@@ -39,11 +35,6 @@ export function LandingPageFooter() {
               <li>
                 <a href="#" className="hover:text-foreground">
                   About
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-foreground">
-                  Blog
                 </a>
               </li>
               <li>
@@ -77,7 +68,7 @@ export function LandingPageFooter() {
         </div>
 
         <div className="mt-12 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>&copy; 2024 DisKnee. All rights reserved.</p>
+          <p>&copy; 2026 DisKnee. All rights reserved.</p>
         </div>
       </div>
     </footer>

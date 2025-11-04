@@ -5,7 +5,6 @@ import { LandingPageFooter } from "@/components/shared/landing/landing-page-foot
 import { Hero } from "@/components/shared/landing/hero";
 import { HeroMedia } from "@/components/shared/landing/hero-media";
 import { Features } from "@/components/shared/landing/features";
-import { CTA } from "@/components/shared/landing/cta";
 
 export function LandingPage() {
   const scrollToFeatures = () => {
@@ -31,13 +30,6 @@ export function LandingPage() {
       <section id="features" className="py-20 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Features />
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-primary/5">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <CTA />
         </div>
       </section>
 
