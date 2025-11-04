@@ -18,16 +18,10 @@ import { toast } from "sonner";
 import { ROUTES } from "@/lib/constants/routes";
 
 interface NavbarProps {
-  label?: string;
   nextAppt?: Appointment | null;
-  primaryDoctorText?: string;
 }
 
-export function Navbar({
-  label = "No appointment",
-  nextAppt,
-  primaryDoctorText,
-}: NavbarProps) {
+export function Navbar({ nextAppt }: NavbarProps) {
   const { data: session } = authClient.useSession();
   const router = useRouter();
 
@@ -59,9 +53,11 @@ export function Navbar({
               suppressHydrationWarning
             >
               <span className="hidden sm:inline">
-                {label || "No appointment"}
+                {nextAppt?.start ? "Upcoming appointment" : "No appointment"}
               </span>
-              <span className="sm:hidden">{label?.split(" ")[0] || "—"}</span>
+              <span className="sm:hidden">
+                {nextAppt?.start ? "—" : "No appointment"}
+              </span>
             </Badge>
 
             {/* Hover card */}
@@ -113,12 +109,12 @@ export function Navbar({
               <div className="text-sm font-medium" title={patientName}>
                 {patientName}
               </div>
-              {primaryDoctorText && (
+              {nextAppt?.doctorName && (
                 <div
                   className="text-xs text-muted-foreground"
-                  title={primaryDoctorText}
+                  title={nextAppt.doctorName}
                 >
-                  Dr. {primaryDoctorText}
+                  Dr. {nextAppt.doctorName}
                 </div>
               )}
             </div>
