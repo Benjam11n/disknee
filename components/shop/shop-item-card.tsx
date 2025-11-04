@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ShopItem } from "@prisma/client";
-import { Coins, Check, ShoppingBag, Sparkles } from "lucide-react";
+import { Coins, Check, ShoppingBag, Sparkles, Lock, Star } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ShopItemCardProps {
   item: ShopItem;
@@ -14,6 +15,33 @@ interface ShopItemCardProps {
   isPurchasing: boolean;
   onPurchase: () => void;
   onEquip: () => void;
+}
+
+function getRarity(price: number) {
+  if (price >= 500) return {
+    tier: "Legendary",
+    color: "border-purple-400 bg-purple-50 dark:bg-purple-950/30 dark:border-purple-500",
+    textColor: "text-purple-700 dark:text-purple-300",
+    shadow: "shadow-purple-200 dark:shadow-purple-900/50"
+  };
+  if (price >= 300) return {
+    tier: "Epic",
+    color: "border-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 dark:border-indigo-500",
+    textColor: "text-indigo-700 dark:text-indigo-300",
+    shadow: "shadow-indigo-200 dark:shadow-indigo-900/50"
+  };
+  if (price >= 150) return {
+    tier: "Rare",
+    color: "border-blue-400 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-500",
+    textColor: "text-blue-700 dark:text-blue-300",
+    shadow: "shadow-blue-200 dark:shadow-blue-900/50"
+  };
+  return {
+    tier: "Common",
+    color: "border-gray-300 bg-gray-50 dark:bg-gray-900/50 dark:border-gray-600",
+    textColor: "text-gray-700 dark:text-gray-300",
+    shadow: "shadow-gray-200 dark:shadow-gray-800/50"
+  };
 }
 
 export function ShopItemCard({
@@ -26,47 +54,99 @@ export function ShopItemCard({
   onEquip,
 }: ShopItemCardProps) {
   const canAfford = userPoints >= item.price;
-  const showPurchaseButton = !isOwned && canAfford;
-  const showInsufficientFunds = !isOwned && !canAfford;
+  const rarity = getRarity(item.price);
+  const isNew = Date.now() - new Date(item.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000; // New if less than 7 days old
 
   return (
-    <Card className={`relative overflow-hidden transition-all hover:shadow-md ${
-      isOwned ? "ring-2 ring-primary/20" : ""
-    } ${isEquipped ? "bg-primary/5" : ""}`}>
-      {/* Badge for equipped items */}
-      {isEquipped && (
-        <div className="absolute top-2 right-2 z-10">
-          <Badge variant="default" className="bg-primary">
-            <Sparkles className="h-3 w-3" />
-          </Badge>
-        </div>
+    <Card
+      className={cn(
+        "group relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer",
+        "bg-card dark:bg-gray-900/80 border-border",
+        rarity.color,
+        rarity.shadow,
+        isOwned && "ring-2 ring-primary/30",
+        isEquipped && "bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10",
+        !canAfford && !isOwned && "opacity-75"
       )}
+    >
+      {/* Top badges */}
+      <div className="absolute top-2 left-2 right-2 z-10 flex justify-between">
+        {/* New badge */}
+        {isNew && !isOwned && (
+          <Badge className="bg-green-500 hover:bg-green-600 text-xs">
+            <Star className="h-3 w-3 mr-1" />
+            NEW
+          </Badge>
+        )}
 
-      <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <div className="text-4xl">{item.icon}</div>
-          <Badge variant={item.type === "hat" ? "default" : "secondary"}>
+        {/* Equipped badge */}
+        {isEquipped && (
+          <Badge className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black">
+            <Sparkles className="h-3 w-3 mr-1" />
+            Equipped
+          </Badge>
+        )}
+      </div>
+
+      {/* Rarity stars in corner */}
+      <div className="absolute top-2 right-2 z-10">
+        <div className="flex">
+          {rarity.tier === "Legendary" && <Star className="h-4 w-4 text-purple-500 dark:text-purple-400 fill-purple-500 dark:fill-purple-400" />}
+          {rarity.tier === "Epic" && <><Star className="h-4 w-4 text-indigo-500 dark:text-indigo-400 fill-indigo-500 dark:fill-indigo-400" /><Star className="h-4 w-4 text-indigo-500 dark:text-indigo-400 fill-indigo-500 dark:fill-indigo-400 -ml-1" /></>}
+          {rarity.tier === "Rare" && <><Star className="h-4 w-4 text-blue-500 dark:text-blue-400 fill-blue-500 dark:fill-blue-400" /><Star className="h-4 w-4 text-blue-500 dark:text-blue-400 fill-blue-500 dark:fill-blue-400 -ml-1" /><Star className="h-4 w-4 text-blue-500 dark:text-blue-400 fill-blue-500 dark:fill-blue-400 -ml-1" /></>}
+        </div>
+      </div>
+
+      <CardHeader className="pb-3 pt-12">
+        <div className="flex flex-col items-center space-y-3">
+          {/* Item icon with hover effect */}
+          <div className="relative">
+            <div className="text-6xl transition-transform group-hover:scale-110">
+              {item.icon}
+            </div>
+            {/* Shimmer effect for rare items */}
+            {rarity.tier !== "Common" && (
+              <div className="absolute inset-0 animate-pulse opacity-30">
+                <div className="text-6xl blur-xl">{item.icon}</div>
+              </div>
+            )}
+          </div>
+
+          {/* Item type badge */}
+          <Badge
+            variant={item.type === "hat" ? "default" : "secondary"}
+            className="text-xs"
+          >
             {item.type}
           </Badge>
+
+          {/* Rarity text */}
+          <span className={cn("text-xs font-semibold uppercase tracking-wider", rarity.textColor)}>
+            {rarity.tier}
+          </span>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-3">
-        <div>
-          <h3 className="font-semibold text-lg">{item.name}</h3>
+      <CardContent className="space-y-4 pt-0">
+        <div className="text-center">
+          <h3 className="font-bold text-lg">{item.name}</h3>
           {item.description && (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
               {item.description}
             </p>
           )}
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1">
-            <Coins className="h-4 w-4 text-yellow-600" />
-            <span className="font-bold text-lg">{item.price}</span>
-          </div>
+        {/* Price section */}
+        <div className="flex items-center justify-center space-x-2">
+          <Coins className={cn("h-5 w-5", canAfford ? "text-yellow-600 dark:text-yellow-400" : "text-gray-400 dark:text-gray-500")} />
+          <span className={cn("font-bold text-2xl", canAfford ? "text-yellow-700 dark:text-yellow-400" : "text-gray-500 dark:text-gray-400")}>
+            {item.price}
+          </span>
+        </div>
 
+        {/* Action buttons */}
+        <div className="space-y-2">
           {isOwned ? (
             <Button
               onClick={onEquip}
@@ -74,33 +154,56 @@ export function ShopItemCard({
               size="sm"
               className="w-full"
             >
-              {isEquipped ? "Unequip" : "Equip"}
+              {isEquipped ? (
+                <>
+                  <Check className="h-4 w-4 mr-2" />
+                  Equipped
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Equip
+                </>
+              )}
             </Button>
-          ) : showPurchaseButton ? (
+          ) : canAfford ? (
             <Button
               onClick={onPurchase}
               disabled={isPurchasing}
               size="sm"
-              className="w-full"
+              className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary"
             >
-              <ShoppingBag className="h-4 w-4 mr-2" />
-              {isPurchasing ? "Purchasing..." : "Buy"}
+              {isPurchasing ? (
+                <>Purchasing...</>
+              ) : (
+                <>
+                  <ShoppingBag className="h-4 w-4 mr-2" />
+                  Buy Now
+                </>
+              )}
             </Button>
-          ) : showInsufficientFunds ? (
-            <Button disabled size="sm" className="w-full">
-              <Coins className="h-4 w-4 mr-2" />
-              Insufficient
+          ) : (
+            <Button disabled size="sm" className="w-full relative">
+              <Lock className="h-4 w-4 mr-2" />
+              <span className="mr-2">Locked</span>
+              <span className="text-xs">Need {item.price - userPoints} more</span>
             </Button>
-          ) : null}
+          )}
         </div>
 
+        {/* Owned indicator */}
         {isOwned && (
-          <div className="flex items-center gap-1 text-sm text-green-600">
+          <div className="flex items-center justify-center gap-1 text-sm text-green-600 dark:text-green-400 font-medium">
             <Check className="h-4 w-4" />
-            <span>Owned</span>
+            <span>In Inventory</span>
           </div>
         )}
       </CardContent>
+
+      {/* Gradient overlay for locked items */}
+      {!canAfford && !isOwned && (
+        <div className="absolute inset-0 bg-black/5 backdrop-blur-[1px]" />
+      )}
     </Card>
   );
 }

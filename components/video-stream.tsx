@@ -229,7 +229,7 @@ export function VideoStream({
       try {
         const results = poseLandmarkerRef.current.detectForVideo(video, now);
         if (results.landmarks?.length) {
-          const landmarks: Landmark[] = results.landmarks[0].map((lm: any) => ({
+          const landmarks: Landmark[] = results.landmarks[0].map((lm) => ({
             x: lm.x,
             y: lm.y,
             z: lm.z || 0,
