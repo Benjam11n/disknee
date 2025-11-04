@@ -34,6 +34,11 @@ async function handleAuth(
 }
 
 export async function proxy(request: NextRequest) {
+  const pathName = request.nextUrl.pathname;
+  if (pathName.startsWith("/images/") || pathName.startsWith("/icon/")) {
+    return NextResponse.next();
+  }
+
   const session = await getSession(request);
   return handleAuth(request, session);
 }
