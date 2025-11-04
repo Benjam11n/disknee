@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { hash } from "bcryptjs";
-import seedData from "@/app/seed.json";
+import seedData from "./seed.json";
 import shopItems from "./shop-seed.json";
 import { Difficulty } from "@prisma/client";
 
@@ -15,7 +15,7 @@ async function main() {
   await prisma.exercise.deleteMany();
   await prisma.plan.deleteMany();
   await prisma.appointment.deleteMany();
-    await prisma.account.deleteMany();
+  await prisma.account.deleteMany();
   await prisma.user.deleteMany();
 
   console.log("🧹 Cleaned existing data");
@@ -23,7 +23,11 @@ async function main() {
   // Create users with Better Auth
   const userCredentials = [
     { name: "Donald Duck", email: "demo@disknee.com", password: "demo123" },
-    { name: "John Patient", email: "patient@example.com", password: "patient2024" },
+    {
+      name: "John Patient",
+      email: "patient@example.com",
+      password: "patient2024",
+    },
     { name: "Dr. Smith", email: "physio@example.com", password: "physio2024" },
   ];
 
