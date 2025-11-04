@@ -15,14 +15,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Activity, Eye, EyeOff } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import Image from "next/image";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -38,9 +38,6 @@ export default function LoginPage() {
       },
       {
         onSuccess: () => {
-          if (rememberMe) {
-            localStorage.setItem("disknee_email", email);
-          }
           toast.success("Successfully signed in!");
           router.push(ROUTES.HOME);
           router.refresh();
@@ -60,7 +57,13 @@ export default function LoginPage() {
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
-              <Activity className="h-10 w-10 text-white" />
+              <Image
+                src="/logo.png"
+                alt="DisKnee Logo"
+                width={60}
+                height={60}
+                className="object-contain"
+              />
             </div>
           </div>
           <CardTitle className="text-2xl font-bold text-gray-900">
@@ -109,17 +112,6 @@ export default function LoginPage() {
                   )}
                 </button>
               </div>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="remember"
-                checked={rememberMe}
-                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-              />
-              <Label htmlFor="remember" className="text-sm">
-                Remember me
-              </Label>
             </div>
 
             <Button

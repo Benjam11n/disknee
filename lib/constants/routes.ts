@@ -1,8 +1,10 @@
 // Centralized route constants for the DisKnee application
 // This ensures type safety and maintainability across the entire codebase
 
+// todo: update DASHBOARD ROUTE
 export const ROUTES = {
   HOME: "/",
+  DASHBOARD: "/",
   LOGIN: "/login",
   CALLS: "/calls",
   CALL: {

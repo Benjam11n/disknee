@@ -3,27 +3,38 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { SidebarNavigation } from "@/components/layout/SidebarNavigation";
 import { Navbar } from "@/components/Navbar";
+import { ROUTES } from "@/lib/constants/routes";
+import { getAppointmentsAction } from "@/lib/actions/appointments";
 
 export default async function AuthenticatedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Check if user is authenticated on server side
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
   if (!session?.user) {
-    redirect("/login");
+    redirect(ROUTES.LOGIN);
   }
+
+  const appointmentsResponse = await getAppointmentsAction({
+    offset: 0,
+    limit: 1,
+  });
+
+  if (!appointmentsResponse.success || !appointmentsResponse.data) {
+    console.error(
+      appointmentsResponse.error?.message ?? `Failed to fetch appointments`
+    );
+  }
+
+  const nextAppointment = appointmentsResponse.data?.[0];
 
   return (
     <SidebarNavigation>
-      <Navbar
-        label="Dashboard"
-        primaryDoctorText="Smith"
-      />
+      <Navbar nextAppt={nextAppointment} />
       {children}
     </SidebarNavigation>
   );

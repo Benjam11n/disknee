@@ -3,9 +3,7 @@ import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
-import { SidebarNavigation } from "@/components/layout/SidebarNavigation";
-import { Navbar } from "@/components/Navbar";
-import { getAppointmentsAction } from "@/lib/actions/appointments";
+
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -31,19 +29,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const appointmentsResponse = await getAppointmentsAction({
-    offset: 0,
-    limit: 1,
-  });
-
-  if (!appointmentsResponse.success || !appointmentsResponse.data) {
-    console.error(
-      appointmentsResponse.error?.message ?? `Failed to fetch appointments`
-    );
-  }
-
-  const nextAppointment = appointmentsResponse.data?.[0];
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -55,12 +40,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <TooltipProvider>
-            <SidebarNavigation>
-              <Navbar nextAppt={nextAppointment} />
-              {children}
-            </SidebarNavigation>
-          </TooltipProvider>
+          <TooltipProvider>{children}</TooltipProvider>
         </ThemeProvider>
         <Toaster
           position="top-right"
