@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { GlowBlob } from "@/components/glow-blob";
 import { LandingPageNavbar } from "@/components/LandingPageNavbar";
+import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -223,18 +224,10 @@ export function LandingPage() {
       <footer className="py-12 border-t bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-sm">
-                    D
-                  </span>
-                </div>
-                <span className="font-bold text-xl">DisKnee</span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                AI-powered virtual physiotherapy for smarter knee
-                rehabilitation.
+            <div className="space-y-6">
+              <Logo variant="text" size={40} className="mb-4" />
+              <p className="text-sm text-muted-foreground max-w-xs">
+                AI-powered virtual physiotherapy for smarter knee rehabilitation.
               </p>
             </div>
 

@@ -22,9 +22,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import Image from "next/image";
+import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ROUTES } from "@/lib/constants/routes";
 
@@ -78,16 +77,9 @@ export function SidebarNavigation({ children }: { children: React.ReactNode }) {
     <SidebarProvider open={open} onOpenChange={setOpen}>
       <Sidebar className="border-r border-border/40 bg-sidebar">
         <SidebarHeader className="bg-gradient-to-b from-background to-sidebar/50 border-b border-border/40 p-6">
-          <div className="flex items-center gap-3">
-            <div className="relative h-10 w-10 shrink-0 rounded-lg p-2">
-              <Image
-                src="/logo.png"
-                alt="DisKnee Logo"
-                fill
-                className="object-contain"
-              />
-            </div>
-            <div className="flex flex-col gap-0.5">
+          <div className="flex flex-col items-center gap-3">
+            <Logo variant="icon" size={40} />
+            <div className="flex flex-col gap-0.5 text-center">
               <h1 className="text-xl font-bold tracking-tight text-foreground">
                 DisKnee
               </h1>

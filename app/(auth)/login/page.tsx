@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/form";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
-import Image from "next/image";
+import { Logo } from "@/components/Logo";
 import {
   loginSchema,
   type LoginFormData,
@@ -54,12 +54,13 @@ export default function LoginPage() {
         callbackURL: ROUTES.DASHBOARD,
       },
       {
-        onSuccess: () => {
+        onSuccess(context) {
+          console.log("context", context);
           toast.success("Successfully signed in!");
           router.push(ROUTES.DASHBOARD);
           router.refresh();
         },
-        onError: (ctx) => {
+        onError(ctx) {
           toast.error(ctx.error.message || "Invalid credentials");
         },
       }
@@ -73,15 +74,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
-              <Image
-                src="/logo.png"
-                alt="DisKnee Logo"
-                width={60}
-                height={60}
-                className="object-contain"
-              />
-            </div>
+            <Logo variant="icon" size={64} />
           </div>
           <CardTitle className="text-2xl font-bold text-gray-900">
             DisKnee

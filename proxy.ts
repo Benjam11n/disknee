@@ -35,7 +35,11 @@ async function handleAuth(
 
 export async function proxy(request: NextRequest) {
   const pathName = request.nextUrl.pathname;
-  if (pathName.startsWith("/images/") || pathName.startsWith("/icon/")) {
+  if (
+    pathName.startsWith("/images/") ||
+    pathName.startsWith("/icon/") ||
+    pathName.startsWith("/logo/")
+  ) {
     return NextResponse.next();
   }
 

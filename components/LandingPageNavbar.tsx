@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/Logo";
 import { ROUTES } from "@/lib/constants/routes";
 
 interface LandingPageNavbarProps {
@@ -23,17 +23,7 @@ export function LandingPageNavbar({
     <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-2">
-            <div className="relative w-8 h-8 bg-primary rounded-full overflow-hidden">
-              <Image
-                src="/logo.png"
-                alt="DisKnee Logo"
-                fill
-                className="object-contain p-1"
-              />
-            </div>
-            <span className="font-bold text-xl">DisKnee</span>
-          </div>
+          <Logo variant="icon" size={32} showText={true} />
 
           <div className="hidden md:flex items-center space-x-8">
             <button
