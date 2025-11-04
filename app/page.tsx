@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { ROUTES } from "@/lib/constants/routes";
 import { redirect } from "next/navigation";
-import { LandingPage } from "@/components/LandingPage";
+import { LandingPage } from "@/components/landing/LandingPage";
 
 export default async function RootPage() {
   const session = await auth.api.getSession({

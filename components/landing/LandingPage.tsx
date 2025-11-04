@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { GlowBlob } from "@/components/glow-blob";
-import { LandingPageNavbar } from "@/components/LandingPageNavbar";
-import { LandingPageFooter } from "@/components/layout/landing-page-footer";
+import { LandingPageNavbar } from "@/components/landing/LandingPageNavbar";
+import { LandingPageFooter } from "@/components/landing/landing-page-footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
