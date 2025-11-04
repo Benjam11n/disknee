@@ -1,7 +1,8 @@
-import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { ROUTES } from "@/lib/constants/routes";
+import { redirect } from "next/navigation";
+import { LandingPage } from "@/components/LandingPage";
 
 export default async function RootPage() {
   const session = await auth.api.getSession({
@@ -12,5 +13,5 @@ export default async function RootPage() {
     redirect(ROUTES.DASHBOARD);
   }
 
-  redirect(ROUTES.LOGIN);
+  return <LandingPage />;
 }
