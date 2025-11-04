@@ -23,7 +23,7 @@ import {
   ReflectionFormData,
 } from "@/lib/validations/reflection-validations";
 import { getFatigueLabel } from "@/lib/utils/session-utils";
-import { SessionSummary } from "@/components/dashboard/session-summary";
+import { SessionSummary } from "@/components/features/dashboard/session-summary";
 
 interface SessionData {
   duration: number;

@@ -10,8 +10,8 @@ export function CTA() {
           Start Your Recovery Journey Today
         </h2>
         <p className="text-xl text-muted-foreground">
-          Join thousands of patients who have transformed their recovery
-          with DisKnee.
+          Join thousands of patients who have transformed their recovery with
+          DisKnee.
         </p>
         <Link href={ROUTES.LOGIN} className="block">
           <Button size="lg" className="text-lg px-12 py-6 h-auto">

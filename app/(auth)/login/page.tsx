@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/form";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
-import { Logo } from "@/components/logo";
+import { Logo } from "@/components/shared/logo";
 import {
   loginSchema,
   type LoginFormData,

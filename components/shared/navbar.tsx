@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { CalendarDays, LogOut } from "lucide-react";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { ThemeToggle } from "@/components/shared/theme/theme-toggle";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";

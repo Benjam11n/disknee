@@ -4,7 +4,7 @@ import { getPlansAction } from "@/lib/actions/plans";
 import { getLeaderboardAction } from "@/lib/actions/leaderboard";
 import { getUserByIdAction } from "@/lib/actions/users";
 import { getUserInventoryAction } from "@/lib/actions/shop";
-import { DashboardClient } from "@/components/dashboard/dashboard-client";
+import { DashboardClient } from "@/components/features/dashboard/dashboard-client";
 import { Plan, ShopItem, UserInventory, User } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";

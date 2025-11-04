@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Leaderboard } from "@/components/dashboard/leaderboard";
+import { Leaderboard } from "@/components/features/dashboard/leaderboard";
 import { getLeaderboardAction } from "@/lib/actions/leaderboard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";

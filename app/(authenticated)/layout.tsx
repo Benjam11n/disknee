@@ -1,8 +1,8 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { SidebarNavigation } from "@/components/layout/sidebar-navigation";
-import { Navbar } from "@/components/navbar";
+import { SidebarNavigation } from "@/components/shared/layout/sidebar-navigation";
+import { Navbar } from "@/components/shared/navbar";
 import { ROUTES } from "@/lib/constants/routes";
 import { getAppointmentsAction } from "@/lib/actions/appointments";
 import { logger } from "@/lib/logger";

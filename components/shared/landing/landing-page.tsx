@@ -1,11 +1,11 @@
 "use client";
 
-import { LandingPageNavbar } from "@/components/landing/landing-page-navbar";
-import { LandingPageFooter } from "@/components/landing/landing-page-footer";
-import { Hero } from "@/components/landing/hero";
-import { HeroMedia } from "@/components/landing/hero-media";
-import { Features } from "@/components/landing/features";
-import { CTA } from "@/components/landing/cta";
+import { LandingPageNavbar } from "@/components/shared/landing/landing-page-navbar";
+import { LandingPageFooter } from "@/components/shared/landing/landing-page-footer";
+import { Hero } from "@/components/shared/landing/hero";
+import { HeroMedia } from "@/components/shared/landing/hero-media";
+import { Features } from "@/components/shared/landing/features";
+import { CTA } from "@/components/shared/landing/cta";
 
 export function LandingPage() {
   const scrollToFeatures = () => {
