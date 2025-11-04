@@ -5,14 +5,9 @@ import action from "@/lib/handlers/action";
 import handleError from "@/lib/handlers/error";
 import {
   GetPlansSchema,
-  GetPlansByDateRangeSchema,
   GetPlanByIdSchema,
 } from "@/lib/validations/plan-validations";
-import {
-  GetPlanByIdParams,
-  GetPlansByDateRangeParams,
-  GetPlansParams,
-} from "@/lib/types/plans";
+import { GetPlanByIdParams, GetPlansParams } from "@/lib/types/plans";
 import { Plan } from "@prisma/client";
 import { NotFoundError } from "@/lib/http-errors";
 

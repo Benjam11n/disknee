@@ -5,7 +5,15 @@ import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Phone, PhoneOff, Video, VideoOff, PlayCircle, PauseCircle, Activity } from "lucide-react";
+import {
+  Phone,
+  PhoneOff,
+  Video,
+  VideoOff,
+  PlayCircle,
+  PauseCircle,
+  Activity,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Exercise } from "@prisma/client";
 
@@ -13,7 +21,10 @@ import VideoStream from "@/components/VideoStream";
 import ModelVideo from "@/components/ModelVideo";
 import { ReflectionDialog } from "@/components/ReflectionDialog";
 import { Landmark } from "@/lib/pose-utils";
-import { createSessionAction, updateSessionAction } from "@/lib/actions/sessions";
+import {
+  createExerciseSessionAction,
+  updateExerciseSessionAction,
+} from "@/lib/actions/exercise-sessions";
 import { updateExerciseDoneAction } from "@/lib/actions/exercises";
 import { ROUTES } from "@/lib/constants/routes";
 import { formatTime } from "@/lib/utils/session-utils";
@@ -29,7 +40,9 @@ interface CallExerciseClientProps {
   exercise: Exercise;
 }
 
-export default function CallExerciseClient({ exercise }: CallExerciseClientProps) {
+export default function CallExerciseClient({
+  exercise,
+}: CallExerciseClientProps) {
   const router = useRouter();
 
   const [isCallActive, setIsCallActive] = useState(false);
@@ -37,7 +50,9 @@ export default function CallExerciseClient({ exercise }: CallExerciseClientProps
   const [isModelPlaying, setIsModelPlaying] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
   const [showReflection, setShowReflection] = useState(false);
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [exerciseSessionId, setExerciseSessionId] = useState<string | null>(
+    null
+  );
   const [poseLandmarks, setPoseLandmarks] = useState<Landmark[]>([]);
   const [sessionTime, setSessionTime] = useState(0);
   const [ex4State, setEx4State] = useState<Ex4State>({
@@ -54,7 +69,9 @@ export default function CallExerciseClient({ exercise }: CallExerciseClientProps
     if (isCallActive && !sessionStartTime.current) {
       sessionStartTime.current = Date.now();
       const interval = setInterval(() => {
-        setSessionTime(Math.floor((Date.now() - sessionStartTime.current!) / 1000));
+        setSessionTime(
+          Math.floor((Date.now() - sessionStartTime.current!) / 1000)
+        );
       }, 1000);
       return () => clearInterval(interval);
     }
@@ -90,13 +107,14 @@ export default function CallExerciseClient({ exercise }: CallExerciseClientProps
     setIsCallActive(true);
     setIsRecording(true);
     try {
-      const session = await createSessionAction({
+      const exerciseSession = await createExerciseSessionAction({
         exerciseId: exercise.id,
         startedAt: new Date().toISOString(),
         repsCompleted: 0,
         accuracy: 0,
       });
-      if (session.success && session.data) setSessionId(session.data.id);
+      if (exerciseSession.success && exerciseSession.data)
+        setExerciseSessionId(exerciseSession.data.id);
     } catch (err) {
       console.error(err);
       toast.error("Failed to start session");
@@ -106,9 +124,9 @@ export default function CallExerciseClient({ exercise }: CallExerciseClientProps
   const endCall = async () => {
     setIsCallActive(false);
     setIsRecording(false);
-    if (sessionId) {
+    if (exerciseSessionId) {
       try {
-        await updateSessionAction(sessionId, {
+        await updateExerciseSessionAction(exerciseSessionId, {
           endedAt: new Date(),
           duration: sessionTime,
           accuracy: 85,
@@ -124,10 +142,14 @@ export default function CallExerciseClient({ exercise }: CallExerciseClientProps
     }
   };
 
-  const handleReflectionSubmit = async (reflection: { rating: number; fatigue: number; feedback?: string }) => {
+  const handleReflectionSubmit = async (reflection: {
+    rating: number;
+    fatigue: number;
+    feedback?: string;
+  }) => {
     try {
       await createReflectionAction({
-        sessionId: sessionId!,
+        exerciseSessionId: exerciseSessionId!,
         rating: reflection.rating,
         fatigue: reflection.fatigue,
         feedback: reflection.feedback,
@@ -149,7 +171,9 @@ export default function CallExerciseClient({ exercise }: CallExerciseClientProps
           <VideoStream
             isVideoOn={isVideoOn}
             isCallActive={isCallActive}
-            onPoseResults={({ poseLandmarks }) => setPoseLandmarks(poseLandmarks)}
+            onPoseResults={({ poseLandmarks }) =>
+              setPoseLandmarks(poseLandmarks)
+            }
           />
 
           {/* Overlay for reps, angle, and hold timer */}
@@ -168,16 +192,23 @@ export default function CallExerciseClient({ exercise }: CallExerciseClientProps
           {isRecording && (
             <div className="absolute top-4 right-4 flex items-center gap-2">
               <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
-              <span className="text-white text-sm font-medium bg-red-500/20 px-2 py-1 rounded">REC</span>
+              <span className="text-white text-sm font-medium bg-red-500/20 px-2 py-1 rounded">
+                REC
+              </span>
             </div>
           )}
         </Card>
 
         {/* Model Video */}
         <Card className="relative bg-black overflow-hidden">
-          <ModelVideo isPlaying={isModelPlaying} exerciseType="knee-extension" />
+          <ModelVideo
+            isPlaying={isModelPlaying}
+            exerciseType="knee-extension"
+          />
           <div className="absolute top-4 right-4">
-            <Badge variant="secondary" className="bg-black/50 text-white">Perfect Form</Badge>
+            <Badge variant="secondary" className="bg-black/50 text-white">
+              Perfect Form
+            </Badge>
           </div>
         </Card>
       </div>
@@ -188,25 +219,51 @@ export default function CallExerciseClient({ exercise }: CallExerciseClientProps
           <div>
             <h2 className="text-2xl font-bold mb-2">{exercise.title}</h2>
             <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-              <Activity className="h-4 w-4" /> {exercise.difficulty.toLowerCase()} | {exercise.estimatedMins} min | {formatTime(sessionTime)}
+              <Activity className="h-4 w-4" />{" "}
+              {exercise.difficulty.toLowerCase()} | {exercise.estimatedMins} min
+              | {formatTime(sessionTime)}
             </div>
           </div>
 
           <div>
             <div className="grid grid-cols-3 gap-3">
               {!isCallActive ? (
-                <Button onClick={startCall} className="col-span-3 bg-green-600 hover:bg-green-700" size="lg">
+                <Button
+                  onClick={startCall}
+                  className="col-span-3 bg-green-600 hover:bg-green-700"
+                  size="lg"
+                >
                   <Phone className="h-5 w-5 mr-2" /> Start Session
                 </Button>
               ) : (
                 <>
-                  <Button onClick={() => setIsVideoOn((prev) => !prev)} variant={isVideoOn ? "default" : "secondary"} size="lg">
-                    {isVideoOn ? <VideoOff className="h-5 w-5" /> : <Video className="h-5 w-5" />}
+                  <Button
+                    onClick={() => setIsVideoOn((prev) => !prev)}
+                    variant={isVideoOn ? "default" : "secondary"}
+                    size="lg"
+                  >
+                    {isVideoOn ? (
+                      <VideoOff className="h-5 w-5" />
+                    ) : (
+                      <Video className="h-5 w-5" />
+                    )}
                   </Button>
-                  <Button onClick={() => setIsModelPlaying((prev) => !prev)} variant={isModelPlaying ? "default" : "secondary"} size="lg">
-                    {isModelPlaying ? <PauseCircle className="h-5 w-5" /> : <PlayCircle className="h-5 w-5" />}
+                  <Button
+                    onClick={() => setIsModelPlaying((prev) => !prev)}
+                    variant={isModelPlaying ? "default" : "secondary"}
+                    size="lg"
+                  >
+                    {isModelPlaying ? (
+                      <PauseCircle className="h-5 w-5" />
+                    ) : (
+                      <PlayCircle className="h-5 w-5" />
+                    )}
                   </Button>
-                  <Button onClick={endCall} className="bg-red-600 hover:bg-red-700" size="lg">
+                  <Button
+                    onClick={endCall}
+                    className="bg-red-600 hover:bg-red-700"
+                    size="lg"
+                  >
                     <PhoneOff className="h-5 w-5" />
                   </Button>
                 </>
@@ -225,7 +282,10 @@ export default function CallExerciseClient({ exercise }: CallExerciseClientProps
           accuracy: 85,
         }}
         onSubmit={handleReflectionSubmit}
-        onSkip={() => { setShowReflection(false); router.push(ROUTES.HOME); }}
+        onSkip={() => {
+          setShowReflection(false);
+          router.push(ROUTES.HOME);
+        }}
       />
     </div>
   );

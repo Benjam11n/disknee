@@ -12,11 +12,6 @@ export const GetPlansSchema = z.object({
     .optional(),
 });
 
-export const GetPlansByDateRangeSchema = z.object({
-  startDate: z.string().datetime("Invalid start date format"),
-  endDate: z.string().datetime("Invalid end date format"),
-});
-
 export const GetPlanByIdSchema = z.object({
   id: z.string(),
 });

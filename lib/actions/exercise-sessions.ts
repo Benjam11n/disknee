@@ -4,24 +4,24 @@ import { prisma } from "@/lib/prisma";
 import action from "@/lib/handlers/action";
 import handleError from "@/lib/handlers/error";
 import {
-  CreateSessionSchema,
-  GetSessionsSchema,
-  GetSessionByIdSchema,
-} from "@/lib/validations/session-validations";
+  CreateExerciseSessionSchema,
+  GetExerciseSessionsSchema,
+  GetExerciseSessionByIdSchema,
+} from "@/lib/validations/exercise-session-validations";
 import {
-  CreateSessionParams,
-  GetSessionByIdParams,
-  GetSessionsParams,
-} from "@/lib/types/sessions";
-import { Session } from "@prisma/client";
+  CreateExerciseSessionParams,
+  GetExerciseSessionByIdParams,
+  GetExerciseSessionsParams,
+} from "@/lib/types/exercise-sessions";
+import { ExerciseSession } from "@prisma/client";
 import { NotFoundError } from "@/lib/http-errors";
 
-export async function createSessionAction(
-  params: CreateSessionParams
-): Promise<ActionResponse<Session>> {
+export async function createExerciseSessionAction(
+  params: CreateExerciseSessionParams
+): Promise<ActionResponse<ExerciseSession>> {
   const validationResult = await action({
     params: params,
-    schema: CreateSessionSchema,
+    schema: CreateExerciseSessionSchema,
     authorize: true,
   });
 
@@ -42,7 +42,7 @@ export async function createSessionAction(
   } = validationResult.params!;
 
   try {
-    const session = await prisma.session.create({
+    const exerciseSession = await prisma.exerciseSession.create({
       data: {
         startedAt: new Date(startedAt),
         endedAt: endedAt ? new Date(endedAt) : undefined,
@@ -56,22 +56,22 @@ export async function createSessionAction(
       },
     });
 
-    if (!session) {
-      throw new NotFoundError("Session not created");
+    if (!exerciseSession) {
+      throw new NotFoundError("Exercise session not created");
     }
 
-    return { success: true, data: session };
+    return { success: true, data: exerciseSession };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
 }
 
-export async function getSessionsAction(
-  params: GetSessionsParams
-): Promise<ActionResponse<Session[]>> {
+export async function getExerciseSessionsAction(
+  params: GetExerciseSessionsParams
+): Promise<ActionResponse<ExerciseSession[]>> {
   const validationResult = await action({
     params: params,
-    schema: GetSessionsSchema,
+    schema: GetExerciseSessionsSchema,
     authorize: true,
   });
 
@@ -82,7 +82,7 @@ export async function getSessionsAction(
   const { limit, offset, startDate, endDate } = validationResult.params!;
 
   try {
-    const sessions = await prisma.session.findMany({
+    const exerciseSessions = await prisma.exerciseSession.findMany({
       where: {
         startedAt: {
           gte: startDate ? new Date(startDate) : undefined,
@@ -97,18 +97,18 @@ export async function getSessionsAction(
       },
     });
 
-    return { success: true, data: sessions };
+    return { success: true, data: exerciseSessions };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
 }
 
-export async function getSessionByIdAction(
-  params: GetSessionByIdParams
-): Promise<ActionResponse<Session>> {
+export async function getExerciseSessionByIdAction(
+  params: GetExerciseSessionByIdParams
+): Promise<ActionResponse<ExerciseSession>> {
   const validationResult = await action({
     params: params,
-    schema: GetSessionByIdSchema,
+    schema: GetExerciseSessionByIdSchema,
     authorize: true,
   });
 
@@ -119,24 +119,24 @@ export async function getSessionByIdAction(
   const { id } = validationResult.params!;
 
   try {
-    const session = await prisma.session.findUnique({
+    const exerciseSession = await prisma.exerciseSession.findUnique({
       where: { id },
       include: {
         reflection: true,
       },
     });
 
-    if (!session) {
-      throw new NotFoundError("Session not found");
+    if (!exerciseSession) {
+      throw new NotFoundError("Exercise session not found");
     }
 
-    return { success: true, data: session };
+    return { success: true, data: exerciseSession };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
 }
 
-export async function updateSessionAction(
+export async function updateExerciseSessionAction(
   sessionId: string,
   data: {
     endedAt?: Date;
@@ -144,18 +144,18 @@ export async function updateSessionAction(
     accuracy?: number;
     maxAccuracy?: number;
   }
-): Promise<ActionResponse<Session>> {
+): Promise<ActionResponse<ExerciseSession>> {
   try {
-    const session = await prisma.session.update({
+    const exerciseSession = await prisma.exerciseSession.update({
       where: { id: sessionId },
       data,
     });
 
-    if (!session) {
-      throw new NotFoundError("Session not found");
+    if (!exerciseSession) {
+      throw new NotFoundError("Exercise session not found");
     }
 
-    return { success: true, data: session };
+    return { success: true, data: exerciseSession };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }

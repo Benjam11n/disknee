@@ -1,6 +1,6 @@
 import { getExercisesAction } from "@/lib/actions/exercises";
 import { getAppointmentsAction } from "@/lib/actions/appointments";
-import { getPlans } from "@/lib/actions/plans";
+import { getPlansAction } from "@/lib/actions/plans";
 import { getLeaderboardAction } from "@/lib/actions/leaderboard";
 import { getUserByIdAction } from "@/lib/actions/users";
 import { getUserInventoryAction } from "@/lib/actions/shop";
@@ -32,7 +32,7 @@ export default async function RehabDashboardPage() {
   ] = await Promise.all([
     getExercisesAction({ page: 1, limit: 50 }),
     getAppointmentsAction({ limit: 50, offset: 0 }),
-    getPlans({ limit: 100, offset: 0, include: { exercises: true } }),
+    getPlansAction({ limit: 100, offset: 0, include: { exercises: true } }),
     getLeaderboardAction({
       limit: 50,
       offset: 0,

@@ -11,6 +11,7 @@ async function main() {
   await prisma.userInventory.deleteMany();
   await prisma.shopItem.deleteMany();
   await prisma.reflection.deleteMany();
+  await prisma.exerciseSession.deleteMany();
   await prisma.session.deleteMany();
   await prisma.exercise.deleteMany();
   await prisma.plan.deleteMany();
@@ -134,16 +135,11 @@ async function main() {
     console.log(`✅ Created ${seedData.appointments.length} appointments`);
   }
 
-  // Create sessions and reflections
+  // Create exercise sessions and reflections
   if (seedData.sessions) {
     for (const sessionData of seedData.sessions) {
-      const session = await prisma.session.create({
+      const exerciseSession = await prisma.exerciseSession.create({
         data: {
-          // Better Auth required fields
-          token: `session-token-${Math.random().toString(36).substring(2)}`,
-          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
-
-          // App-specific session data
           startedAt: new Date(sessionData.startedAt),
           endedAt: new Date(
             new Date(sessionData.startedAt).getTime() +
@@ -164,7 +160,7 @@ async function main() {
       if (sessionData.hasReflection && sessionData.reflection) {
         await prisma.reflection.create({
           data: {
-            sessionId: session.id,
+            exerciseSessionId: exerciseSession.id,
             rating: sessionData.reflection.rating,
             fatigue: sessionData.reflection.fatigue,
             feedback: sessionData.reflection.feedback,
@@ -172,12 +168,12 @@ async function main() {
         });
       }
     }
-    console.log(`✅ Created ${seedData.sessions.length} sessions`);
+    console.log(`✅ Created ${seedData.sessions.length} exercise sessions`);
   }
 
   // Calculate and update points for all users
   for (const user of users) {
-    const userSessions = await prisma.session.findMany({
+    const userSessions = await prisma.exerciseSession.findMany({
       where: {
         userId: user.id,
       },
