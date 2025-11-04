@@ -9,7 +9,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Difficulty, Exercise } from "@prisma/client";
+import { Exercise } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/lib/constants/routes";
 import { getDifficultyBadgeVariant, getDifficultyStyles } from "@/lib/utils";

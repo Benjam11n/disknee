@@ -1,4 +1,4 @@
-import { Difficulty } from "@prisma/client";
+import { ExerciseDifficulty } from "@prisma/client";
 import { z } from "zod";
 
 const ExerciseBaseSchema = z.object({
@@ -8,7 +8,7 @@ const ExerciseBaseSchema = z.object({
     .int()
     .min(1, "Duration must be at least 1 minute")
     .max(180, "Duration cannot exceed 3 hours"),
-  difficulty: z.nativeEnum(Difficulty),
+  difficulty: z.nativeEnum(ExerciseDifficulty),
   done: z.boolean().default(false),
 });
 
@@ -18,7 +18,7 @@ export const CreateExerciseSchema = ExerciseBaseSchema.extend({
 
 // Query parameters schema
 export const GetExercisesSchema = z.object({
-  difficulty: z.nativeEnum(Difficulty).optional(),
+  difficulty: z.nativeEnum(ExerciseDifficulty).optional(),
   done: z.coerce.boolean().optional(),
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(10),

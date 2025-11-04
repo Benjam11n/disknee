@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { hash } from "bcryptjs";
 import seedData from "./seed.json";
 import shopItems from "./shop-seed.json";
-import { Difficulty } from "@prisma/client";
+import { ExerciseDifficulty } from "@prisma/client";
 
 async function main() {
   console.log("🌱 Seeding database with JSON data...");
@@ -104,10 +104,10 @@ async function main() {
           estimatedMins: ex.estimatedMins,
           difficulty:
             ex.difficulty === "easy"
-              ? Difficulty.EASY
+              ? ExerciseDifficulty.EASY
               : ex.difficulty === "moderate"
-              ? Difficulty.MODERATE
-              : Difficulty.HARD,
+              ? ExerciseDifficulty.MODERATE
+              : ExerciseDifficulty.HARD,
           done: ex.done,
           planId: plans[planIndex].id,
         },

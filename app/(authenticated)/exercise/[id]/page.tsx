@@ -7,32 +7,20 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Play, Clock, Target } from "lucide-react";
-import { Difficulty, Exercise } from "@prisma/client";
+import { ExerciseDifficulty, Exercise } from "@prisma/client";
 import { ROUTES } from "@/lib/constants/routes";
 import { getExerciseByIdAction } from "@/lib/actions/exercises";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getDifficultyBadgeVariant } from "@/lib/utils";
 
 // todo: move to utils file
-function difficultyBadgeVariant(difficulty?: Difficulty) {
+function getDifficultyColor(difficulty?: ExerciseDifficulty) {
   switch (difficulty) {
-    case Difficulty.EASY:
-      return "default";
-    case Difficulty.MODERATE:
-      return "secondary";
-    case Difficulty.HARD:
-      return "destructive";
-    default:
-      return "outline";
-  }
-}
-
-function getDifficultyColor(difficulty?: Difficulty) {
-  switch (difficulty) {
-    case Difficulty.EASY:
+    case ExerciseDifficulty.EASY:
       return "text-emerald-600 dark:text-emerald-400";
-    case Difficulty.MODERATE:
+    case ExerciseDifficulty.MODERATE:
       return "text-amber-600 dark:text-amber-400";
-    case Difficulty.HARD:
+    case ExerciseDifficulty.HARD:
       return "text-rose-600 dark:text-rose-400";
     default:
       return "text-muted-foreground";
@@ -142,7 +130,7 @@ export default function ExerciseDetailPage() {
                     </span>
                   </div>
                   <Badge
-                    variant={difficultyBadgeVariant(exercise.difficulty)}
+                    variant={getDifficultyBadgeVariant(exercise.difficulty)}
                     className="uppercase"
                   >
                     {exercise.difficulty.toLowerCase()}
@@ -201,11 +189,11 @@ export default function ExerciseDetailPage() {
                   {exercise.difficulty.toLowerCase()}
                 </span>
                 <span className="text-sm text-muted-foreground">
-                  {exercise.difficulty === Difficulty.EASY &&
+                  {exercise.difficulty === ExerciseDifficulty.EASY &&
                     "- Great for beginners"}
-                  {exercise.difficulty === Difficulty.MODERATE &&
+                  {exercise.difficulty === ExerciseDifficulty.MODERATE &&
                     "- Some experience recommended"}
-                  {exercise.difficulty === Difficulty.HARD &&
+                  {exercise.difficulty === ExerciseDifficulty.HARD &&
                     "- Challenging workout"}
                 </span>
               </div>
