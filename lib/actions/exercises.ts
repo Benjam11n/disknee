@@ -1,8 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import action from "@/lib/handlers/action";
-import handleError from "@/lib/handlers/error";
+import { action } from "@/lib/handlers/action";
+import { handleError } from "@/lib/handlers/error";
 import {
   CreateExerciseSchema,
   GetExercisesSchema,

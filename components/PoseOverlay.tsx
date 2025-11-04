@@ -19,9 +19,7 @@ interface PoseOverlayProps {
   landmarks?: Landmark[];
 }
 
-export default function PoseOverlay({
-  landmarks,
-}: PoseOverlayProps) {
+export function PoseOverlay({ landmarks }: PoseOverlayProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const lastLandmarksRef = useRef<string | null>(null);
 
@@ -44,9 +42,16 @@ export default function PoseOverlay({
     }
 
     // Create a hash of landmarks to compare changes
-    const landmarksHash = landmarks ?
-      landmarks.map(l => `${Math.round(l.x * 100)}_${Math.round(l.y * 100)}_${Math.round(l.visibility * 100)}`).join('|') :
-      'empty';
+    const landmarksHash = landmarks
+      ? landmarks
+          .map(
+            (l) =>
+              `${Math.round(l.x * 100)}_${Math.round(l.y * 100)}_${Math.round(
+                l.visibility * 100
+              )}`
+          )
+          .join("|")
+      : "empty";
 
     // Skip redraw if landmarks haven't changed significantly
     if (lastLandmarksRef.current === landmarksHash) {
@@ -96,8 +101,12 @@ export default function PoseOverlay({
         if (landmark.visibility > 0.5) {
           // Add subtle glow effect
           const gradient = ctx.createRadialGradient(
-            landmark.x, landmark.y, 0,
-            landmark.x, landmark.y, 8
+            landmark.x,
+            landmark.y,
+            0,
+            landmark.x,
+            landmark.y,
+            8
           );
           gradient.addColorStop(0, "rgba(255, 0, 0, 0.8)");
           gradient.addColorStop(1, "rgba(255, 0, 0, 0)");
@@ -136,8 +145,12 @@ export default function PoseOverlay({
 
           // Add glow for key joints
           const gradient = ctx.createRadialGradient(
-            landmark.x, landmark.y, 0,
-            landmark.x, landmark.y, 12
+            landmark.x,
+            landmark.y,
+            0,
+            landmark.x,
+            landmark.y,
+            12
           );
           gradient.addColorStop(0, color);
           gradient.addColorStop(0.5, color + "80");
@@ -165,7 +178,7 @@ export default function PoseOverlay({
     <canvas
       ref={canvasRef}
       className="absolute top-0 left-0 w-full h-full pointer-events-none transition-opacity duration-75"
-      style={{ willChange: 'transform' }}
+      style={{ willChange: "transform" }}
     />
   );
 }

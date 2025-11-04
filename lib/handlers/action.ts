@@ -15,7 +15,7 @@ type ActionOptions<T> = {
 // 3. Connecting to the database.
 // 4. Returning the params and session.
 
-async function action<T>({ params, schema }: ActionOptions<T>) {
+export async function action<T>({ params, schema }: ActionOptions<T>) {
   if (schema && params) {
     try {
       schema.parse(params);
@@ -32,5 +32,3 @@ async function action<T>({ params, schema }: ActionOptions<T>) {
 
   return { params };
 }
-
-export default action;

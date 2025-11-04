@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,8 +17,8 @@ import {
 import { toast } from "sonner";
 import { Exercise } from "@prisma/client";
 
-import VideoStream from "@/components/VideoStream";
-import ModelVideo from "@/components/ModelVideo";
+import { VideoStream } from "@/components/VideoStream";
+import { ModelVideo } from "@/components/ModelVideo";
 import { ReflectionDialog } from "@/components/ReflectionDialog";
 import { Landmark } from "@/lib/pose-utils";
 import {
@@ -40,9 +40,7 @@ interface CallExerciseClientProps {
   exercise: Exercise;
 }
 
-export default function CallExerciseClient({
-  exercise,
-}: CallExerciseClientProps) {
+export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
   const router = useRouter();
 
   const [isCallActive, setIsCallActive] = useState(false);

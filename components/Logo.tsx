@@ -12,13 +12,13 @@ export function Logo({
   variant = "icon",
   size = 32,
   className,
-  showText = false
+  showText = false,
 }: LogoProps) {
   if (variant === "text") {
     return (
       <div className={cn("flex items-center", className)}>
         <Image
-          src="/logo_text.png"
+          src="/logo.png"
           alt="DisKnee"
           width={size * 4} // logo_text is wider
           height={size}
@@ -41,9 +41,7 @@ export function Logo({
           className="object-contain p-1"
         />
       </div>
-      {showText && (
-        <span className="font-bold text-xl">DisKnee</span>
-      )}
+      {showText && <span className="font-bold text-xl">DisKnee</span>}
     </div>
   );
 }

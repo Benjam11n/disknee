@@ -1,5 +1,5 @@
 import { RequestError } from "@/lib/http-errors";
-import handleError from "./error";
+import { handleError } from "./error";
 
 interface FetchOptions extends RequestInit {
   timeout?: number;

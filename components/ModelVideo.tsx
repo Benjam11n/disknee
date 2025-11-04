@@ -8,7 +8,7 @@ interface ModelVideoProps {
   onTimeUpdate?: (currentTime: number) => void;
 }
 
-export default function ModelVideo({
+export function ModelVideo({
   isPlaying,
   exerciseType = "squat",
   onTimeUpdate,

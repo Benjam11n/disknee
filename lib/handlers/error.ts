@@ -24,7 +24,10 @@ const formatResponse = (
     : { status, ...responseContent };
 };
 
-const handleError = (error: unknown, responseType: ResponseType = "server") => {
+export const handleError = (
+  error: unknown,
+  responseType: ResponseType = "server"
+) => {
   if (error instanceof RequestError) {
     console.error(
       { err: error },
@@ -66,5 +69,3 @@ const handleError = (error: unknown, responseType: ResponseType = "server") => {
   console.error({ err: error }, "An unexpected error occurred");
   return formatResponse(responseType, 500, "An unexpected error occurred");
 };
-
-export default handleError;

@@ -8,13 +8,16 @@ const DETECTION_INTERVAL = 2; // Detect every 2 frames (~30fps)
 const DETECTION_FPS = 1000 / 30; // 30fps interval
 
 interface VideoStreamProps {
-  onPoseResults?: (results: { poseLandmarks: Landmark[]; image: HTMLVideoElement }) => void;
+  onPoseResults?: (results: {
+    poseLandmarks: Landmark[];
+    image: HTMLVideoElement;
+  }) => void;
   isVideoOn: boolean;
   isCallActive: boolean;
   flipped?: boolean; // mirror video
 }
 
-export default function VideoStream({
+export function VideoStream({
   onPoseResults,
   isVideoOn,
   isCallActive,
@@ -36,7 +39,6 @@ export default function VideoStream({
 
   const crownImage = useRef<HTMLImageElement | null>(null);
 
-
   // Load crown image once
   useEffect(() => {
     const img = new Image();
@@ -49,7 +51,6 @@ export default function VideoStream({
       console.error("Failed to load crown image");
     };
   }, []);
-
 
   // Initialize MediaPipe PoseLandmarker
   const initializePoseLandmarker = useCallback(async () => {
@@ -148,8 +149,14 @@ export default function VideoStream({
       const end = landmarks[endIdx];
       if (start && end) {
         ctx.beginPath();
-        ctx.moveTo(flipped ? width - start.x * width : start.x * width, start.y * height);
-        ctx.lineTo(flipped ? width - end.x * width : end.x * width, end.y * height);
+        ctx.moveTo(
+          flipped ? width - start.x * width : start.x * width,
+          start.y * height
+        );
+        ctx.lineTo(
+          flipped ? width - end.x * width : end.x * width,
+          end.y * height
+        );
         ctx.stroke();
       }
     });
@@ -189,7 +196,6 @@ export default function VideoStream({
       ctx.fillText("👑", noseX, crownY);
     }
   };
-
 
   const detectPose = useCallback(() => {
     if (!videoRef.current || !canvasRef.current || !poseLandmarkerRef.current) {
@@ -238,7 +244,8 @@ export default function VideoStream({
                 y: prev.y * smoothingFactor + lm.y * (1 - smoothingFactor),
                 z: prev.z * smoothingFactor + lm.z * (1 - smoothingFactor),
                 visibility:
-                  prev.visibility * smoothingFactor + lm.visibility * (1 - smoothingFactor),
+                  prev.visibility * smoothingFactor +
+                  lm.visibility * (1 - smoothingFactor),
               };
             });
           }
@@ -269,7 +276,13 @@ export default function VideoStream({
       stopCamera();
     }
     return () => stopCamera();
-  }, [isCallActive, isVideoOn, initializePoseLandmarker, startCamera, stopCamera]);
+  }, [
+    isCallActive,
+    isVideoOn,
+    initializePoseLandmarker,
+    startCamera,
+    stopCamera,
+  ]);
 
   useEffect(() => {
     if (videoRef.current?.readyState === 4) detectPose();

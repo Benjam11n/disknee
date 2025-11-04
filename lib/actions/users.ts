@@ -1,6 +1,6 @@
 import { User } from "@prisma/client";
-import action from "@/lib/handlers/action";
-import handleError from "@/lib/handlers/error";
+import { action } from "@/lib/handlers/action";
+import { handleError } from "@/lib/handlers/error";
 import { NotFoundError } from "@/lib/http-errors";
 import { prisma } from "@/lib/prisma";
 import { GetUserByIdParams } from "@/lib/types/users";

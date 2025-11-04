@@ -2,9 +2,9 @@
 
 import { Reflection } from "@prisma/client";
 import { CreateReflectionParams } from "@/lib/types/exercise-sessions";
-import action from "@/lib/handlers/action";
+import { action } from "@/lib/handlers/action";
 import { CreateReflectionSchema } from "@/lib/validations/exercise-session-validations";
-import handleError from "@/lib/handlers/error";
+import { handleError } from "@/lib/handlers/error";
 import { prisma } from "@/lib/prisma";
 
 export async function createReflectionAction(

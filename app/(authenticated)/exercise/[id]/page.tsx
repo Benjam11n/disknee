@@ -12,6 +12,7 @@ import { ROUTES } from "@/lib/constants/routes";
 import { getExerciseByIdAction } from "@/lib/actions/exercises";
 import { Skeleton } from "@/components/ui/skeleton";
 
+// todo: move to utils file
 function difficultyBadgeVariant(difficulty?: Difficulty) {
   switch (difficulty) {
     case Difficulty.EASY:
