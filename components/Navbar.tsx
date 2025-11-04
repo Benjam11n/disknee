@@ -3,6 +3,7 @@
 import { Appointment } from "@prisma/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,6 +42,17 @@ export function Navbar({ nextAppt }: NavbarProps) {
 
         {/* Right: appointment, theme toggle, and user info grouped */}
         <div className="flex items-center gap-3 sm:gap-4">
+          {/* Sign Out Button - Always visible */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSignOut}
+            className="hidden sm:flex items-center gap-2 text-muted-foreground hover:text-foreground"
+          >
+            <LogOut className="h-4 w-4" />
+            <span>Sign Out</span>
+          </Button>
+
           {/* Theme toggle */}
           <ThemeToggle />
 

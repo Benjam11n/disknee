@@ -1,6 +1,5 @@
 "use client";
 
-import { GlowBlob } from "@/components/glow-blob";
 import { LandingPageNavbar } from "@/components/landing/LandingPageNavbar";
 import { LandingPageFooter } from "@/components/landing/landing-page-footer";
 import { Hero } from "@/components/landing/Hero";
@@ -19,14 +18,14 @@ export function LandingPage() {
       <LandingPageNavbar scrollToFeatures={scrollToFeatures} />
 
       {/* Hero Section with GlowBlob */}
-      <GlowBlob className="min-h-[600px] flex items-center justify-center">
+      <div className="min-h-[600px] flex items-center justify-center">
         <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <Hero onLearnMore={scrollToFeatures} />
             <HeroMedia />
           </div>
         </div>
-      </GlowBlob>
+      </div>
 
       {/* Features Section */}
       <section id="features" className="py-20 bg-background">
