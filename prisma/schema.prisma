@@ -44,6 +44,7 @@ model Exercise {
   done          Boolean            @default(false)
   sequence      Int                // Order in which exercises should be completed
   planId        String
+  videoUrl      String?            // URL for demo video
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
 

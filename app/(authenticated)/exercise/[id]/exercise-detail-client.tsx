@@ -1,15 +1,17 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Play, Clock, Target, Lock } from "lucide-react";
+import { ArrowLeft, Play, Clock, Target, Lock, Video } from "lucide-react";
 import { ExerciseDifficulty, Exercise } from "@prisma/client";
 import { ROUTES } from "@/lib/constants/routes";
 import { getDifficultyBadgeVariant, getDifficultyColor } from "@/lib/utils";
 import { canStartExercise } from "@/lib/utils/exercise-utils";
+import { ModelVideo } from "@/components/shared/model-video";
 
 interface ExerciseDetailClientProps {
   exercise: Exercise;
@@ -21,6 +23,7 @@ export function ExerciseDetailClient({
   planExercises,
 }: ExerciseDetailClientProps) {
   const router = useRouter();
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 
   const canStart = canStartExercise(planExercises, exercise.id);
   const isLocked = !canStart && !exercise.done;
@@ -41,6 +44,49 @@ export function ExerciseDetailClient({
           <ArrowLeft className="h-4 w-4" />
           Back to Exercises
         </Button>
+
+        {/* Demo Video Section */}
+        {exercise.videoUrl && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Video className="h-5 w-5" />
+                <CardTitle className="text-xl">Demo Video</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                  <ModelVideo
+                    isPlaying={isVideoPlaying}
+                    exerciseType={exercise.title.toLowerCase()}
+                    videoUrl={exercise.videoUrl}
+                  />
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold mb-2">Perfect Form Guide</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Watch this demonstration to understand the correct form and technique
+                      for this exercise. Follow along to ensure you're performing the
+                      movements safely and effectively.
+                    </p>
+                  </div>
+                  <Button
+                    onClick={() => setIsVideoPlaying(!isVideoPlaying)}
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                  >
+                    {isVideoPlaying ? "Pause Video" : "Play Video"}
+                  </Button>
+                  <div className="text-sm text-muted-foreground">
+                    <p>💡 Tip: Watch the video at least once before starting the exercise.</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Exercise Details Card */}
         <Card>

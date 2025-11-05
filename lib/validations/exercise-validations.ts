@@ -10,6 +10,7 @@ const ExerciseBaseSchema = z.object({
     .max(180, "Duration cannot exceed 3 hours"),
   difficulty: z.nativeEnum(ExerciseDifficulty),
   done: z.boolean().default(false),
+  videoUrl: z.string().url("Invalid URL format").optional().or(z.literal("")),
 });
 
 export const CreateExerciseSchema = ExerciseBaseSchema.extend({

@@ -6,12 +6,14 @@ import { logger } from "@/lib/logger";
 interface ModelVideoProps {
   isPlaying: boolean;
   exerciseType?: string;
+  videoUrl?: string; // URL to the demo video
   onTimeUpdate?: (currentTime: number) => void;
 }
 
 export function ModelVideo({
   isPlaying,
   exerciseType = "squat",
+  videoUrl,
   onTimeUpdate,
 }: ModelVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -58,16 +60,16 @@ export function ModelVideo({
     video.addEventListener("error", handleError);
     video.addEventListener("timeupdate", handleTimeUpdate);
 
-    // For demo purposes, we'll use a placeholder video source
-    // In production, you'd have actual demonstration videos
-    video.src = "spanish-squat.mp4"; // Empty base64 for demo
+    // Use provided videoUrl or fall back to placeholder based on exercise type
+    const fallbackVideo = "spanish-squat.mp4";
+    video.src = videoUrl || fallbackVideo;
 
     return () => {
       video.removeEventListener("loadeddata", handleLoad);
       video.removeEventListener("error", handleError);
       video.removeEventListener("timeupdate", handleTimeUpdate);
     };
-  }, [exerciseType, onTimeUpdate, isPlaying]);
+  }, [exerciseType, onTimeUpdate, isPlaying, videoUrl]);
 
   // If no video is available, show a placeholder
   if (!isLoaded && !error) {

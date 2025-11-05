@@ -2,8 +2,11 @@ import { getExercisesAction } from "@/lib/actions/exercises";
 import { getPlansAction } from "@/lib/actions/plans";
 import { auth } from "@/lib/auth";
 import { ExerciseList } from "@/components/features/dashboard/exercise-list";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
+import { List } from "lucide-react";
 
 export default async function ExercisePage() {
   const session = await auth.api.getSession({
@@ -69,6 +72,20 @@ export default async function ExercisePage() {
   return (
     <div className="p-6">
       <div className="max-w-4xl mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold">Weekly Exercises</h1>
+            <p className="text-muted-foreground">
+              Your exercises for this week
+            </p>
+          </div>
+          <Link href="/exercises/all">
+            <Button variant="outline">
+              <List className="h-4 w-4 mr-2" />
+              View All Exercises
+            </Button>
+          </Link>
+        </div>
         <ExerciseList
           exercises={weeklyExercises}
           pillPercent={pillPercent}

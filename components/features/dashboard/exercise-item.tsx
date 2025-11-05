@@ -1,6 +1,6 @@
 "use client";
 
-import { Play } from "lucide-react";
+import { Play, Video } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -55,6 +55,12 @@ export function ExerciseItem({
               <span className="text-xs text-muted-foreground">
                 {exercise.estimatedMins} min
               </span>
+            )}
+            {exercise.videoUrl && (
+              <div className="flex items-center gap-1 text-xs text-blue-600">
+                <Video className="h-3 w-3" />
+                <span>Video</span>
+              </div>
             )}
             {exercise.difficulty && (
               <Badge

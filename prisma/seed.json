@@ -13,35 +13,40 @@
       "title": "Quad Set / TKE (5-sec holds)",
       "done": true,
       "estimatedMins": 8,
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "videoUrl": "spanish-squat.mp4"
     },
     {
       "id": "ex2",
       "title": "Spanish Squat (45s)",
       "done": false,
       "estimatedMins": 12,
-      "difficulty": "moderate"
+      "difficulty": "moderate",
+      "videoUrl": "spanish-squat.mp4"
     },
     {
       "id": "ex3",
       "title": "Step-Down (10 @ 20cm)",
       "done": false,
       "estimatedMins": 10,
-      "difficulty": "moderate"
+      "difficulty": "moderate",
+      "videoUrl": "spanish-squat.mp4"
     },
     {
       "id": "ex4",
       "title": "Hip Abduction (15)",
       "done": false,
       "estimatedMins": 8,
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "videoUrl": "spanish-squat.mp4"
     },
     {
       "id": "ex5",
       "title": "Calf Raise (5)",
       "done": false,
       "estimatedMins": 6,
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "videoUrl": "spanish-squat.mp4"
     }
   ],
   "plans": [
