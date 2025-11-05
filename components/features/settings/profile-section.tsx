@@ -6,7 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { BoringAvatarWrapper } from "@/components/shared/boring-avatar";
 import { Separator } from "@/components/ui/separator";
 import { User, Mail } from "lucide-react";
 
@@ -33,17 +33,14 @@ export function ProfileSection({ user }: ProfileSectionProps) {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex items-center gap-4">
-          <Avatar className="h-20 w-20">
-            <AvatarImage src={user.image || ""} alt={user.name || ""} />
-            <AvatarFallback className="text-2xl">
-              {user.name
-                ?.split(" ")
-                .map((word) => word[0])
-                .join("")
-                .toUpperCase()
-                .slice(0, 2)}
-            </AvatarFallback>
-          </Avatar>
+          <BoringAvatarWrapper
+            name={user.name}
+            email={user.email}
+            userId={user.id}
+            image={user.image}
+            alt={user.name || "User avatar"}
+            size="xl"
+          />
           <div className="space-y-1">
             <h2 className="text-2xl font-semibold">{user.name}</h2>
             <div className="flex items-center gap-2 text-muted-foreground">

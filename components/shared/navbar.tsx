@@ -1,7 +1,6 @@
 "use client";
 
 import { Appointment } from "@prisma/client";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { CalendarDays, LogOut } from "lucide-react";
 import { ThemeToggle } from "@/components/shared/theme/theme-toggle";
+import { BoringAvatarWrapper } from "@/components/shared/boring-avatar";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -136,17 +136,14 @@ export function Navbar({ nextAppt }: NavbarProps) {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Avatar className="h-8 w-8 sm:h-9 sm:w-9 cursor-pointer">
-                  <AvatarImage src="" alt={patientName} />
-                  <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                    {patientName
-                      ?.split(" ")
-                      .map((word) => word[0])
-                      .join("")
-                      .toUpperCase()
-                      .slice(0, 2)}
-                  </AvatarFallback>
-                </Avatar>
+                <BoringAvatarWrapper
+                  name={patientName}
+                  email={session?.user?.email}
+                  userId={session?.user?.id}
+                  alt={patientName}
+                  className="cursor-pointer"
+                  size="sm"
+                />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <div className="px-2 py-1.5 text-sm font-medium">
