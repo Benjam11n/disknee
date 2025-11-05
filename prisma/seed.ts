@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import seedData from "./seed.json";
 import shopItems from "./shop-seed.json";
-import { ExerciseDifficulty } from "@prisma/client";
+import { ExerciseDifficulty, ReviewStatus } from "@prisma/client";
 import { createSeedUser } from "@/lib/seed-users";
 import { logger } from "@/lib/logger";
 
@@ -18,6 +18,7 @@ async function main() {
   await prisma.plan.deleteMany();
   await prisma.appointment.deleteMany();
   await prisma.account.deleteMany();
+  await prisma.weekReport.deleteMany();
   await prisma.user.deleteMany();
 
   logger.info("🧹 Cleaned existing data");
@@ -25,11 +26,7 @@ async function main() {
   // Create users with Better Auth
   const userCredentials = [
     { name: "Donald Duck", email: "demo@disknee.com", password: "demo123" },
-    {
-      name: "John Patient",
-      email: "patient@example.com",
-      password: "patient2024",
-    },
+    { name: "John Patient", email: "patient@example.com", password: "patient2024" },
     { name: "Dr. Smith", email: "physio@example.com", password: "physio2024" },
   ];
 
@@ -98,7 +95,7 @@ async function main() {
               ? ExerciseDifficulty.MODERATE
               : ExerciseDifficulty.HARD,
           done: ex.done,
-          sequence: exercisesInThisPlan, // This will work after you add the sequence column to DB
+          sequence: exercisesInThisPlan,
           planId: plans[planIndex].id,
         },
       });
@@ -159,6 +156,12 @@ async function main() {
           notes: `Score: ${
             sessionData.accuracy * 100 + (sessionData.hasReflection ? 20 : 0)
           }`,
+          // snapshot fields
+          pointsEarned:
+            sessionData.accuracy * 100 + (sessionData.hasReflection ? 20 : 0),
+          exerciseTitle: exercises[sessionData.exerciseIndex].title,
+          difficulty:
+            exercises[sessionData.exerciseIndex].difficulty as ExerciseDifficulty,
         },
       });
 
@@ -189,7 +192,7 @@ async function main() {
     });
 
     const totalScore = userSessions.reduce((sum, session) => {
-      return sum + (session.accuracy * 100 + (session.reflection ? 20 : 0));
+      return sum + (session.pointsEarned ?? (session.accuracy * 100 + (session.reflection ? 20 : 0)));
     }, 0);
 
     if (userSessions.length > 0) {
@@ -220,6 +223,107 @@ async function main() {
     ],
   });
   logger.info(`✅ Given ${donaldDuck.name} starter items`);
+
+  // --- NEW: create WeekReport rows for past weeks (based on exercise sessions) ---
+  const startOfWeekMonday = (d: Date) => {
+    const dt = new Date(d);
+    const day = dt.getDay(); // 0 (Sun) - 6 (Sat)
+    const diff = (day + 6) % 7; // Monday = 0
+    dt.setDate(dt.getDate() - diff);
+    dt.setHours(0, 0, 0, 0);
+    dt.setMinutes(0, 0, 0);
+    return dt;
+  };
+
+  // Build week reports for Donald (users[0]) from their sessions
+  const donSessions = await prisma.exerciseSession.findMany({
+    where: { userId: donaldDuck.id },
+    include: { reflection: true },
+  });
+
+  const weeksMap: Record<string, { sessions: typeof donSessions; weekStart: Date }> =
+    {};
+
+  for (const s of donSessions) {
+    const wk = startOfWeekMonday(s.startedAt);
+    const key = wk.toISOString().slice(0, 10);
+    if (!weeksMap[key]) weeksMap[key] = { sessions: [], weekStart: wk };
+    weeksMap[key].sessions.push(s);
+  }
+
+  // sample mapping for statuses / clinician assignment (fake)
+  const weekStatusMap: Record<string, ReviewStatus> = {
+    "2025-10-13": ReviewStatus.NOT_SENT,
+    "2025-10-20": ReviewStatus.REVIEWED,
+    "2025-10-27": ReviewStatus.PENDING,
+  };
+
+  const weekFeedbackMap: Record<string, string> = {
+    "2025-10-13": "Older week: no clinician review available.",
+    "2025-10-20": "Steady progress; check ankle ROM next visit.",
+    "2025-10-27": "Pending review - clinician to update notes.",
+  };
+
+  let createdWeekReports = 0;
+  for (const [key, { sessions, weekStart }] of Object.entries(weeksMap)) {
+    // Only create reports for weeks before 2025-11-03 as requested
+    if (new Date(key) >= new Date("2025-11-03")) continue;
+
+    const totalExercises = sessions.length;
+    const totalPoints = sessions.reduce((s, it) => s + (it.pointsEarned ?? 0), 0);
+
+    const reflections = sessions.filter((s) => s.reflection);
+    const avgSatisfaction =
+      reflections.length > 0
+        ? reflections.reduce((sum, r) => sum + (r.reflection!.rating || 0), 0) /
+          reflections.length
+        : null;
+    const avgFatigue =
+      reflections.length > 0
+        ? reflections.reduce((sum, r) => sum + (r.reflection!.fatigue || 0), 0) /
+          reflections.length
+        : null;
+
+    const status = weekStatusMap[key] ?? ReviewStatus.NOT_SENT;
+    const feedback = weekFeedbackMap[key] ?? "";
+
+    // clinician assigned only for REVIEWED weeks (use Dr. Smith if exists)
+    const clinicianId = status === ReviewStatus.REVIEWED && users[2] ? users[2].id : null;
+
+    // upsert week report (unique userId + weekStart)
+    await prisma.weekReport.upsert({
+      where: {
+        userId_weekStart: {
+          userId: donaldDuck.id,
+          weekStart: weekStart,
+        },
+      },
+      update: {
+        status,
+        feedback,
+        totalExercises,
+        avgSatisfaction,
+        avgFatigue,
+        totalPoints,
+        clinicianId,
+      },
+      create: {
+        userId: donaldDuck.id,
+        weekStart,
+        status,
+        feedback,
+        totalExercises,
+        avgSatisfaction,
+        avgFatigue,
+        totalPoints,
+        clinicianId,
+      },
+    });
+
+    createdWeekReports++;
+  }
+
+  logger.info(`✅ Created/updated ${createdWeekReports} WeekReport(s) for ${donaldDuck.name}`);
 
   const avgAccuracy = seedData.sessions
     ? seedData.sessions.reduce((sum, s) => sum + s.accuracy, 0) /
