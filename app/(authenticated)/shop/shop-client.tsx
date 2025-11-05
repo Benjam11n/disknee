@@ -1,17 +1,14 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ShopItemCard } from "@/components/features/shop/shop-item-card";
-import { PointsDisplay } from "@/components/features/shop/points-display";
 import { ShopItem, UserInventory } from "@prisma/client";
 import { toast } from "sonner";
 import { purchaseItemAction, equipItemAction } from "@/lib/actions/shop";
-import { Search, Filter, Sparkles, Trophy } from "lucide-react";
+import { ShopHeader } from "@/components/features/shop/shop-header";
+import { FeaturedItemsSection } from "@/components/features/shop/featured-items-section";
+import { ShopFilters } from "@/components/features/shop/shop-filters";
+import { ShopItemsGrid } from "@/components/features/shop/shop-items-grid";
+import { ShopInfoCard } from "@/components/features/shop/shop-info-card";
 
 interface ShopClientProps {
   shopItems: ShopItem[];
@@ -32,7 +29,9 @@ export function ShopClient({
   const [isPurchasing, setIsPurchasing] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<"name" | "price-asc" | "price-desc">("name");
+  const [sortBy, setSortBy] = useState<"name" | "price-asc" | "price-desc">(
+    "name"
+  );
 
   // Get unique categories
   const categories = useMemo(() => {
@@ -43,9 +42,11 @@ export function ShopClient({
   // Filter and sort items
   const filteredAndSortedItems = useMemo(() => {
     let filtered = shopItems.filter((item) => {
-      const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           item.description?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === "all" || item.type === selectedCategory;
+      const matchesSearch =
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.description?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        selectedCategory === "all" || item.type === selectedCategory;
       return matchesSearch && matchesCategory;
     });
 
@@ -63,7 +64,7 @@ export function ShopClient({
   // Featured items (most expensive ones)
   const featuredItems = useMemo(() => {
     return shopItems
-      .filter(item => item.price >= 300) // Epic and Legendary items
+      .filter((item) => item.price >= 300) // Epic and Legendary items
       .sort((a, b) => b.price - a.price)
       .slice(0, 3);
   }, [shopItems]);
@@ -130,190 +131,51 @@ export function ShopClient({
   return (
     <div className="container mx-auto p-6 max-w-7xl">
       <div className="space-y-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              Shop
-            </h1>
-            <p className="text-muted-foreground mt-1">Customize your character with awesome items!</p>
-          </div>
-          <PointsDisplay points={points} equippedItems={getEquippedItems()} />
-        </div>
+        <ShopHeader points={points} equippedItems={getEquippedItems()} />
 
-        {/* Featured Items Section */}
-        {featuredItems.length > 0 && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-yellow-600" />
-              <h2 className="text-2xl font-bold">Featured Items</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {featuredItems.map((item) => {
-                const inventoryItem = userInventory.find(
-                  (inv) => inv.itemId === item.id
-                );
-                const isOwned = !!inventoryItem;
-                const isEquipped = inventoryItem?.isEquipped || false;
+        <FeaturedItemsSection
+          featuredItems={featuredItems}
+          userInventory={userInventory}
+          userPoints={points}
+          isPurchasing={isPurchasing}
+          onPurchase={handlePurchase}
+          onEquip={handleEquip}
+        />
 
-                return (
-                  <ShopItemCard
-                    key={item.id}
-                    item={item}
-                    isOwned={isOwned}
-                    isEquipped={isEquipped}
-                    userPoints={points}
-                    isPurchasing={isPurchasing === item.id}
-                    onPurchase={() => handlePurchase(item.id, item.price)}
-                    onEquip={() => handleEquip(item.id, !isEquipped)}
-                  />
-                );
-              })}
-            </div>
-          </div>
-        )}
+        <ShopFilters
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          categories={categories}
+          resultsCount={filteredAndSortedItems.length}
+        />
 
-        {/* Filters and Search */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="h-5 w-5" />
-              Browse Items
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Search Bar */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search for items..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+        <ShopItemsGrid
+          items={filteredAndSortedItems}
+          userInventory={userInventory}
+          userPoints={points}
+          isPurchasing={isPurchasing}
+          onPurchase={handlePurchase}
+          onEquip={handleEquip}
+          hasFilters={Boolean(searchTerm) || selectedCategory !== "all"}
+        />
 
-            {/* Category Filters and Sort */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              {/* Category Filter */}
-              <div className="flex flex-wrap gap-2 flex-1">
-                {categories.map((category) => (
-                  <Button
-                    key={category}
-                    variant={selectedCategory === category ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedCategory(category)}
-                    className="capitalize"
-                  >
-                    {category}
-                  </Button>
-                ))}
-              </div>
-
-              {/* Sort Options */}
-              <div className="flex gap-2">
-                <Button
-                  variant={sortBy === "name" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSortBy("name")}
-                >
-                  Name
-                </Button>
-                <Button
-                  variant={sortBy === "price-asc" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSortBy("price-asc")}
-                >
-                  Price ↑
-                </Button>
-                <Button
-                  variant={sortBy === "price-desc" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSortBy("price-desc")}
-                >
-                  Price ↓
-                </Button>
-              </div>
-            </div>
-
-            {/* Results count */}
-            <div className="text-sm text-muted-foreground">
-              {filteredAndSortedItems.length} {filteredAndSortedItems.length === 1 ? "item" : "items"} found
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Shop Items Grid */}
-        {filteredAndSortedItems.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredAndSortedItems.map((item) => {
-              const inventoryItem = userInventory.find(
-                (inv) => inv.itemId === item.id
-              );
-              const isOwned = !!inventoryItem;
-              const isEquipped = inventoryItem?.isEquipped || false;
-
-              return (
-                <ShopItemCard
-                  key={item.id}
-                  item={item}
-                  isOwned={isOwned}
-                  isEquipped={isEquipped}
-                  userPoints={points}
-                  isPurchasing={isPurchasing === item.id}
-                  onPurchase={() => handlePurchase(item.id, item.price)}
-                  onEquip={() => handleEquip(item.id, !isEquipped)}
-                />
-              );
-            })}
-          </div>
-        ) : (
-          <Card>
-            <CardContent className="p-12 text-center">
-              <Sparkles className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold text-muted-foreground mb-2">
-                No items found
-              </h3>
-              <p className="text-muted-foreground">
-                Try adjusting your search or filters to find what you're looking for!
-              </p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Empty State */}
         {shopItems.length === 0 && (
-          <Card>
-            <CardContent className="p-12 text-center">
-              <h3 className="text-xl font-semibold text-muted-foreground mb-2">
-                No items available
-              </h3>
-              <p className="text-muted-foreground">
-                Check back later for new items in the shop!
-              </p>
-            </CardContent>
-          </Card>
+          <ShopItemsGrid
+            items={[]}
+            userInventory={userInventory}
+            userPoints={points}
+            isPurchasing={isPurchasing}
+            onPurchase={handlePurchase}
+            onEquip={handleEquip}
+            hasFilters={false}
+          />
         )}
 
-        {/* Info */}
-        <Card className="bg-muted/30">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Badge variant="outline">💡</Badge>
-              <h3 className="font-semibold">How to earn points</h3>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Complete exercises and submit reflections to earn points. Each
-              session gives you points based on your accuracy, with a bonus for
-              leaving feedback!
-            </p>
-            <Separator className="my-2" />
-            <p className="text-sm text-muted-foreground">
-              <strong>Score Formula:</strong> (Accuracy × 100) + 20 bonus for
-              reflection
-            </p>
-          </CardContent>
-        </Card>
+        <ShopInfoCard />
       </div>
     </div>
   );
