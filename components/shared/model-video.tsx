@@ -10,7 +10,7 @@ interface ModelVideoProps {
   onTogglePlay?: () => void; // Add callback for toggling play/pause
 }
 
-export function ModelVideoWorking({
+export function ModelVideo({
   isPlaying,
   exerciseType = "squat",
   videoUrl,
