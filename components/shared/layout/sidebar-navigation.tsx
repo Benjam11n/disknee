@@ -19,6 +19,7 @@ import {
   Settings,
   HelpCircle,
   LucideIcon,
+  NotebookText
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -43,6 +44,11 @@ const navigation: NavigationItem[] = [
     name: "Exercises",
     href: ROUTES.EXERCISE.BASE,
     icon: Activity,
+  },
+  {
+    name: "Reports",
+    href: ROUTES.REPORTS,
+    icon: NotebookText,
   },
   {
     name: "Shop",
