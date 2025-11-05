@@ -1,4 +1,3 @@
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["views"]
@@ -13,6 +12,12 @@ enum ExerciseDifficulty {
   EASY
   MODERATE
   HARD
+}
+
+enum ReviewStatus {
+  REVIEWED
+  NOT_SENT
+  PENDING
 }
 
 model User {
@@ -31,7 +36,10 @@ model User {
   accounts         Account[]
   exerciseSessions ExerciseSession[]
   dailyCheckIns    DailyCheckIn[]
-  userStreak        UserStreak?
+  userStreak       UserStreak?
+
+  weekReports      WeekReport[]
+  clinicianReviews WeekReport[] @relation("ClinicianReviews")
 
   @@map("users")
 }
@@ -42,9 +50,9 @@ model Exercise {
   estimatedMins Int
   difficulty    ExerciseDifficulty
   done          Boolean            @default(false)
-  sequence      Int                // Order in which exercises should be completed
+  sequence      Int
   planId        String
-  videoUrl      String?            // URL for demo video
+  videoUrl      String? // URL for demo video
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
 
@@ -58,7 +66,7 @@ model Plan {
   id        String     @id @default(cuid())
   date      DateTime
   title     String
-  when      String // Display time like "Sat 6:00 pm"
+  when      String
   createdAt DateTime   @default(now())
   exercises Exercise[]
 
@@ -95,34 +103,38 @@ model ExerciseSession {
   id            String    @id @default(cuid())
   startedAt     DateTime  @default(now())
   endedAt       DateTime?
-  duration      Int? // Duration in seconds
+  duration      Int?
   repsCompleted Int       @default(0)
   accuracy      Int       @default(0)
   maxAccuracy   Int?
   videoUrl      String?
   notes         String?
-  exerciseId    String? // Optional link to an exercise
-  userId        String? // User who performed the exercise
+  exerciseId    String?
+  userId        String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  // Relations
+  // Snapshot / denormalised fields
+  pointsEarned  Int?
+  exerciseTitle String?
+  difficulty    ExerciseDifficulty?
+
   reflection Reflection?
   exercise   Exercise?   @relation(fields: [exerciseId], references: [id], onDelete: SetNull)
   user       User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId, startedAt])
   @@map("exercise_sessions")
 }
 
 model Reflection {
   id                String   @id @default(cuid())
   exerciseSessionId String   @unique
-  rating            Int // 1-5 session rating
-  fatigue           Int // 1-5 fatigue level
+  rating            Int
+  fatigue           Int
   feedback          String?
   createdAt         DateTime @default(now())
 
-  // Relations
   exerciseSession ExerciseSession @relation(fields: [exerciseSessionId], references: [id], onDelete: Cascade)
 
   @@map("reflections")
@@ -152,14 +164,13 @@ model ShopItem {
   id          String   @id @default(cuid())
   name        String
   description String?
-  price       Int // Cost in points
-  type        String // e.g., "hat", "accessory"
-  icon        String // Emoji or icon representation
+  price       Int
+  type        String
+  icon        String
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  // Relations
   inventory UserInventory[]
 
   @@map("shop_items")
@@ -172,7 +183,6 @@ model UserInventory {
   isEquipped  Boolean  @default(false)
   purchasedAt DateTime @default(now())
 
-  // Relations
   user User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   item ShopItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
@@ -235,16 +245,43 @@ model DailyCheckIn {
 }
 
 model UserStreak {
-  id               String   @id @default(cuid())
-  userId           String   @unique
-  currentStreak    Int      @default(0)
-  longestStreak    Int      @default(0)
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  currentStreak   Int       @default(0)
+  longestStreak   Int       @default(0)
   lastCheckInDate DateTime?
-  frozenUntil      DateTime? // Streak freeze power-up
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  frozenUntil     DateTime? // Streak freeze power-up
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_streaks")
+}
+
+/**
+ * WeekReport:
+ * - one per user per weekStart (normalized to Monday 00:00)
+ * - per-week review status, clinician feedback, and aggregates
+ */
+model WeekReport {
+  id              String       @id @default(cuid())
+  userId          String
+  weekStart       DateTime
+  status          ReviewStatus @default(NOT_SENT)
+  feedback        String?
+  totalExercises  Int          @default(0)
+  avgSatisfaction Float?
+  avgFatigue      Float?
+  totalPoints     Int          @default(0)
+  clinicianId     String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  user      User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clinician User? @relation("ClinicianReviews", fields: [clinicianId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, weekStart])
+  @@index([userId, weekStart])
+  @@map("week_reports")
 }

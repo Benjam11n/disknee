@@ -6,6 +6,7 @@ import {
   Settings,
   HelpCircle,
   LucideIcon,
+  NotebookText,
 } from "lucide-react";
 import { ROUTES } from "@/lib/constants/routes";
 
@@ -25,6 +26,11 @@ export const navigation: NavigationItem[] = [
     name: "Exercises",
     href: ROUTES.EXERCISE.BASE,
     icon: Activity,
+  },
+  {
+    name: "Reports",
+    href: ROUTES.REPORTS,
+    icon: NotebookText,
   },
   {
     name: "Shop",
