@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { ROUTES } from "@/lib/constants/routes";
 import { LogOut } from "lucide-react";
+import { logger } from "@/lib/logger";
 
 export function SessionSection() {
   const router = useRouter();
@@ -37,7 +38,7 @@ export function SessionSection() {
       router.push(ROUTES.LOGIN);
     } catch (error) {
       toast.error("Failed to logout. Please try again.");
-      console.error("Logout error:", error);
+      logger.error(error, "Logout error:");
     } finally {
       setIsLoggingOut(false);
       setIsConfirmDialogOpen(false);

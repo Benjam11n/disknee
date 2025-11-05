@@ -10,7 +10,7 @@ export function DashboardLayout({
   rightColumn,
 }: DashboardLayoutProps) {
   return (
-    <div className="px-6 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-[1400px] mx-auto">
+    <div className="px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-[1400px] mx-auto">
       {/* Left Column */}
       <div className="lg:col-span-5 space-y-6">{leftColumn}</div>
 

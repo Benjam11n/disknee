@@ -98,5 +98,5 @@ export default async function RehabDashboardPage() {
     equippedItems,
   };
 
-  return <DashboardClient initialData={initialData} />;
+  return <DashboardClient userId={userId} initialData={initialData} />;
 }

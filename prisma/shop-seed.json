@@ -70,5 +70,32 @@
     "type": "accessory",
     "price": 120,
     "active": true
+  },
+  {
+    "id": "freeze-1day",
+    "name": "1-Day Streak Freeze",
+    "description": "Protect your streak for 1 day when you can't check in",
+    "icon": "❄️",
+    "type": "freeze",
+    "price": 100,
+    "active": true
+  },
+  {
+    "id": "freeze-3day",
+    "name": "3-Day Streak Freeze",
+    "description": "Protect your streak for 3 days when you're away",
+    "icon": "🧊",
+    "type": "freeze",
+    "price": 250,
+    "active": true
+  },
+  {
+    "id": "freeze-7day",
+    "name": "7-Day Streak Freeze",
+    "description": "Protect your streak for a whole week",
+    "icon": "🌨️",
+    "type": "freeze",
+    "price": 500,
+    "active": true
   }
 ]

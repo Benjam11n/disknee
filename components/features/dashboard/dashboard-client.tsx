@@ -4,19 +4,26 @@ import { JSX } from "react";
 
 import { Leaderboard } from "@/components/features/dashboard/leaderboard";
 import { CalendarAndPlans } from "@/components/features/dashboard/calendar-and-plans";
-import { ExerciseProgressCard } from "@/components/features/dashboard/exercise-progress-card";
+import { ExerciseProgressEnhanced } from "@/components/features/dashboard/exercise-progress-enhanced";
 import { UpcomingAppointments } from "@/components/features/dashboard/upcoming-appointments";
-import { ProgressSummary } from "@/components/features/dashboard/progress-summary";
+import { ProgressJourney } from "@/components/features/dashboard/progress-journey";
+import { HeroSection } from "@/components/features/dashboard/hero-section";
 import { DashboardLayout } from "@/components/features/dashboard/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useDashboardCalculations } from "@/lib/hooks/use-dashboard-calculations";
 import { useDashboardData } from "@/lib/hooks/use-dashboard-data";
+import { StreakDisplay } from "@/components/features/streak/streak-display";
+import { DailyCheckInDialog } from "@/components/features/streak/daily-check-in-dialog";
+import { useState, useEffect } from "react";
 import {
   Appointment,
   Exercise,
   leaderboardByScore,
   Plan,
+  ShopItem,
 } from "@prisma/client";
+import { logger } from "@/lib/logger";
+import { StreakData } from "@/lib/types/streaks";
 
 interface DashboardData {
   patientName: string;
@@ -28,15 +35,22 @@ interface DashboardData {
   programWeeks?: number;
   weeksCompleted?: number;
   Appointment?: Appointment;
+  userPoints?: number;
+  equippedItems?: ShopItem[];
+  streakData?: StreakData;
 }
 
 interface DashboardClientProps {
   initialData: DashboardData;
+  userId: string;
 }
 
 export function DashboardClient({
   initialData,
+  userId,
 }: DashboardClientProps): JSX.Element {
+  const [isCheckInDialogOpen, setIsCheckInDialogOpen] = useState(false);
+
   const {
     patientName,
     exercises,
@@ -46,7 +60,19 @@ export function DashboardClient({
     overallPercent,
     programWeeks = 10,
     weeksCompleted = 0,
+    // todo: these are unused
+    userPoints = 0,
+    equippedItems = [],
+    streakData,
   } = initialData;
+
+  // Show check-in dialog if user hasn't checked in today
+  useEffect(() => {
+    if (streakData && !streakData.hasCheckedInToday) {
+      // You can add logic here to show the dialog automatically
+      // or wait for user interaction
+    }
+  }, [streakData]);
 
   const { weeklyTarget, weeklyTotalMins, overallTarget } =
     useDashboardCalculations({
@@ -78,52 +104,51 @@ export function DashboardClient({
 
   const leftColumn = (
     <>
-      {/* Exercise Progress */}
-      <ExerciseProgressCard
+      {/* Streak Display - More prominent */}
+      {streakData && (
+        <StreakDisplay
+          currentStreak={streakData.currentStreak}
+          longestStreak={streakData.longestStreak}
+          lastCheckIn={streakData.lastCheckInDate || undefined}
+          frozenUntil={streakData.frozenUntil || undefined}
+          userId={userId}
+          onCheckInClick={() => setIsCheckInDialogOpen(true)}
+          canCheckIn={!streakData.hasCheckedInToday}
+          onFreezeActivated={() => {
+            // Refresh the page to show updated freeze status
+            window.location.reload();
+          }}
+        />
+      )}
+
+      {/* Enhanced Exercise Progress */}
+      <ExerciseProgressEnhanced
         exercises={exercises}
         weeklyTarget={weeklyTarget}
         weeklyTotalMins={weeklyTotalMins}
+        onStartExercise={(exerciseId) => {
+          // Handle starting exercise - could open exercise modal
+          console.log("Starting exercise:", exerciseId);
+        }}
       />
 
       {/* Upcoming Appointments */}
       <UpcomingAppointments appointments={upcomingAppointments} />
-
-      {/* Leaderboard */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Leaderboard</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Leaderboard
-            leaderboard={Array.isArray(leaderboard) ? leaderboard : []}
-            patientName={patientName}
-            showAll={showAllLeaderboard}
-            maxItems={5}
-          />
-          {leaderboard.length > 5 && (
-            <button
-              onClick={() => setShowAllLeaderboard(!showAllLeaderboard)}
-              className="mt-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-            >
-              {showAllLeaderboard ? "Show Less" : "Show All"}
-            </button>
-          )}
-        </CardContent>
-      </Card>
     </>
   );
 
   const rightColumn = (
     <>
-      {/* Overall Progress Summary */}
-      <ProgressSummary
+      {/* Progress Journey */}
+      <ProgressJourney
         overallTarget={overallTarget}
         weeksCompleted={weeksCompleted}
         programWeeks={programWeeks}
         patientRank={patientRank}
+        userPoints={userPoints}
       />
 
-      {/* Progress and Calendar */}
+      {/* Calendar and Plans */}
       <CalendarAndPlans
         monthMatrix={monthMatrix}
         monthLabel={monthLabel}
@@ -135,8 +160,56 @@ export function DashboardClient({
         selectedPlans={selectedPlans}
         ringProgress={overallTarget}
       />
+
+      {/* Leaderboard - Smaller version */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Leaderboard</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Leaderboard
+            leaderboard={Array.isArray(leaderboard) ? leaderboard : []}
+            patientName={patientName}
+            showAll={false}
+            maxItems={3}
+          />
+          {leaderboard.length > 3 && (
+            <button
+              onClick={() => setShowAllLeaderboard(!showAllLeaderboard)}
+              className="mt-2 text-sm text-muted-foreground hover:text-primary transition-colors w-full"
+            >
+              View Full Leaderboard →
+            </button>
+          )}
+        </CardContent>
+      </Card>
     </>
   );
 
-  return <DashboardLayout leftColumn={leftColumn} rightColumn={rightColumn} />;
+  return (
+    <>
+      {/* Hero Section - Full Width */}
+      <HeroSection
+        patientName={patientName}
+        streakCount={streakData?.currentStreak}
+        userPoints={userPoints}
+        completionRate={overallTarget}
+        equippedItems={equippedItems}
+      />
+
+      <DashboardLayout leftColumn={leftColumn} rightColumn={rightColumn} />
+
+      {/* Daily Check-In Dialog */}
+      <DailyCheckInDialog
+        isOpen={isCheckInDialogOpen}
+        onClose={() => setIsCheckInDialogOpen(false)}
+        userId={userId}
+        onCheckInComplete={(mood, points, encouragement) => {
+          logger.info({ mood, points, encouragement }, "Checked in:");
+          // Refresh the page or update streak data
+          window.location.reload();
+        }}
+      />
+    </>
+  );
 }

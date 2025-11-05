@@ -4,6 +4,7 @@ import { getPlansAction } from "@/lib/actions/plans";
 import { getLeaderboardAction } from "@/lib/actions/leaderboard";
 import { getUserByIdAction } from "@/lib/actions/users";
 import { getUserInventoryAction } from "@/lib/actions/shop";
+import { getUserStreakAction } from "@/lib/actions/streaks";
 import { DashboardClient } from "@/components/features/dashboard/dashboard-client";
 import { Plan, ShopItem, UserInventory, User } from "@prisma/client";
 import { auth } from "@/lib/auth";
@@ -33,6 +34,7 @@ export default async function RehabDashboardPage() {
     leaderboardResponse,
     userResponse,
     inventoryResponse,
+    streakResponse,
   ] = await Promise.all([
     getAppointmentsAction({ limit: 50, offset: 0 }),
     getPlansAction({ limit: 100, offset: 0, include: { exercises: true } }),
@@ -45,6 +47,7 @@ export default async function RehabDashboardPage() {
     }),
     getUserByIdAction({ userId }),
     getUserInventoryAction({ userId }),
+    getUserStreakAction({ userId }),
   ]);
 
   // Handle plans data - filter for current month
@@ -65,9 +68,9 @@ export default async function RehabDashboardPage() {
   const exercisesResponses = await Promise.all(exercisesPromises);
 
   // Combine all exercises from all plans
-  const exercises = exercisesResponses.flatMap(
-    (response) => (response.success ? response.data || [] : [])
-  ).sort((a, b) => a.sequence - b.sequence); // Sort by sequence across all plans
+  const exercises = exercisesResponses
+    .flatMap((response) => (response.success ? response.data || [] : []))
+    .sort((a, b) => a.sequence - b.sequence); // Sort by sequence across all plans
 
   // Handle appointments data
   const appointments = appointmentsResponse.success
@@ -91,6 +94,8 @@ export default async function RehabDashboardPage() {
     .filter((item) => item.isEquipped)
     .map((item) => item.item);
 
+  const streakData = streakResponse.data;
+
   const initialData = {
     patientName: user.name,
     exercises,
@@ -102,7 +107,12 @@ export default async function RehabDashboardPage() {
     weeksCompleted: 0,
     userPoints: user.points,
     equippedItems,
+    streakData,
   };
 
-  return <DashboardClient initialData={initialData} />;
+  return (
+    <div className="min-h-screen bg-background">
+      <DashboardClient initialData={initialData} userId={userId} />
+    </div>
+  );
 }
