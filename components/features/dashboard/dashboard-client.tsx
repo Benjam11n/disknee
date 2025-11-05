@@ -4,7 +4,7 @@ import { JSX } from "react";
 
 import { Leaderboard } from "@/components/features/dashboard/leaderboard";
 import { CalendarAndPlans } from "@/components/features/dashboard/calendar-and-plans";
-import { ExerciseProgressEnhanced } from "@/components/features/dashboard/exercise-progress-enhanced";
+import { ExerciseProgress } from "@/components/features/dashboard/exercise-progress-enhanced";
 import { UpcomingAppointments } from "@/components/features/dashboard/upcoming-appointments";
 import { ProgressJourney } from "@/components/features/dashboard/progress-journey";
 import { HeroSection } from "@/components/features/dashboard/hero-section";
@@ -24,6 +24,8 @@ import {
 } from "@prisma/client";
 import { logger } from "@/lib/logger";
 import { StreakData } from "@/lib/types/streaks";
+import { ROUTES } from "@/lib/constants/routes";
+import { useRouter } from "next/navigation";
 
 interface DashboardData {
   patientName: string;
@@ -49,6 +51,7 @@ export function DashboardClient({
   initialData,
   userId,
 }: DashboardClientProps): JSX.Element {
+  const router = useRouter();
   const [isCheckInDialogOpen, setIsCheckInDialogOpen] = useState(false);
 
   const {
@@ -69,6 +72,7 @@ export function DashboardClient({
   // Show check-in dialog if user hasn't checked in today
   useEffect(() => {
     if (streakData && !streakData.hasCheckedInToday) {
+      // todo:
       // You can add logic here to show the dialog automatically
       // or wait for user interaction
     }
@@ -122,17 +126,15 @@ export function DashboardClient({
       )}
 
       {/* Enhanced Exercise Progress */}
-      <ExerciseProgressEnhanced
+      <ExerciseProgress
         exercises={exercises}
         weeklyTarget={weeklyTarget}
         weeklyTotalMins={weeklyTotalMins}
         onStartExercise={(exerciseId) => {
-          // Handle starting exercise - could open exercise modal
-          console.log("Starting exercise:", exerciseId);
+          router.push(ROUTES.CALL.detail(exerciseId));
         }}
       />
 
-      {/* Upcoming Appointments */}
       <UpcomingAppointments appointments={upcomingAppointments} />
     </>
   );
@@ -188,7 +190,6 @@ export function DashboardClient({
 
   return (
     <>
-      {/* Hero Section - Full Width */}
       <HeroSection
         patientName={patientName}
         streakCount={streakData?.currentStreak}

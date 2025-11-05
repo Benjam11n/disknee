@@ -65,7 +65,7 @@ export default async function AllExercisesPage({
   const exercisesWithVideo = exercises.filter(ex => ex.videoUrl).length;
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
+    <div className="px-4 sm:px-6 py-6 max-w-[1400px] mx-auto">
       <div className="space-y-6">
         {/* Header */}
         <div>

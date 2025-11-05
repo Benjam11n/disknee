@@ -5,20 +5,22 @@ import { Badge } from "@/components/ui/badge";
 import { Play, Clock, CheckCircle, Circle, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Exercise } from "@prisma/client";
+import { ROUTES } from "@/lib/constants/routes";
+import Link from "next/link";
 
-interface ExerciseProgressEnhancedProps {
+interface ExerciseProgressProps {
   exercises: Exercise[];
   weeklyTarget: number;
   weeklyTotalMins: number;
   onStartExercise?: (exerciseId: string) => void;
 }
 
-export function ExerciseProgressEnhanced({
+export function ExerciseProgress({
   exercises,
   weeklyTarget,
   weeklyTotalMins,
   onStartExercise,
-}: ExerciseProgressEnhancedProps) {
+}: ExerciseProgressProps) {
   const completedCount = exercises.filter((ex) => ex.done).length;
   const totalCount = exercises.length;
   const completionPercentage =
@@ -217,7 +219,7 @@ export function ExerciseProgressEnhanced({
             )}
           {completionPercentage > 0 && (
             <Button variant="outline" className="flex-1">
-              View All Exercises
+              <Link href={ROUTES.EXERCISE.BASE}>View All Exercises</Link>
             </Button>
           )}
         </div>

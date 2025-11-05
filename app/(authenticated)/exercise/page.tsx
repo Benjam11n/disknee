@@ -70,9 +70,9 @@ export default async function ExercisePage() {
   }, 0);
 
   return (
-    <div className="p-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
+    <div className="px-4 sm:px-6 py-6 max-w-[1400px] mx-auto">
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Weekly Exercises</h1>
             <p className="text-muted-foreground">

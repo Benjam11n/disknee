@@ -97,6 +97,7 @@ async function main() {
           done: ex.done,
           sequence: exercisesInThisPlan,
           planId: plans[planIndex].id,
+          videoUrl: ex.videoUrl || null,
         },
       });
     })

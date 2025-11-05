@@ -33,7 +33,7 @@ export function ExerciseDetailClient({
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
+    <div className="px-4 sm:px-6 py-6 max-w-[1400px] mx-auto">
       <div className="space-y-6">
         {/* Back Button */}
         <Button
@@ -67,9 +67,9 @@ export function ExerciseDetailClient({
                   <div>
                     <h4 className="font-semibold mb-2">Perfect Form Guide</h4>
                     <p className="text-sm text-muted-foreground">
-                      Watch this demonstration to understand the correct form and technique
-                      for this exercise. Follow along to ensure you're performing the
-                      movements safely and effectively.
+                      Watch this demonstration to understand the correct form
+                      and technique for this exercise. Follow along to ensure
+                      you're performing the movements safely and effectively.
                     </p>
                   </div>
                   <Button
@@ -80,7 +80,10 @@ export function ExerciseDetailClient({
                     {isVideoPlaying ? "Pause Video" : "Play Video"}
                   </Button>
                   <div className="text-sm text-muted-foreground">
-                    <p>💡 Tip: Watch the video at least once before starting the exercise.</p>
+                    <p>
+                      💡 Tip: Watch the video at least once before starting the
+                      exercise.
+                    </p>
                   </div>
                 </div>
               </div>

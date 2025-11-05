@@ -1,7 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Target, Calendar, Sparkles } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface HeroSectionProps {
   patientName: string;
@@ -11,6 +10,7 @@ interface HeroSectionProps {
   equippedItems?: any[];
 }
 
+// todo: move to utils
 const motivationalQuotes = [
   "Every step forward is progress, no matter how small.",
   "You're stronger than you think. Keep going!",
@@ -29,6 +29,7 @@ export function HeroSection({
   completionRate = 0,
   equippedItems = [],
 }: HeroSectionProps) {
+  // todo: move to utils
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return "Good morning";
@@ -36,6 +37,7 @@ export function HeroSection({
     return "Good evening";
   };
 
+  // todo: move to utils
   const getDailyQuote = () => {
     const today = new Date();
     const dayOfYear = Math.floor(
@@ -48,8 +50,10 @@ export function HeroSection({
     return motivationalQuotes[dayOfYear % motivationalQuotes.length];
   };
 
+  // todo: move to constants file
   const getMotivationalMessage = () => {
-    if (streakCount >= 30) return "Incredible consistency! You're a champion! 🏆";
+    if (streakCount >= 30)
+      return "Incredible consistency! You're a champion! 🏆";
     if (streakCount >= 14) return "Amazing dedication! Keep it up! 💪";
     if (streakCount >= 7) return "One week strong! You're on fire! 🔥";
     if (streakCount >= 3) return "Great start! You're building momentum! ⚡";
@@ -58,7 +62,7 @@ export function HeroSection({
   };
 
   return (
-    <div className="space-y-4 mb-6">
+    <div className="space-y-4 max-w-[1400px] mx-auto px-4 pt-8">
       {/* Welcome Card */}
       <Card className="border-0 shadow-md hover:shadow-lg transition-shadow duration-300">
         <CardContent className="p-8">
@@ -119,7 +123,9 @@ export function HeroSection({
         {streakCount > 0 && (
           <Card className="shadow-sm">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-primary">{streakCount}</div>
+              <div className="text-2xl font-bold text-primary">
+                {streakCount}
+              </div>
               <div className="text-xs text-muted-foreground">Day Streak</div>
             </CardContent>
           </Card>
