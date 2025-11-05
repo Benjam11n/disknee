@@ -46,50 +46,54 @@ export function ExerciseDetailClient({
         </Button>
 
         {/* Demo Video Section */}
-        {exercise.videoUrl && (
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Video className="h-5 w-5" />
-                <CardTitle className="text-xl">Demo Video</CardTitle>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Video className="h-5 w-5" />
+              <CardTitle className="text-xl">Demo Video</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                <ModelVideo
+                  isPlaying={isVideoPlaying}
+                  exerciseType={exercise.title.toLowerCase()}
+                  videoUrl={exercise.videoUrl || undefined}
+                  onTogglePlay={() => setIsVideoPlaying(!isVideoPlaying)}
+                />
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="aspect-video bg-black rounded-lg overflow-hidden">
-                  <ModelVideo
-                    isPlaying={isVideoPlaying}
-                    exerciseType={exercise.title.toLowerCase()}
-                    videoUrl={exercise.videoUrl}
-                  />
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold mb-2">Perfect Form Guide</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Watch this demonstration to understand the correct form
+                    and technique for this exercise. Follow along to ensure
+                    you're performing the movements safely and effectively.
+                  </p>
                 </div>
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-semibold mb-2">Perfect Form Guide</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Watch this demonstration to understand the correct form
-                      and technique for this exercise. Follow along to ensure
-                      you're performing the movements safely and effectively.
+                <Button
+                  onClick={() => setIsVideoPlaying(!isVideoPlaying)}
+                  variant="outline"
+                  className="w-full sm:w-auto"
+                >
+                  {isVideoPlaying ? "Pause Video" : "Play Video"}
+                </Button>
+                <div className="text-sm text-muted-foreground">
+                  <p>
+                    💡 Tip: Watch the video at least once before starting the
+                    exercise.
+                  </p>
+                  {!exercise.videoUrl && (
+                    <p className="mt-2 text-amber-600">
+                      ⚠️ Using demonstration video. Consider adding a specific demo video for this exercise.
                     </p>
-                  </div>
-                  <Button
-                    onClick={() => setIsVideoPlaying(!isVideoPlaying)}
-                    variant="outline"
-                    className="w-full sm:w-auto"
-                  >
-                    {isVideoPlaying ? "Pause Video" : "Play Video"}
-                  </Button>
-                  <div className="text-sm text-muted-foreground">
-                    <p>
-                      💡 Tip: Watch the video at least once before starting the
-                      exercise.
-                    </p>
-                  </div>
+                  )}
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Exercise Details Card */}
         <Card>

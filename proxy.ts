@@ -43,7 +43,11 @@ export async function proxy(request: NextRequest) {
     pathName.startsWith("/images/") ||
     pathName.startsWith("/icon/") ||
     pathName.startsWith("/logo/") ||
-    pathName.startsWith("/api/auth/") // Exclude Better Auth API routes
+    pathName.startsWith("/api/auth/") || // Exclude Better Auth API routes
+    pathName.endsWith(".mp4") ||
+    pathName.endsWith(".webm") ||
+    pathName.endsWith(".mov") ||
+    pathName.endsWith(".avi")
   ) {
     return NextResponse.next();
   }

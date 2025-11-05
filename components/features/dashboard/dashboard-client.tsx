@@ -4,7 +4,7 @@ import { JSX } from "react";
 
 import { Leaderboard } from "@/components/features/dashboard/leaderboard";
 import { CalendarAndPlans } from "@/components/features/dashboard/calendar-and-plans";
-import { ExerciseProgress } from "@/components/features/dashboard/exercise-progress-enhanced";
+import { ExerciseProgress } from "@/components/features/dashboard/exercise-progress";
 import { UpcomingAppointments } from "@/components/features/dashboard/upcoming-appointments";
 import { ProgressJourney } from "@/components/features/dashboard/progress-journey";
 import { HeroSection } from "@/components/features/dashboard/hero-section";
