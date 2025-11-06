@@ -3,10 +3,9 @@ import { getAppointmentsAction } from '@/lib/actions/appointments';
 import { getPlansAction } from '@/lib/actions/plans';
 import { getLeaderboardAction } from '@/lib/actions/leaderboard';
 import { getUserByIdAction } from '@/lib/actions/users';
-import { getUserInventoryAction } from '@/lib/actions/shop';
 import { getUserStreakAction } from '@/lib/actions/streaks';
 import { DashboardClient } from '@/components/features/dashboard/dashboard-client';
-import { Plan, ShopItem, UserInventory, User } from '@prisma/client';
+import { Plan, User } from '@prisma/client';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
@@ -28,27 +27,20 @@ export default async function RehabDashboardPage() {
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
-  const [
-    appointmentsResponse,
-    plansResponse,
-    leaderboardResponse,
-    userResponse,
-    inventoryResponse,
-    streakResponse,
-  ] = await Promise.all([
-    getAppointmentsAction({ limit: 50, offset: 0 }),
-    getPlansAction({ limit: 100, offset: 0, include: { exercises: true } }),
-    getLeaderboardAction({
-      limit: 50,
-      offset: 0,
-      sortBy: 'rank',
-      sortOrder: 'asc',
-      rankingType: 'score',
-    }),
-    getUserByIdAction({ userId }),
-    getUserInventoryAction({ userId }),
-    getUserStreakAction({ userId }),
-  ]);
+  const [appointmentsResponse, plansResponse, leaderboardResponse, userResponse, streakResponse] =
+    await Promise.all([
+      getAppointmentsAction({ limit: 50, offset: 0 }),
+      getPlansAction({ limit: 100, offset: 0, include: { exercises: true } }),
+      getLeaderboardAction({
+        limit: 50,
+        offset: 0,
+        sortBy: 'rank',
+        sortOrder: 'asc',
+        rankingType: 'score',
+      }),
+      getUserByIdAction({ userId }),
+      getUserStreakAction({ userId }),
+    ]);
 
   // Handle plans data - filter for current month
   let plans: Plan[] = [];
@@ -82,12 +74,6 @@ export default async function RehabDashboardPage() {
       ? userResponse.data
       : ({ id: 'default', name: 'Donald Duck', points: 0 } as User);
 
-  const inventory = inventoryResponse.success
-    ? (inventoryResponse.data as (UserInventory & { item: ShopItem })[]) || []
-    : [];
-
-  const equippedItems = inventory.filter((item) => item.isEquipped).map((item) => item.item);
-
   const streakData = streakResponse.data;
 
   const initialData = {
@@ -100,7 +86,6 @@ export default async function RehabDashboardPage() {
     programWeeks: 10,
     weeksCompleted: 0,
     userPoints: user.points,
-    equippedItems,
     streakData,
   };
 

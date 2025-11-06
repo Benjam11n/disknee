@@ -15,7 +15,7 @@ import { useDashboardData } from '@/lib/hooks/use-dashboard-data';
 import { StreakDisplay } from '@/components/features/streak/streak-display';
 import { DailyCheckInDialog } from '@/components/features/streak/daily-check-in-dialog';
 import { useState, useEffect } from 'react';
-import { Appointment, Exercise, leaderboardByScore, Plan, ShopItem } from '@prisma/client';
+import { Appointment, Exercise, leaderboardByScore, Plan } from '@prisma/client';
 import { logger } from '@/lib/logger';
 import { StreakData } from '@/lib/types/streaks';
 import { ROUTES } from '@/lib/constants/routes';
@@ -32,7 +32,6 @@ interface DashboardData {
   weeksCompleted?: number;
   Appointment?: Appointment;
   userPoints?: number;
-  equippedItems?: ShopItem[];
   streakData?: StreakData;
 }
 
@@ -55,7 +54,6 @@ export function DashboardClient({ initialData, userId }: DashboardClientProps): 
     programWeeks = 10,
     weeksCompleted = 0,
     userPoints = 0,
-    equippedItems = [],
     streakData,
   } = initialData;
 
@@ -108,8 +106,6 @@ export function DashboardClient({ initialData, userId }: DashboardClientProps): 
           lastCheckIn={streakData.lastCheckInDate || undefined}
           frozenUntil={streakData.frozenUntil || undefined}
           userId={userId}
-          onCheckInClick={() => setIsCheckInDialogOpen(true)}
-          canCheckIn={!streakData.hasCheckedInToday}
           onFreezeActivated={() => {
             // Refresh the page to show updated freeze status
             window.location.reload();
@@ -187,7 +183,6 @@ export function DashboardClient({ initialData, userId }: DashboardClientProps): 
         streakCount={streakData?.currentStreak}
         userPoints={userPoints}
         completionRate={overallTarget}
-        equippedItems={equippedItems}
       />
 
       <DashboardLayout leftColumn={leftColumn} rightColumn={rightColumn} />
