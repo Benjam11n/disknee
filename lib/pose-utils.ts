@@ -66,16 +66,26 @@ interface PoseMetrics {
 }
 
 // Calculate angle between three points
+// export function calculateAngle(a: Landmark, b: Landmark, c: Landmark): number {
+//   const radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
+//   let angle = Math.abs(radians * 180.0 / Math.PI);
+
+//   if (angle > 180.0) {
+//     angle = 360 - angle;
+//   }
+
+//   return angle;
+// }
 export function calculateAngle(a: Landmark, b: Landmark, c: Landmark): number {
-  const radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
+  const radians =
+    Math.atan2(c.y - b.y, c.x - b.x) -
+    Math.atan2(a.y - b.y, a.x - b.x);
   let angle = Math.abs((radians * 180.0) / Math.PI);
 
-  if (angle > 180.0) {
-    angle = 360 - angle;
-  }
-
+  if (angle > 180.0) angle = 360 - angle;
   return angle;
 }
+
 
 // Calculate visibility for three points
 export function calculateVisibility(a: Landmark, b: Landmark, c: Landmark): number {
