@@ -3,7 +3,6 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { ROUTES } from '@/lib/constants/routes';
 import { logger } from '@/lib/logger';
-import { Toaster } from '@/components/ui/sonner';
 
 export default async function CallLayout({ children }: { children: React.ReactNode }) {
   const headersList = await headers();
@@ -29,10 +28,5 @@ export default async function CallLayout({ children }: { children: React.ReactNo
     'User accessing call page'
   );
 
-  return (
-    <>
-      {children}
-      <Toaster />
-    </>
-  );
+  return <>{children}</>;
 }

@@ -1,4 +1,3 @@
-import { Toaster } from 'sonner';
 import { ThemeProvider } from '@/components/shared/theme/theme-provider';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
@@ -23,7 +22,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             </Button>
           </div>
         </div>
-        <Toaster position="top-right" visibleToasts={5} richColors closeButton />
       </TooltipProvider>
     </ThemeProvider>
   );
