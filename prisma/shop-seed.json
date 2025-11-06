@@ -4,7 +4,7 @@
     "name": "Baseball Cap",
     "description": "A classic baseball cap for sporty looks",
     "icon": "🧢",
-    "type": "hat",
+    "type": "HAT",
     "price": 100,
     "active": true
   },
@@ -13,7 +13,7 @@
     "name": "Golden Crown",
     "description": "A majestic crown for true champions",
     "icon": "👑",
-    "type": "hat",
+    "type": "HAT",
     "price": 500,
     "active": true
   },
@@ -22,7 +22,7 @@
     "name": "Wizard Hat",
     "description": "Magical hat for the wise and mysterious",
     "icon": "🎩",
-    "type": "hat",
+    "type": "HAT",
     "price": 300,
     "active": true
   },
@@ -31,7 +31,7 @@
     "name": "Santa Hat",
     "description": "Festive hat for holiday cheer",
     "icon": "🎅",
-    "type": "hat",
+    "type": "HAT",
     "price": 200,
     "active": true
   },
@@ -40,7 +40,7 @@
     "name": "Top Hat",
     "description": "Elegant top hat for sophisticated looks",
     "icon": "🎩",
-    "type": "hat",
+    "type": "HAT",
     "price": 250,
     "active": true
   },
@@ -49,7 +49,7 @@
     "name": "Cool Shades",
     "description": "Stylish sunglasses for cool vibes",
     "icon": "🕶️",
-    "type": "accessory",
+    "type": "ACCESSORY",
     "price": 150,
     "active": true
   },
@@ -58,7 +58,7 @@
     "name": "Monocle",
     "description": "A sophisticated monocle for gentlemen",
     "icon": "🧐",
-    "type": "accessory",
+    "type": "ACCESSORY",
     "price": 180,
     "active": true
   },
@@ -67,7 +67,7 @@
     "name": "Eye Patch",
     "description": "Pirate-worthy eye patch",
     "icon": "🏴‍☠️",
-    "type": "accessory",
+    "type": "ACCESSORY",
     "price": 120,
     "active": true
   },
@@ -76,7 +76,7 @@
     "name": "1-Day Streak Freeze",
     "description": "Protect your streak for 1 day when you can't check in",
     "icon": "❄️",
-    "type": "freeze",
+    "type": "FREEZE",
     "price": 100,
     "active": true
   },
@@ -85,7 +85,7 @@
     "name": "3-Day Streak Freeze",
     "description": "Protect your streak for 3 days when you're away",
     "icon": "🧊",
-    "type": "freeze",
+    "type": "FREEZE",
     "price": 250,
     "active": true
   },
@@ -94,7 +94,7 @@
     "name": "7-Day Streak Freeze",
     "description": "Protect your streak for a whole week",
     "icon": "🌨️",
-    "type": "freeze",
+    "type": "FREEZE",
     "price": 500,
     "active": true
   }

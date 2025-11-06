@@ -23,6 +23,11 @@ interface VideoStreamProps {
     size?: number; // Font size in pixels (default: 60)
     yOffset?: number; // Vertical offset from nose (default: -60)
   };
+  glassesSettings?: {
+    emoji?: string; // Glasses emoji (default: 🕶️)
+    size?: number; // Font size in pixels (default: 50)
+    yOffset?: number; // Vertical offset from eyes (default: 0)
+  };
 }
 
 export function VideoStream({
@@ -32,12 +37,20 @@ export function VideoStream({
   exerciseId,
   onPoseUpdate,
   crownSettings,
+  glassesSettings,
 }: VideoStreamProps) {
   // Set default crown settings
   const crownConfig = {
     emoji: crownSettings?.emoji || '👑',
     size: crownSettings?.size || 60,
     yOffset: crownSettings?.yOffset || -60,
+  };
+
+  // Set default glasses settings
+  const glassesConfig = {
+    emoji: glassesSettings?.emoji || '🕶️',
+    size: glassesSettings?.size || 80,
+    yOffset: glassesSettings?.yOffset || 0,
   };
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -94,10 +107,13 @@ export function VideoStream({
         }
       });
 
-      // Draw joints
+      // Draw joints (excluding face landmarks)
       ctx.fillStyle = '#ff0000'; // Red color
-      landmarks.forEach((lm) => {
-        if (lm && lm.visibility > 0.5) {
+      landmarks.forEach((lm, index) => {
+        // Skip drawing dots on face landmarks (0-10 are face/upper body landmarks)
+        const isFaceLandmark = index <= 10 || index === 23 || index === 24; // Also skip hips
+
+        if (lm && lm.visibility > 0.5 && !isFaceLandmark) {
           const x = flipped ? width - lm.x * width : lm.x * width;
           const y = lm.y * height;
           ctx.beginPath();
@@ -116,6 +132,43 @@ export function VideoStream({
         ctx.textBaseline = 'bottom';
 
         ctx.fillText(crownConfig.emoji, noseX, noseY + crownConfig.yOffset);
+      }
+
+      // Draw glasses between the eyes
+      const leftEye = landmarks[2]; // Left eye landmark
+      const rightEye = landmarks[5]; // Right eye landmark
+
+      if (leftEye && leftEye.visibility > 0.5 && rightEye && rightEye.visibility > 0.5) {
+        const leftEyeX = flipped ? width - leftEye.x * width : leftEye.x * width;
+        const leftEyeY = leftEye.y * height;
+        const rightEyeX = flipped ? width - rightEye.x * width : rightEye.x * width;
+        const rightEyeY = rightEye.y * height;
+
+        // Calculate center position between eyes
+        const glassesX = (leftEyeX + rightEyeX) / 2 + 5; // Move 15px to the left
+        const glassesY = (leftEyeY + rightEyeY) / 2 + glassesConfig.yOffset;
+
+        // Calculate distance between eyes to scale glasses
+        const eyeDistance = Math.abs(rightEyeX - leftEyeX);
+        const scaleFactor = (eyeDistance / 60) * 1.5; // Base distance for scaling, 1.5x multiplier for better visibility
+
+        ctx.font = `${glassesConfig.size * scaleFactor}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // Add shadow for better visibility
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
+
+        ctx.fillText(glassesConfig.emoji, glassesX, glassesY);
+
+        // Reset shadow
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
       }
     },
     []

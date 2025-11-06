@@ -39,14 +39,21 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
   const [isCallActive, setIsCallActive] = useState(false);
   const [isVideoOn, setIsVideoOn] = useState(true);
 
-  // Find equipped hat/crown item
   const equippedHat = equippedItems.find(
     (item) =>
-      item.type === 'hat' ||
-      item.type === 'crown' ||
-      item.type === 'headwear' ||
+      item.type === 'HAT' ||
       item.name.toLowerCase().includes('crown') ||
       item.name.toLowerCase().includes('hat')
+  );
+
+  // Find equipped glasses/accessory item
+  const equippedGlasses = equippedItems.find(
+    (item) =>
+      item.type === 'ACCESSORY' ||
+      item.name.toLowerCase().includes('glasses') ||
+      item.name.toLowerCase().includes('shades') ||
+      item.name.toLowerCase().includes('monocle') ||
+      item.name.toLowerCase().includes('eye')
   );
   const [isModelPlaying, setIsModelPlaying] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
@@ -170,6 +177,11 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
               emoji: equippedHat?.icon || '👑',
               size: equippedHat ? 60 : 60, // Can be customized per item in future
               yOffset: equippedHat ? -60 : -60, // Can be customized per item in future
+            }}
+            glassesSettings={{
+              emoji: equippedGlasses?.icon || '🕶️',
+              size: equippedGlasses ? 100 : 100, // Can be customized per item in future
+              yOffset: equippedGlasses ? 10 : 10, // Slightly lower on face
             }}
             onPoseUpdate={(result) => {
               setEx4State({
