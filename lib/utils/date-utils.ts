@@ -59,17 +59,6 @@ export const startOfDay = (d: Date = new Date()) => {
 };
 
 /**
- * Get end of day (23:59:59)
- * @param d - The date
- * @returns New date at end of day
- */
-export const endOfDay = (d: Date = new Date()) => {
-  const dt = new Date(d);
-  dt.setHours(23, 59, 59, 999);
-  return dt;
-};
-
-/**
  * Build a calendar matrix for a given month
  */
 export function buildMonthMatrix(anchor: Date): {
@@ -149,7 +138,7 @@ export function formatDateTime(
 /**
  * Format time from HH:MM string to 12-hour format
  */
-export function formatTime12Hour(
+function formatTime12Hour(
   timeStr: string,
   _options: {
     locale?: string;
@@ -234,7 +223,6 @@ export function formatTimestamp(dateStr?: string | null): string {
 
 // Legacy exports for backward compatibility
 export const formatTime = {
-  '12hour': formatTime12Hour,
   '24hour': formatTime24Hour,
   duration: formatDuration,
 };

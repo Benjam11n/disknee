@@ -5,7 +5,7 @@ import { Exercise } from '@prisma/client';
  * @param exercises - Array of exercises (should be filtered by planId and sorted by sequence)
  * @returns The next incomplete exercise or null if all are done
  */
-export function getNextExercise(exercises: Exercise[]): Exercise | null {
+function getNextExercise(exercises: Exercise[]): Exercise | null {
   // Find the first exercise that is not done
   return exercises.find((exercise) => !exercise.done) || null;
 }
@@ -16,7 +16,7 @@ export function getNextExercise(exercises: Exercise[]): Exercise | null {
  * @param exerciseId - ID of the exercise to check
  * @returns true if this exercise is the next one to be completed
  */
-export function isNextExercise(exercises: Exercise[], exerciseId: string): boolean {
+function isNextExercise(exercises: Exercise[], exerciseId: string): boolean {
   const nextExercise = getNextExercise(exercises);
   return nextExercise?.id === exerciseId;
 }
@@ -42,35 +42,4 @@ export function canStartExercise(exercises: Exercise[], exerciseId: string): boo
 
   // Can start if it's the next exercise in sequence
   return isNextExercise(exercises, exerciseId);
-}
-
-/**
- * Filter and sort exercises for a specific plan
- * @param exercises - Array of exercises
- * @param planId - Plan ID to filter by
- * @returns Filtered and sorted exercises
- */
-export function getExercisesForPlan(exercises: Exercise[], planId: string): Exercise[] {
-  return exercises
-    .filter((exercise) => exercise.planId === planId)
-    .sort((a, b) => a.sequence - b.sequence);
-}
-
-/**
- * Get exercise completion progress for a plan
- * @param exercises - Array of exercises (should be filtered by planId)
- * @returns Object with completion stats
- */
-export function getExerciseProgress(exercises: Exercise[]) {
-  const total = exercises.length;
-  const completed = exercises.filter((ex) => ex.done).length;
-  const remaining = total - completed;
-  const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
-
-  return {
-    total,
-    completed,
-    remaining,
-    percentage,
-  };
 }

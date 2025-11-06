@@ -1,14 +1,4 @@
 /**
- * Format duration in seconds to MM:SS format
- * @deprecated Use formatDuration from @/lib/utils/date-utils instead
- */
-export const formatTime = (seconds: number): string => {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
-};
-
-/**
  * Get fatigue level label from numeric value
  */
 export const getFatigueLabel = (value: number): string => {

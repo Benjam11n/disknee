@@ -1,4 +1,4 @@
-export type ReportItem = {
+type ReportItem = {
   title: string;
   status: string;
   endedOn: string | null;
@@ -8,7 +8,7 @@ export type ReportItem = {
   points: number;
 };
 
-export type ReportDay = {
+type ReportDay = {
   date: string;
   items: ReportItem[];
 };

@@ -2,7 +2,7 @@
  * Utility functions for generating motivational messages
  */
 
-export const MOTIVATIONAL_QUOTES = [
+const MOTIVATIONAL_QUOTES = [
   'Every step forward is progress, no matter how small.',
   "You're stronger than you think. Keep going!",
   'Consistency is the key to success.',

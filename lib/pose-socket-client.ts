@@ -4,7 +4,7 @@
 
 import { logger } from './logger';
 
-export interface PoseResult {
+interface PoseResult {
   pose_detected: boolean;
   landmarks?: Array<{
     x: number;
@@ -27,7 +27,7 @@ export interface PoseResult {
   rep_completed: boolean;
 }
 
-export interface PoseSocketClientOptions {
+interface PoseSocketClientOptions {
   baseUrl: string;
   exerciseId: string;
   onPoseResult?: (result: PoseResult) => void;
