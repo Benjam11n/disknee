@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Phone, PhoneOff, Video, VideoOff, PlayCircle, PauseCircle, Activity } from 'lucide-react';
 import { toast } from 'sonner';
-import { Exercise } from '@prisma/client';
+import { Exercise, ShopItem } from '@prisma/client';
 import { logger } from '@/lib/logger';
 
 import { VideoStream } from '@/components/shared/video-stream';
@@ -30,13 +30,24 @@ interface Ex4State {
 
 interface CallExerciseClientProps {
   exercise: Exercise;
+  equippedItems?: ShopItem[];
 }
 
-export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
+export function CallExerciseClient({ exercise, equippedItems = [] }: CallExerciseClientProps) {
   const router = useRouter();
 
   const [isCallActive, setIsCallActive] = useState(false);
   const [isVideoOn, setIsVideoOn] = useState(true);
+
+  // Find equipped hat/crown item
+  const equippedHat = equippedItems.find(
+    (item) =>
+      item.type === 'hat' ||
+      item.type === 'crown' ||
+      item.type === 'headwear' ||
+      item.name.toLowerCase().includes('crown') ||
+      item.name.toLowerCase().includes('hat')
+  );
   const [isModelPlaying, setIsModelPlaying] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
   const [showReflection, setShowReflection] = useState(false);
@@ -155,6 +166,11 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
             isVideoOn={isVideoOn}
             isCallActive={isCallActive}
             exerciseId={exercise.type || undefined}
+            crownSettings={{
+              emoji: equippedHat?.icon || '👑',
+              size: equippedHat ? 60 : 60, // Can be customized per item in future
+              yOffset: equippedHat ? -60 : -60, // Can be customized per item in future
+            }}
             onPoseUpdate={(result) => {
               setEx4State({
                 reps: result.exercise_state?.reps || 0,

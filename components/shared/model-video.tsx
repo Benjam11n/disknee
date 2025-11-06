@@ -9,18 +9,12 @@ interface ModelVideoProps {
   exerciseType?: string;
   videoUrl?: string;
   onTimeUpdate?: (currentTime: number) => void;
-  onTogglePlay?: () => void; // Add callback for toggling play/pause
+  onTogglePlay?: () => void;
 }
 
-export function ModelVideo({
-  isPlaying,
-  exerciseType,
-  videoUrl,
-  onTogglePlay,
-}: ModelVideoProps) {
+export function ModelVideo({ isPlaying, exerciseType, videoUrl, onTogglePlay }: ModelVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Get the appropriate video URL based on exercise type
   const videoSource = videoUrl || getExerciseVideo(exerciseType);
 
   useEffect(() => {

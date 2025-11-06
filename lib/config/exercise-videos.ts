@@ -5,8 +5,8 @@
 export const EXERCISE_VIDEOS = {
   'knee-extension': '/knee-extension-demo.mp4',
   'calf-raises': '/calf-raises-demo.mp4',
-  'ex5': '/calf-raises-demo.mp4', // Alias for calf-raises
-  'squat': '/spanish-squat.mp4',
+  ex5: '/calf-raises-demo.mp4',
+  squat: '/spanish-squat.mp4',
   'hip-abduction': '/hip-abduction-demo.mp4',
   'step-down': '/step-down-demo.mp4',
 } as const;
@@ -35,8 +35,8 @@ export function getExerciseDisplayName(exerciseType?: string | null): string {
   const displayNames: Record<string, string> = {
     'knee-extension': 'Knee Extension',
     'calf-raises': 'Calf Raises',
-    'ex5': 'Calf Raises',
-    'squat': 'Spanish Squat',
+    ex5: 'Calf Raises',
+    squat: 'Spanish Squat',
     'hip-abduction': 'Hip Abduction',
     'step-down': 'Step-Down',
   };
