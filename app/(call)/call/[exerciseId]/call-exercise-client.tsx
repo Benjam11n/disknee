@@ -66,7 +66,17 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
     holdTime: 0,
   });
 
+  // Feedback states
+  const [repFeedback, setRepFeedback] = useState<{ show: boolean; text: string }>({
+    show: false,
+    text: '',
+  });
+  const [cameraWarning, setCameraWarning] = useState<boolean>(false);
+  const [exerciseComplete, setExerciseComplete] = useState<boolean>(false);
+  const [targetReps] = useState<number>(10);
+
   const sessionStartTime = useRef<number | null>(null);
+  const prevRepsRef = useRef<number>(0);
 
   // Get angle label based on exercise type
   const getAngleLabel = (exerciseType: string | undefined | null) => {
@@ -99,12 +109,43 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
     }
   }, [isCallActive]);
 
+  // Handle rep completion feedback auto-hide
+  useEffect(() => {
+    if (repFeedback.show) {
+      const timer = setTimeout(() => {
+        setRepFeedback({ show: false, text: '' });
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [repFeedback.show]);
+
+  // Handle camera warning auto-hide
+  useEffect(() => {
+    if (cameraWarning) {
+      const timer = setTimeout(() => {
+        setCameraWarning(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [cameraWarning]);
+
   const startCall = async () => {
     // Check if exercise type is set
     if (!exercise.type) {
       toast.error(`Exercise type not configured for "${exercise.title}". Please contact support.`);
       return;
     }
+
+    // Reset all exercise state
+    setEx4State({
+      reps: 0,
+      currentAngle: null,
+      holdTime: 0,
+    });
+    setRepFeedback({ show: false, text: '' });
+    setCameraWarning(false);
+    setExerciseComplete(false);
+    prevRepsRef.current = 0;
 
     setIsCallActive(true);
     setIsRecording(true);
@@ -185,18 +226,78 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
               size: equippedGlasses ? 100 : 100, // Can be customized per item in future
               yOffset: equippedGlasses ? 10 : 10, // Slightly lower on face
             }}
+            onCameraDistanceWarning={(tooClose) => {
+              setCameraWarning(tooClose);
+            }}
             onPoseUpdate={(result) => {
+              const newReps = result.exercise_state?.reps || 0;
+              const currentAngle =
+                result.angles?.hip ||
+                result.angles?.knee ||
+                result.angles?.ankle ||
+                result.exercise_state?.current_angle ||
+                null;
+              const holdTime = result.exercise_state?.hold_time || 0;
+
+              // Check if a new rep was completed
+              if (newReps > prevRepsRef.current) {
+                setRepFeedback({
+                  show: true,
+                  text: `Rep ${newReps}! 🎉`,
+                });
+
+                // Check if exercise is complete
+                if (newReps >= targetReps && !exerciseComplete) {
+                  setExerciseComplete(true);
+                }
+              }
+
               setEx4State({
-                reps: result.exercise_state?.reps || 0,
-                currentAngle:
-                  result.angles?.knee ||
-                  result.angles?.ankle ||
-                  result.exercise_state?.current_angle ||
-                  null,
-                holdTime: result.exercise_state?.hold_time || 0,
+                reps: newReps,
+                currentAngle,
+                holdTime,
               });
+
+              prevRepsRef.current = newReps;
             }}
           />
+
+          {/* Rep completion feedback overlay */}
+          {repFeedback.show && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="bg-green-500/90 text-white px-8 py-6 rounded-2xl shadow-2xl transform scale-110 animate-pulse">
+                <div className="text-center">
+                  <div className="text-4xl font-bold mb-2">{repFeedback.text}</div>
+                  <div className="text-lg opacity-90">Great job!</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Camera distance warning overlay */}
+          {cameraWarning && (
+            <div className="absolute top-20 left-0 right-0 flex justify-center pointer-events-none">
+              <div className="bg-yellow-500/90 text-black px-6 py-3 rounded-xl shadow-lg animate-pulse">
+                <div className="text-center">
+                  <div className="text-lg font-bold">Move back from camera!</div>
+                  <div className="text-sm opacity-90">You're too close</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Exercise completion success overlay */}
+          {exerciseComplete && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="bg-green-500/95 text-white px-12 py-8 rounded-2xl shadow-2xl transform scale-125 animate-bounce">
+                <div className="text-center">
+                  <div className="text-5xl font-bold mb-3">🎉 Complete! 🎉</div>
+                  <div className="text-2xl mb-2">Target Reached!</div>
+                  <div className="text-lg opacity-90">{ex4State.reps} reps done</div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Overlay for reps, angle, and hold timer */}
           <div className="absolute top-4 left-4 text-white text-lg font-bold bg-black/40 px-3 py-2 rounded-md space-y-1">

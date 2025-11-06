@@ -18,6 +18,7 @@ interface VideoStreamProps {
   flipped?: boolean;
   exerciseId?: string;
   onPoseUpdate?: (data: any) => void;
+  onCameraDistanceWarning?: (tooClose: boolean) => void;
   crownSettings?: {
     emoji?: string; // Crown emoji (default: 👑)
     size?: number; // Font size in pixels (default: 60)
@@ -36,6 +37,7 @@ export function VideoStream({
   flipped = true,
   exerciseId,
   onPoseUpdate,
+  onCameraDistanceWarning,
   crownSettings,
   glassesSettings,
 }: VideoStreamProps) {
@@ -247,6 +249,20 @@ export function VideoStream({
         }
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
+        // Check camera distance (person too close if they fill most of the frame)
+        if (onCameraDistanceWarning && video.videoHeight > 0) {
+          if (lastLandmarks.current && lastLandmarks.current.length > 0) {
+            const minY = Math.min(...lastLandmarks.current.map((l) => l.y)) * canvas.height;
+            const maxY = Math.max(...lastLandmarks.current.map((l) => l.y)) * canvas.height;
+            const bodyHeight = maxY - minY;
+            const frameHeight = canvas.height;
+
+            // If body occupies more than 80% of frame height, person is too close
+            const tooClose = bodyHeight > frameHeight * 0.8;
+            onCameraDistanceWarning(tooClose);
+          }
+        }
+
         // Draw skeleton if we have landmarks
         if (lastLandmarks.current) {
           drawSkeleton(ctx, lastLandmarks.current, flipped);
@@ -262,7 +278,7 @@ export function VideoStream({
     }
 
     animationRef.current = requestAnimationFrame(drawFrame);
-  }, [flipped, exerciseId, drawSkeleton]);
+  }, [flipped, exerciseId, drawSkeleton, onCameraDistanceWarning]);
 
   useEffect(() => {
     if (isCallActive && isVideoOn) {
@@ -295,9 +311,15 @@ export function VideoStream({
           quality: 0.7, // JPEG quality
         });
 
-        poseClientRef.current.connect().catch((err) => {
-          logger.error(err, 'Failed to connect to pose backend:');
-        });
+        poseClientRef.current
+          .connect()
+          .then(() => {
+            // Reset exercise state after connecting to ensure fresh start
+            poseClientRef.current?.resetExercise();
+          })
+          .catch((err) => {
+            logger.error(err, 'Failed to connect to pose backend:');
+          });
       }
     } else {
       stopCamera();

@@ -512,6 +512,7 @@ class ExerciseProcessor:
 
     def _process_squat(self, pose_result: Dict[str, Any]) -> Dict[str, Any]:
         """Process squat exercise logic"""
+        params = self.exercise_params
         landmarks = pose_result.get("landmarks")
         if not landmarks:
             self.state.exercise_active = False
@@ -520,10 +521,10 @@ class ExerciseProcessor:
         # Check if pose is stable
         pose_stable = pose_result.get("pose_stable", True)
         if not pose_stable:
-            feedback = f"Hip: {self.state.smoothed_angle or 'N/A'}° | Reps: {self.state.reps}/{params['target_reps']}" if hasattr(self, 'params') else "Keep still..."
+            feedback = f"Hip: {self.state.current_angle or 'N/A'}° | Reps: {self.state.reps}/{params['target_reps']}"
             return {
                 "feedback": feedback,
-                "angles": {"hip": self.state.smoothed_angle},
+                "angles": {"hip": self.state.current_angle},
                 "rep_completed": False
             }
 
@@ -555,7 +556,7 @@ class ExerciseProcessor:
             logger.warning(f"Invalid hip angle detected: {hip_angle:.1f}°")
             return {
                 "feedback": f"Invalid position detected. Adjust form.",
-                "angles": {"hip": self.state.smoothed_angle}
+                "angles": {"hip": self.state.current_angle}
             }
 
         # Apply smoothing to angle
@@ -611,6 +612,7 @@ class ExerciseProcessor:
 
     def _process_simple_squat(self, pose_result: Dict[str, Any]) -> Dict[str, Any]:
         """Process simple squat exercise logic (no hold required)"""
+        params = self.exercise_params
         landmarks = pose_result.get("landmarks")
         if not landmarks:
             self.state.exercise_active = False
@@ -619,10 +621,10 @@ class ExerciseProcessor:
         # Check if pose is stable
         pose_stable = pose_result.get("pose_stable", True)
         if not pose_stable:
-            feedback = f"Hip: {self.state.smoothed_angle or 'N/A'}° | Reps: {self.state.reps}/{params['target_reps']}" if hasattr(self, 'params') else "Keep still..."
+            feedback = f"Hip: {self.state.current_angle or 'N/A'}° | Reps: {self.state.reps}/{params['target_reps']}"
             return {
                 "feedback": feedback,
-                "angles": {"hip": self.state.smoothed_angle},
+                "angles": {"hip": self.state.current_angle},
                 "rep_completed": False
             }
 
@@ -654,7 +656,7 @@ class ExerciseProcessor:
             logger.warning(f"Invalid hip angle detected: {hip_angle:.1f}°")
             return {
                 "feedback": f"Invalid position detected. Adjust form.",
-                "angles": {"hip": self.state.smoothed_angle}
+                "angles": {"hip": self.state.current_angle}
             }
 
         # Apply smoothing to angle
@@ -703,6 +705,7 @@ class ExerciseProcessor:
 
     def _process_hip_abduction(self, pose_result: Dict[str, Any]) -> Dict[str, Any]:
         """Process hip abduction exercise logic"""
+        params = self.exercise_params
         landmarks = pose_result.get("landmarks")
         if not landmarks:
             self.state.exercise_active = False
@@ -711,10 +714,10 @@ class ExerciseProcessor:
         # Check if pose is stable
         pose_stable = pose_result.get("pose_stable", True)
         if not pose_stable:
-            feedback = f"Hip: {self.state.smoothed_angle or 'N/A'}° | Reps: {self.state.reps}/{params['target_reps']}" if hasattr(self, 'params') else "Keep still..."
+            feedback = f"Hip: {self.state.current_angle or 'N/A'}° | Reps: {self.state.reps}/{params['target_reps']}"
             return {
                 "feedback": feedback,
-                "angles": {"hip": self.state.smoothed_angle},
+                "angles": {"hip": self.state.current_angle},
                 "rep_completed": False
             }
 
