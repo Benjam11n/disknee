@@ -68,7 +68,7 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
       return;
     }
 
-    wsRef.current = new WebSocket('ws://localhost:8000');
+    wsRef.current = new WebSocket(`ws://localhost:8000/ws/${exercise.id}`);
     wsRef.current.onopen = () => logger.info('WebSocket connected');
     wsRef.current.onclose = () => logger.info('WebSocket closed');
     wsRef.current.onerror = (e) => logger.error(e, 'WebSocket error');
