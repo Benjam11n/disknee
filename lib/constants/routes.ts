@@ -11,7 +11,7 @@ export const ROUTES = {
     BASE: '/exercise',
     detail: (id: string) => `/exercise/${id}`,
   },
-  EXERCISES_ALL: '/exercises/all',
+  EXERCISES_ALL: '/exercise/all',
   REPORTS: '/reports',
   LEADERBOARD: '/leaderboard',
   SHOP: '/shop',
