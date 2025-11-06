@@ -14,8 +14,8 @@ interface Landmark {
 interface VideoStreamProps {
   isVideoOn: boolean;
   isCallActive: boolean;
-  flipped?: boolean; // mirror video
-  exerciseId?: string; // For backend communication
+  flipped?: boolean;
+  exerciseId?: string;
   onPoseUpdate?: (data: any) => void;
 }
 
@@ -93,18 +93,16 @@ export function VideoStream({
         }
       });
 
-      // Draw crown emoji above head (nose landmark is index 0)
       const nose = landmarks[0];
       if (nose && nose.visibility > 0.5) {
         const noseX = flipped ? width - nose.x * width : nose.x * width;
         const noseY = nose.y * height;
 
-        // Set font for crown emoji - made it bigger
         ctx.font = '100px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
 
-        ctx.fillText('👑', noseX, noseY - 120);
+        ctx.fillText('👑', noseX, noseY - 60);
       }
     },
     []

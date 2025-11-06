@@ -50,6 +50,22 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
 
   const sessionStartTime = useRef<number | null>(null);
 
+  // Get angle label based on exercise type
+  const getAngleLabel = (exerciseType: string | undefined | null) => {
+    switch (exerciseType) {
+      case 'knee-extension':
+        return 'Knee Angle';
+      case 'calf-raises':
+        return 'Ankle Angle';
+      case 'squat':
+        return 'Hip/Knee Angle';
+      case 'hip-abduction':
+        return 'Hip Angle';
+      default:
+        return 'Angle';
+    }
+  };
+
   // Session timer
   useEffect(() => {
     if (isCallActive && !sessionStartTime.current) {
@@ -62,6 +78,12 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
   }, [isCallActive]);
 
   const startCall = async () => {
+    // Check if exercise type is set
+    if (!exercise.type) {
+      toast.error(`Exercise type not configured for "${exercise.title}". Please contact support.`);
+      return;
+    }
+
     setIsCallActive(true);
     setIsRecording(true);
     try {
@@ -130,11 +152,15 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
           <VideoStream
             isVideoOn={isVideoOn}
             isCallActive={isCallActive}
-            exerciseId={exercise.type || 'knee-extension'}
+            exerciseId={exercise.type || undefined}
             onPoseUpdate={(result) => {
               setEx4State({
                 reps: result.exercise_state?.reps || 0,
-                currentAngle: result.angles?.knee || result.exercise_state?.current_angle || null,
+                currentAngle:
+                  result.angles?.knee ||
+                  result.angles?.ankle ||
+                  result.exercise_state?.current_angle ||
+                  null,
                 holdTime: result.exercise_state?.hold_time || 0,
               });
             }}
@@ -142,7 +168,9 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
 
           {/* Overlay for reps, angle, and hold timer */}
           <div className="absolute top-4 left-4 text-white text-lg font-bold bg-black/40 px-3 py-2 rounded-md space-y-1">
-            <div>Knee Angle: {ex4State.currentAngle?.toFixed(0) ?? 'N/A'}°</div>
+            <div>
+              {getAngleLabel(exercise.type)}: {ex4State.currentAngle?.toFixed(0) ?? 'N/A'}°
+            </div>
             <div>Reps: {ex4State.reps}</div>
             <div>Hold Time: {ex4State.holdTime.toFixed(1)}s</div>
           </div>
