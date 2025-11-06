@@ -14,7 +14,8 @@
       "done": true,
       "estimatedMins": 8,
       "difficulty": "easy",
-      "videoUrl": "spanish-squat.mp4"
+      "videoUrl": "spanish-squat.mp4",
+      "type": "knee-extension"
     },
     {
       "id": "ex2",
@@ -22,7 +23,8 @@
       "done": false,
       "estimatedMins": 12,
       "difficulty": "moderate",
-      "videoUrl": "spanish-squat.mp4"
+      "videoUrl": "spanish-squat.mp4",
+      "type": "squat"
     },
     {
       "id": "ex3",
@@ -30,7 +32,8 @@
       "done": false,
       "estimatedMins": 10,
       "difficulty": "moderate",
-      "videoUrl": "spanish-squat.mp4"
+      "videoUrl": "spanish-squat.mp4",
+      "type": "step-down"
     },
     {
       "id": "ex4",
@@ -38,7 +41,8 @@
       "done": false,
       "estimatedMins": 8,
       "difficulty": "easy",
-      "videoUrl": "spanish-squat.mp4"
+      "videoUrl": "spanish-squat.mp4",
+      "type": "hip-abduction"
     },
     {
       "id": "ex5",
@@ -46,7 +50,8 @@
       "done": false,
       "estimatedMins": 6,
       "difficulty": "easy",
-      "videoUrl": "spanish-squat.mp4"
+      "videoUrl": "spanish-squat.mp4",
+      "type": "calf-raises"
     }
   ],
   "plans": [

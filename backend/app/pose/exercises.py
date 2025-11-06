@@ -182,6 +182,16 @@ class ExerciseProcessor:
                 "hip_reset_threshold": 15,     # Reset position
                 "min_visibility": 0.5,
                 "target_reps": 15
+            },
+            "step-down": {
+                "name": "Step-Down",
+                "hold_time_required": 1.0,     # Hold at bottom
+                "knee_flex_threshold": 85,     # Knee angle when stepping down
+                "knee_extend_threshold": 165,  # Knee angle when standing
+                "hip_flex_threshold": 100,     # Hip angle when stepping down
+                "hip_extend_threshold": 170,   # Hip angle when standing
+                "min_visibility": 0.5,
+                "target_reps": 10
             }
         }
         return params.get(exercise_id, params["ex5"])
@@ -268,6 +278,8 @@ class ExerciseProcessor:
             exercise_result = self._process_squat(pose_result)
         elif self.exercise_id == "hip-abduction":
             exercise_result = self._process_hip_abduction(pose_result)
+        elif self.exercise_id == "step-down":
+            exercise_result = self._process_step_down(pose_result)
         else:
             exercise_result = {"feedback": f"Exercise type '{self.exercise_id}' not supported"}
 
@@ -686,6 +698,88 @@ class ExerciseProcessor:
             "feedback": feedback,
             "angles": {
                 "hip": self.state.current_angle
+            },
+            "rep_completed": rep_completed
+        }
+
+    def _process_step_down(self, pose_result: Dict[str, Any]) -> Dict[str, Any]:
+        """Process step-down exercise tracking both knee and hip angles"""
+        params = self.exercise_params
+        rep_completed = False
+        feedback = ""
+
+        # Calculate knee angle
+        knee_angle = self.detector.calculate_angle(
+            pose_result["landmarks"],
+            self.LANDMARKS["RIGHT_HIP"],
+            self.LANDMARKS["RIGHT_KNEE"],
+            self.LANDMARKS["RIGHT_ANKLE"]
+        )
+
+        # Calculate hip angle
+        hip_angle = self.detector.calculate_angle(
+            pose_result["landmarks"],
+            self.LANDMARKS["RIGHT_SHOULDER"],
+            self.LANDMARKS["RIGHT_HIP"],
+            self.LANDMARKS["RIGHT_KNEE"]
+        )
+
+        if knee_angle is not None and hip_angle is not None:
+            # Apply smoothing to both angles
+            knee_angle = self.state.smooth_angle(knee_angle)
+            hip_angle = self.state.smooth_angle(hip_angle)
+            self.state.current_angle = knee_angle  # Primary angle for display
+
+            # Check if in stepped-down position (both knee flexed and hip flexed)
+            in_step_position = (knee_angle <= params["knee_flex_threshold"] and
+                               hip_angle <= params["hip_flex_threshold"])
+
+            # Check if in standing position (both extended)
+            in_standing_position = (knee_angle >= params["knee_extend_threshold"] and
+                                  hip_angle >= params["hip_extend_threshold"])
+
+            # If in step position and ready for next rep
+            if in_step_position and self.state.ready_for_next:
+                if not self.state.timer_started:
+                    self.state.timer_started = True
+                    self.state.start_time = time.time()
+                    self.state.exercise_active = True
+                    feedback = f"Hold... ({self.state.hold_time:.1f}s)"
+                else:
+                    self.state.hold_time = time.time() - self.state.start_time
+                    feedback = f"Hold... ({self.state.hold_time:.1f}s)"
+
+                    # Check if hold time requirement met
+                    if self.state.hold_time >= params["hold_time_required"]:
+                        self.state.reps += 1
+                        self.state.ready_for_next = False
+                        self.state.timer_started = False
+                        self.state.start_time = None
+                        self.state.hold_time = 0
+                        rep_completed = True
+                        feedback = f"Rep {self.state.reps} completed!"
+
+            # If in standing position and not ready, reset for next rep
+            elif in_standing_position and not self.state.ready_for_next:
+                self.state.ready_for_next = True
+                feedback = "Good! Return to step position"
+
+            # Stop timer if not in step position
+            elif not in_step_position and self.state.timer_started:
+                self.state.timer_started = False
+                self.state.start_time = None
+                self.state.hold_time = 0
+
+            if not feedback:
+                feedback = f"Knee: {knee_angle:.0f}° | Hip: {hip_angle:.0f}° | Reps: {self.state.reps}/{params['target_reps']}"
+        else:
+            feedback = "Position yourself better in camera"
+
+        return {
+            "feedback": feedback,
+            "angles": {
+                "knee": knee_angle,
+                "hip": hip_angle
             },
             "rep_completed": rep_completed
         }

@@ -8,6 +8,7 @@ export const EXERCISE_VIDEOS = {
   'ex5': '/calf-raises-demo.mp4', // Alias for calf-raises
   'squat': '/spanish-squat.mp4',
   'hip-abduction': '/hip-abduction-demo.mp4',
+  'step-down': '/step-down-demo.mp4',
 } as const;
 
 export type ExerciseType = keyof typeof EXERCISE_VIDEOS;
@@ -37,6 +38,7 @@ export function getExerciseDisplayName(exerciseType?: string | null): string {
     'ex5': 'Calf Raises',
     'squat': 'Spanish Squat',
     'hip-abduction': 'Hip Abduction',
+    'step-down': 'Step-Down',
   };
 
   if (!exerciseType) {

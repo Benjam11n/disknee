@@ -61,6 +61,8 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
         return 'Hip/Knee Angle';
       case 'hip-abduction':
         return 'Hip Angle';
+      case 'step-down':
+        return 'Knee/Hip Angle';
       default:
         return 'Angle';
     }
