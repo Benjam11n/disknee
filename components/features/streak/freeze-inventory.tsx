@@ -35,7 +35,6 @@ export function FreezeInventory({
   onFreezeActivated,
 }: FreezeInventoryProps) {
   const [freezes, setFreezes] = useState<FreezeItem[]>([]);
-  // todo: use this to show loading state
   const [loading, setLoading] = useState(true);
   const [activating, setActivating] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
@@ -64,7 +63,7 @@ export function FreezeInventory({
       const result = await activateFreezeAction({ userId, freezeId });
       if (result.success) {
         toast.success(`Streak frozen for ${result.data?.duration} day(s)!`);
-        await loadFreezes(); // Reload freezes
+        await loadFreezes();
         onFreezeActivated?.();
       } else {
         toast.error(result.error || 'Failed to activate freeze');
@@ -78,6 +77,17 @@ export function FreezeInventory({
   };
 
   const totalFreezeDays = freezes.reduce((sum, freeze) => sum + freeze.duration, 0);
+
+  if (loading) {
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg border animate-pulse">
+          <div className="w-4 h-4 bg-muted-foreground/20 rounded-full" />
+          <div className="w-24 h-4 bg-muted-foreground/20 rounded" />
+        </div>
+      </div>
+    );
+  }
 
   if (freezes.length === 0 && !isFrozen) {
     return null;

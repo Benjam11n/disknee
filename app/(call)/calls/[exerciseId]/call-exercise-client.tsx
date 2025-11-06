@@ -13,7 +13,6 @@ import { logger } from '@/lib/logger';
 import { VideoStream } from '@/components/shared/video-stream';
 import { ModelVideo } from '@/components/shared/model-video';
 import { ReflectionDialog } from '@/components/shared/reflection-dialog';
-import { Landmark } from '@/lib/pose-utils';
 import {
   createExerciseSessionAction,
   updateExerciseSessionAction,
@@ -42,7 +41,6 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [showReflection, setShowReflection] = useState(false);
   const [exerciseSessionId, setExerciseSessionId] = useState<string | null>(null);
-  const [poseLandmarks, setPoseLandmarks] = useState<Landmark[]>([]); // todo: unused
   const [sessionTime, setSessionTime] = useState(0);
   const [ex4State, setEx4State] = useState<Ex4State>({
     reps: 0,
@@ -78,8 +76,7 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
     wsRef.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
 
-      // Update landmarks and rep/angle/hold timer
-      setPoseLandmarks(data.landmarks);
+      // Update rep/angle/hold timer
       setEx4State({
         reps: data.reps,
         currentAngle: data.kneeAngle,
@@ -161,7 +158,6 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
           <VideoStream
             isVideoOn={isVideoOn}
             isCallActive={isCallActive}
-            onPoseResults={({ poseLandmarks }) => setPoseLandmarks(poseLandmarks)}
           />
 
           {/* Overlay for reps, angle, and hold timer */}

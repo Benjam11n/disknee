@@ -2,14 +2,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, Target, Calendar, Sparkles } from 'lucide-react';
 import { getGreeting, getDailyQuote, getStreakMotivation } from '@/lib/utils/motivation-utils';
-import { ShopItem } from '@prisma/client';
 
 interface HeroSectionProps {
   patientName: string;
   streakCount?: number;
   userPoints?: number;
   completionRate?: number;
-  equippedItems?: ShopItem[];
 }
 
 export function HeroSection({
@@ -17,8 +15,6 @@ export function HeroSection({
   streakCount = 0,
   userPoints = 0,
   completionRate = 0,
-  // todo: use this unused prop
-  equippedItems = [],
 }: HeroSectionProps) {
   return (
     <div className="space-y-4 max-w-[1400px] mx-auto px-4 pt-8">
