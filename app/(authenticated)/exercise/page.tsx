@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 import { List } from 'lucide-react';
+import { ROUTES } from '@/lib/constants/routes';
 
 export default async function ExercisePage() {
   const session = await auth.api.getSession({
@@ -74,7 +75,7 @@ export default async function ExercisePage() {
             <h1 className="text-3xl font-bold">Weekly Exercises</h1>
             <p className="text-muted-foreground">Your exercises for this week</p>
           </div>
-          <Link href="/exercises/all">
+          <Link href={ROUTES.EXERCISES_ALL}>
             <Button variant="outline">
               <List className="h-4 w-4 mr-2" />
               View All Exercises
