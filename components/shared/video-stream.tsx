@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { logger } from '@/lib/logger';
 import { PoseSocketClient } from '@/lib/pose-socket-client';
 import { env } from '@/env';
+import { PoseResult } from '@/lib/types/exercise';
 
 interface Landmark {
   x: number;
@@ -17,7 +18,7 @@ interface VideoStreamProps {
   isCallActive: boolean;
   flipped?: boolean;
   exerciseId?: string;
-  onPoseUpdate?: (data: any) => void;
+  onPoseUpdate?: (data: PoseResult) => void;
   onCameraDistanceWarning?: (tooClose: boolean) => void;
   crownSettings?: {
     emoji?: string; // Crown emoji (default: 👑)
@@ -289,7 +290,7 @@ export function VideoStream({
         poseClientRef.current = new PoseSocketClient({
           baseUrl: env.NEXT_PUBLIC_BACKEND_URL,
           exerciseId: exerciseId,
-          onPoseResult: (result) => {
+          onPoseResult: (result: PoseResult) => {
             // Handle pose results from backend
             logger.info(result, 'Pose result from backend:');
             // Store landmarks for skeleton drawing

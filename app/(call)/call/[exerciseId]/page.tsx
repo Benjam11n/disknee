@@ -4,12 +4,8 @@ import { getExerciseByIdAction } from '@/lib/actions/exercises';
 import { getUserInventoryAction } from '@/lib/actions/shop';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
-import { Prisma, ShopItem } from '@prisma/client';
-
-// todo: move to types file
-type InventoryWithItem = Prisma.UserInventoryGetPayload<{
-  include: { item: true };
-}>;
+import { ShopItem } from '@prisma/client';
+import { InventoryWithItem } from '@/lib/types/exercise';
 
 export default async function CallExercisePage({ params }: RouteParams) {
   const { exerciseId } = await params;

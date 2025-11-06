@@ -8,6 +8,7 @@ import { Coins, Check, ShoppingBag, Sparkles, Lock, Star, Eye } from 'lucide-rea
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/lib/constants/routes';
+import { getRarity } from '@/lib/utils/shop-utils';
 
 interface ShopItemCardProps {
   item: ShopItem;
@@ -17,41 +18,6 @@ interface ShopItemCardProps {
   isPurchasing: boolean;
   onPurchase: () => void;
   onEquip: () => void;
-}
-
-// todo: move these utilities to another file
-// todo: move them to do fields, just colour on frontend
-function getRarity(price: number) {
-  if (price >= 500) {
-    return {
-      tier: 'Legendary',
-      color: 'border-purple-400 bg-purple-50 dark:bg-purple-950/30 dark:border-purple-500',
-      textColor: 'text-purple-700 dark:text-purple-300',
-      shadow: 'shadow-purple-200 dark:shadow-purple-900/50',
-    };
-  }
-  if (price >= 300) {
-    return {
-      tier: 'Epic',
-      color: 'border-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 dark:border-indigo-500',
-      textColor: 'text-indigo-700 dark:text-indigo-300',
-      shadow: 'shadow-indigo-200 dark:shadow-indigo-900/50',
-    };
-  }
-  if (price >= 150) {
-    return {
-      tier: 'Rare',
-      color: 'border-blue-400 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-500',
-      textColor: 'text-blue-700 dark:text-blue-300',
-      shadow: 'shadow-blue-200 dark:shadow-blue-900/50',
-    };
-  }
-  return {
-    tier: 'Common',
-    color: 'border-gray-300 bg-gray-50 dark:bg-gray-900/50 dark:border-gray-600',
-    textColor: 'text-gray-700 dark:text-gray-300',
-    shadow: 'shadow-gray-200 dark:shadow-gray-800/50',
-  };
 }
 
 export function ShopItemCard({

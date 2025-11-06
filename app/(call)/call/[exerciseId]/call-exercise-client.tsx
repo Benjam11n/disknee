@@ -21,6 +21,7 @@ import { updateExerciseDoneAction } from '@/lib/actions/exercises';
 import { ROUTES } from '@/lib/constants/routes';
 import { createReflectionAction } from '@/lib/actions/reflections';
 import { formatTime } from '@/lib/utils/date-utils';
+import { PoseResult } from '@/lib/types/exercise';
 
 interface Ex4State {
   reps: number;
@@ -205,7 +206,7 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
   }, []);
 
   const handlePoseUpdate = useCallback(
-    (result: any) => {
+    (result: PoseResult) => {
       const newReps = result.exercise_state?.reps || 0;
       const currentAngle =
         result.angles?.hip ||
