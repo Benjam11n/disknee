@@ -158,6 +158,14 @@ class ExerciseProcessor:
                 "min_visibility": 0.5,
                 "target_reps": 5
             },
+            "calf-raises": {
+                "name": "Calf Raise",
+                "hold_time_required": 3.0,
+                "ankle_hold_threshold": 135,  # degrees
+                "ankle_reset_threshold": 120,  # degrees
+                "min_visibility": 0.5,
+                "target_reps": 5
+            },
             "knee-extension": {
                 "name": "Knee Extension",
                 "hold_time_required": 2.0,
