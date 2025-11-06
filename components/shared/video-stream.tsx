@@ -1,81 +1,112 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { PoseLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
-import { Landmark } from '@/lib/pose-utils';
 import { logger } from '@/lib/logger';
+import { PoseSocketClient } from '@/lib/pose-socket-client';
 
-const DETECTION_INTERVAL = 2; // Detect every 2 frames (~30fps)
-const DETECTION_FPS = 1000 / 30; // 30fps interval
+interface Landmark {
+  x: number;
+  y: number;
+  z: number;
+  visibility: number;
+}
 
 interface VideoStreamProps {
-  onPoseResults?: (results: { poseLandmarks: Landmark[]; image: HTMLVideoElement }) => void;
   isVideoOn: boolean;
   isCallActive: boolean;
   flipped?: boolean; // mirror video
+  exerciseId?: string; // For backend communication
 }
 
 export function VideoStream({
-  onPoseResults,
   isVideoOn,
   isCallActive,
   flipped = true,
+  exerciseId,
 }: VideoStreamProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const poseLandmarkerRef = useRef<PoseLandmarker | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const animationRef = useRef<number | null>(null);
-  const frameCount = useRef(0);
+  const poseClientRef = useRef<PoseSocketClient | null>(null);
   const lastLandmarks = useRef<Landmark[] | null>(null);
-  const lastDetectionTime = useRef(0);
-  const smoothedLandmarks = useRef<Landmark[] | null>(null);
-  const smoothingFactor = 0.7;
 
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const crownImage = useRef<HTMLImageElement | null>(null);
+  // Draw skeleton from landmarks
+  const drawSkeleton = useCallback(
+    (ctx: CanvasRenderingContext2D, landmarks: Landmark[], flipped: boolean) => {
+      if (!landmarks || landmarks.length === 0) {
+        return;
+      }
 
-  // Load crown image once
-  useEffect(() => {
-    const img = new Image();
-    img.src = '/crown.png'; // ensure this exists in /public
-    img.onload = () => {
-      logger.info('Crown image loaded successfully');
-      crownImage.current = img;
-    };
-    img.onerror = () => {
-      logger.error('Failed to load crown image');
-    };
-  }, []);
+      const width = ctx.canvas.width;
+      const height = ctx.canvas.height;
 
-  // Initialize MediaPipe PoseLandmarker
-  const initializePoseLandmarker = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const vision = await FilesetResolver.forVisionTasks(
-        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm'
-      );
+      // Draw skeleton connections
+      const connections = [
+        [11, 13],
+        [13, 15], // Right arm
+        [12, 14],
+        [14, 16], // Left arm
+        [11, 12], // Shoulders
+        [11, 23],
+        [12, 24], // Torso
+        [23, 25],
+        [25, 27], // Right leg
+        [24, 26],
+        [26, 28], // Left leg
+      ];
 
-      const poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
-        baseOptions: {
-          modelAssetPath:
-            'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task',
-          delegate: 'GPU' as const,
-        },
-        runningMode: 'VIDEO' as const,
-        numPoses: 1,
+      ctx.strokeStyle = '#00ff00'; // Green color
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      // Draw connections
+      connections.forEach(([startIdx, endIdx]) => {
+        const start = landmarks[startIdx];
+        const end = landmarks[endIdx];
+        if (start && end && start.visibility > 0.5 && end.visibility > 0.5) {
+          ctx.beginPath();
+          const startX = flipped ? width - start.x * width : start.x * width;
+          const startY = start.y * height;
+          const endX = flipped ? width - end.x * width : end.x * width;
+          const endY = end.y * height;
+          ctx.moveTo(startX, startY);
+          ctx.lineTo(endX, endY);
+          ctx.stroke();
+        }
       });
 
-      poseLandmarkerRef.current = poseLandmarker;
-      setIsLoading(false);
-    } catch (err) {
-      logger.error(err);
-      setError('Failed to initialize pose detection');
-      setIsLoading(false);
-    }
-  }, []);
+      // Draw joints
+      ctx.fillStyle = '#ff0000'; // Red color
+      landmarks.forEach((lm) => {
+        if (lm && lm.visibility > 0.5) {
+          const x = flipped ? width - lm.x * width : lm.x * width;
+          const y = lm.y * height;
+          ctx.beginPath();
+          ctx.arc(x, y, 6, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+
+      // Draw crown emoji above head (nose landmark is index 0)
+      const nose = landmarks[0];
+      if (nose && nose.visibility > 0.5) {
+        const noseX = flipped ? width - nose.x * width : nose.x * width;
+        const noseY = nose.y * height;
+
+        // Set font for crown emoji - made it bigger
+        ctx.font = '100px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+
+        ctx.fillText('👑', noseX, noseY - 120);
+      }
+    },
+    []
+  );
 
   const startCamera = useCallback(async () => {
     if (!videoRef.current) {
@@ -94,7 +125,7 @@ export function VideoStream({
         videoRef.current!.onloadedmetadata = () => {
           // Start animation loop when video metadata is loaded
           if (!animationRef.current) {
-            animationRef.current = requestAnimationFrame(detectPose);
+            animationRef.current = requestAnimationFrame(drawFrame);
           }
           resolve(true);
         };
@@ -104,7 +135,7 @@ export function VideoStream({
 
       // Also start animation loop after play begins
       if (!animationRef.current) {
-        animationRef.current = requestAnimationFrame(detectPose);
+        animationRef.current = requestAnimationFrame(drawFrame);
       }
     } catch (err) {
       logger.error(err);
@@ -119,93 +150,17 @@ export function VideoStream({
     }
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
     }
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
+    // Clear landmarks when stopping
     lastLandmarks.current = null;
-    smoothedLandmarks.current = null;
-    frameCount.current = 0;
   }, []);
 
-  // Draw skeleton + crown
-  const drawLandmarks = (
-    ctx: CanvasRenderingContext2D,
-    landmarks: Landmark[],
-    flipped: boolean
-  ) => {
-    if (!landmarks) {
-      return;
-    }
-
-    const width = ctx.canvas.width;
-    const height = ctx.canvas.height;
-
-    // Draw skeleton
-    const connections = [
-      [11, 13],
-      [13, 15],
-      [12, 14],
-      [14, 16],
-      [11, 12],
-      [23, 25],
-      [25, 27],
-      [24, 26],
-      [26, 28],
-      [23, 24],
-      [11, 23],
-      [12, 24],
-    ];
-
-    ctx.strokeStyle = 'lime';
-    ctx.lineWidth = 2;
-    ctx.fillStyle = 'red';
-
-    connections.forEach(([startIdx, endIdx]) => {
-      const start = landmarks[startIdx];
-      const end = landmarks[endIdx];
-      if (start && end) {
-        ctx.beginPath();
-        ctx.moveTo(flipped ? width - start.x * width : start.x * width, start.y * height);
-        ctx.lineTo(flipped ? width - end.x * width : end.x * width, end.y * height);
-        ctx.stroke();
-      }
-    });
-
-    landmarks.forEach((lm) => {
-      ctx.beginPath();
-      const x = flipped ? width - lm.x * width : lm.x * width;
-      const y = lm.y * height;
-      ctx.arc(x, y, 4, 0, Math.PI * 2);
-      ctx.fill();
-    });
-
-    // --- 👑 Draw Crown Above Nose ---
-    const nose = landmarks[0];
-    if (!nose) {
-      return;
-    }
-
-    const noseX = flipped ? width - nose.x * width : nose.x * width;
-    const noseY = nose.y * height;
-    const crownY = Math.max(noseY - 180, 0); // ensure it doesn’t go off-screen
-
-    const img = crownImage.current;
-
-    if (img && img.complete && img.naturalWidth > 0) {
-      const crownWidth = 120;
-      const crownHeight = 80;
-      ctx.drawImage(img, noseX - crownWidth / 2, crownY - crownHeight / 2, crownWidth, crownHeight);
-    } else {
-      // fallback emoji crown
-      ctx.font = '80px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('👑', noseX, crownY);
-    }
-  };
-
-  const detectPose = useCallback(() => {
-    // Always draw video if camera is on, even if pose detection isn't ready
+  // Draw video frame and send to backend
+  const drawFrame = useCallback(() => {
     if (videoRef.current && canvasRef.current) {
       const video = videoRef.current;
       const canvas = canvasRef.current;
@@ -225,98 +180,85 @@ export function VideoStream({
           ctx.scale(-1, 1);
         }
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        ctx.restore();
-      }
-    }
 
-    // Return early if pose detection isn't ready
-    if (!videoRef.current || !canvasRef.current || !poseLandmarkerRef.current) {
-      animationRef.current = requestAnimationFrame(detectPose);
-      return;
-    }
-
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      return;
-    }
-
-    frameCount.current++;
-    const now = performance.now();
-    const shouldDetect = frameCount.current % DETECTION_INTERVAL === 0;
-    const timeDiff = now - lastDetectionTime.current;
-
-    if (shouldDetect && timeDiff >= DETECTION_FPS) {
-      try {
-        const results = poseLandmarkerRef.current.detectForVideo(video, now);
-        if (results.landmarks?.length) {
-          const landmarks: Landmark[] = results.landmarks[0].map((lm) => ({
-            x: lm.x,
-            y: lm.y,
-            z: lm.z || 0,
-            visibility: lm.visibility || 0,
-          }));
-
-          let smoothed = landmarks;
-          if (smoothedLandmarks.current) {
-            smoothed = landmarks.map((lm, i) => {
-              const prev = smoothedLandmarks.current![i];
-              return {
-                x: prev.x * smoothingFactor + lm.x * (1 - smoothingFactor),
-                y: prev.y * smoothingFactor + lm.y * (1 - smoothingFactor),
-                z: prev.z * smoothingFactor + lm.z * (1 - smoothingFactor),
-                visibility:
-                  prev.visibility * smoothingFactor + lm.visibility * (1 - smoothingFactor),
-              };
-            });
-          }
-
-          lastLandmarks.current = smoothed;
-          smoothedLandmarks.current = smoothed;
-          lastDetectionTime.current = now;
-
-          onPoseResults?.({ poseLandmarks: smoothed, image: video });
+        // Draw skeleton if we have landmarks
+        if (lastLandmarks.current) {
+          drawSkeleton(ctx, lastLandmarks.current, flipped);
         }
-      } catch (err) {
-        logger.error(err, 'Pose detection error:');
+
+        ctx.restore();
+
+        // Send frame to backend if connected
+        if (poseClientRef.current && exerciseId && poseClientRef.current.connected()) {
+          poseClientRef.current.sendFrame(video);
+        }
       }
-    } else if (lastLandmarks.current) {
-      onPoseResults?.({ poseLandmarks: lastLandmarks.current, image: video });
     }
 
-    if (ctx && lastLandmarks.current) {
-      drawLandmarks(ctx, lastLandmarks.current, flipped);
-    }
-
-    animationRef.current = requestAnimationFrame(detectPose);
-  }, [onPoseResults, flipped]);
+    animationRef.current = requestAnimationFrame(drawFrame);
+  }, [flipped, exerciseId, drawSkeleton]);
 
   useEffect(() => {
     if (isCallActive && isVideoOn) {
-      initializePoseLandmarker().then(startCamera);
+      startCamera();
+
+      // Connect to backend WebSocket for pose detection
+      if (exerciseId && !poseClientRef.current) {
+        poseClientRef.current = new PoseSocketClient({
+          baseUrl: 'http://localhost:8000',
+          exerciseId: exerciseId,
+          onPoseResult: (result) => {
+            // Handle pose results from backend
+            logger.info(result, 'Pose result from backend:');
+            // Store landmarks for skeleton drawing
+            if (result.landmarks && result.landmarks.length > 0) {
+              lastLandmarks.current = result.landmarks;
+            }
+            // The parent component handles WebSocket updates separately
+          },
+          onConnectionChange: (connected) => {
+            logger.info(connected, 'Backend connection status:');
+          },
+          onError: (error) => {
+            logger.error(error, 'PoseSocketClient error:');
+          },
+          frameSkip: 2, // Send every 2nd frame (15fps)
+          quality: 0.7, // JPEG quality
+        });
+
+        poseClientRef.current.connect().catch((err) => {
+          logger.error(err, 'Failed to connect to pose backend:');
+        });
+      }
     } else {
       stopCamera();
+      // Disconnect from backend
+      if (poseClientRef.current) {
+        poseClientRef.current.disconnect();
+        poseClientRef.current = null;
+      }
     }
-    return () => stopCamera();
-  }, [isCallActive, isVideoOn, initializePoseLandmarker, startCamera, stopCamera]);
-
-  useEffect(() => {
-    // Start animation loop when video is ready
-    if (videoRef.current?.readyState === 4 && !animationRef.current) {
-      animationRef.current = requestAnimationFrame(detectPose);
-    }
-  }, [detectPose]);
+    return () => {
+      stopCamera();
+      if (poseClientRef.current) {
+        poseClientRef.current.disconnect();
+        poseClientRef.current = null;
+      }
+    };
+  }, [isCallActive, isVideoOn, startCamera, exerciseId]);
 
   return (
     <div className="relative w-full h-full">
-      <video ref={videoRef} className="hidden" playsInline muted />
+      <video
+        ref={videoRef}
+        className="hidden"
+        playsInline
+        muted
+        autoPlay
+        style={{ transform: flipped ? 'scaleX(-1)' : 'none' }}
+      />
       <canvas ref={canvasRef} className="w-full h-full object-cover" />
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-white">
-          Initializing pose detection...
-        </div>
-      )}
+
       {error && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-red-400">
           {error}

@@ -75,12 +75,13 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
 
     wsRef.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
+      logger.info(data, 'Received message:');
 
       // Update rep/angle/hold timer
       setEx4State({
-        reps: data.reps,
-        currentAngle: data.kneeAngle,
-        holdTime: data.holdTime,
+        reps: data.reps || 0,
+        currentAngle: data.kneeAngle || data.angles?.knee || null,
+        holdTime: data.holdTime || 0,
       });
     };
 
@@ -155,7 +156,7 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 p-6">
         {/* User Video */}
         <Card className="relative bg-black overflow-hidden">
-          <VideoStream isVideoOn={isVideoOn} isCallActive={isCallActive} />
+          <VideoStream isVideoOn={isVideoOn} isCallActive={isCallActive} exerciseId={exercise.id} />
 
           {/* Overlay for reps, angle, and hold timer */}
           <div className="absolute top-4 left-4 text-white text-lg font-bold bg-black/40 px-3 py-2 rounded-md space-y-1">
