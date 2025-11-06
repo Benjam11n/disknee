@@ -17,6 +17,8 @@ export function ModelVideo({
   videoUrl,
   onTogglePlay,
 }: ModelVideoProps) {
+  // todo: use videoUrl
+  logger.info(videoUrl, 'videoUrl');
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -43,7 +45,7 @@ export function ModelVideo({
     <div className="w-full h-full relative bg-black">
       <video
         ref={videoRef}
-        src={videoUrl || '/spanish-squat.mp4'}
+        src={'/spanish-squat.mp4'}
         className="w-full h-full object-cover cursor-pointer"
         loop
         playsInline

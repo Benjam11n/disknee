@@ -113,7 +113,7 @@ frameSkip: 2,  // Send every 2nd frame
 - **Impact**: Small quality loss, but pose detection still accurate
 
 ```typescript
-canvas.toDataURL("image/jpeg", 0.7); // 70% quality JPEG
+canvas.toDataURL('image/jpeg', 0.7); // 70% quality JPEG
 ```
 
 #### Decoupled Rendering

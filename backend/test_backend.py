@@ -5,12 +5,10 @@ Simple test script to verify the pose detection backend
 
 import asyncio
 import base64
-import io
 import json
 import websockets
 import cv2
 import numpy as np
-from PIL import Image
 import time
 
 # Test configuration
