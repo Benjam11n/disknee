@@ -29,7 +29,7 @@ export function ExerciseDetailClient({
   const isLocked = !canStart && !exercise.done;
 
   const handleStartExercise = () => {
-    router.push(ROUTES.CALL.detail(exercise.id));
+    router.push(ROUTES.CALL_DETAIL(exercise.id));
   };
 
   return (

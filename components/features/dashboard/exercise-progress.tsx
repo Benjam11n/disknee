@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Exercise } from "@prisma/client";
 import { ROUTES } from "@/lib/constants/routes";
 import Link from "next/link";
+import { getExerciseMotivation } from "@/lib/utils/motivation-utils";
 
 interface ExerciseProgressProps {
   exercises: Exercise[];
@@ -33,18 +34,6 @@ export function ExerciseProgress({
   const completedExercises = exercises.filter((ex) => ex.done);
   const upcomingExercises = exercises.filter((ex) => !ex.done);
 
-  // todo: move these to constants or utils file
-  const getMotivationalMessage = () => {
-    if (completionPercentage === 100)
-      return "🎉 Perfect week! All exercises completed!";
-    if (completionPercentage >= 80)
-      return "💪 Almost there! You're doing amazing!";
-    if (completionPercentage >= 50)
-      return "⚡ Great progress! Keep pushing forward!";
-    if (completionPercentage >= 25) return "🌟 Good start! You've got this!";
-    return "🚀 Ready to begin? Let's tackle today's exercises!";
-  };
-
   return (
     <Card className="shadow-md hover:shadow-lg transition-all duration-300">
       <CardHeader className="pb-4">
@@ -55,7 +44,7 @@ export function ExerciseProgress({
               Weekly Exercises
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
-              {getMotivationalMessage()}
+              {getExerciseMotivation(completionPercentage)}
             </p>
           </div>
           <Badge

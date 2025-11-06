@@ -63,7 +63,6 @@ export function DashboardClient({
     overallPercent,
     programWeeks = 10,
     weeksCompleted = 0,
-    // todo: these are unused
     userPoints = 0,
     equippedItems = [],
     streakData,
@@ -72,9 +71,12 @@ export function DashboardClient({
   // Show check-in dialog if user hasn't checked in today
   useEffect(() => {
     if (streakData && !streakData.hasCheckedInToday) {
-      // todo:
-      // You can add logic here to show the dialog automatically
-      // or wait for user interaction
+      // Auto-show dialog after a short delay to let user settle in
+      const timer = setTimeout(() => {
+        setIsCheckInDialogOpen(true);
+      }, 2000);
+
+      return () => clearTimeout(timer);
     }
   }, [streakData]);
 
@@ -131,7 +133,7 @@ export function DashboardClient({
         weeklyTarget={weeklyTarget}
         weeklyTotalMins={weeklyTotalMins}
         onStartExercise={(exerciseId) => {
-          router.push(ROUTES.CALL.detail(exerciseId));
+          router.push(ROUTES.CALL_DETAIL(exerciseId));
         }}
       />
 

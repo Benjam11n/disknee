@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Target, Calendar, Sparkles } from "lucide-react";
 import { ShopItem } from "@prisma/client";
+import { getGreeting, getDailyQuote, getStreakMotivation } from "@/lib/utils/motivation-utils";
 
 interface HeroSectionProps {
   patientName: string;
@@ -11,18 +12,6 @@ interface HeroSectionProps {
   equippedItems?: ShopItem[];
 }
 
-// todo: move to utils
-const motivationalQuotes = [
-  "Every step forward is progress, no matter how small.",
-  "You're stronger than you think. Keep going!",
-  "Consistency is the key to success.",
-  "Your body thanks you for taking care of it.",
-  "Today's effort is tomorrow's strength.",
-  "Trust the process and celebrate small wins.",
-  "You're building a healthier future, one day at a time.",
-  "Progress, not perfection, is the goal.",
-];
-
 export function HeroSection({
   patientName,
   streakCount = 0,
@@ -30,37 +19,6 @@ export function HeroSection({
   completionRate = 0,
   equippedItems = [],
 }: HeroSectionProps) {
-  // todo: move to utils
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 17) return "Good afternoon";
-    return "Good evening";
-  };
-
-  // todo: move to utils
-  const getDailyQuote = () => {
-    const today = new Date();
-    const dayOfYear = Math.floor(
-      (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) /
-        1000 /
-        60 /
-        60 /
-        24
-    );
-    return motivationalQuotes[dayOfYear % motivationalQuotes.length];
-  };
-
-  // todo: move to constants file
-  const getMotivationalMessage = () => {
-    if (streakCount >= 30)
-      return "Incredible consistency! You're a champion! 🏆";
-    if (streakCount >= 14) return "Amazing dedication! Keep it up! 💪";
-    if (streakCount >= 7) return "One week strong! You're on fire! 🔥";
-    if (streakCount >= 3) return "Great start! You're building momentum! ⚡";
-    if (streakCount >= 1) return "Welcome back! Let's make today count! 🌟";
-    return "Ready to start your journey? Let's go! 🚀";
-  };
 
   return (
     <div className="space-y-4 max-w-[1400px] mx-auto px-4 pt-8">
@@ -83,7 +41,7 @@ export function HeroSection({
                 variant="secondary"
                 className="text-base px-4 py-2 bg-secondary text-secondary-foreground"
               >
-                {getMotivationalMessage()}
+                {getStreakMotivation(streakCount)}
               </Badge>
             </div>
 

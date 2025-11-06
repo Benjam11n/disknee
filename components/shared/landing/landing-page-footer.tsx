@@ -1,6 +1,10 @@
 import { Logo } from "@/components/shared/logo";
 
-// todo: all the links are for show
+/**
+ * Landing page footer component.
+ * Note: Footer links are currently placeholder and should be updated
+ * to point to actual pages when they are implemented.
+ */
 export function LandingPageFooter() {
   return (
     <footer className="py-12 border-t bg-background">

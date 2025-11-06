@@ -5,11 +5,8 @@ export const ROUTES = {
   HOME: "/",
   DASHBOARD: "/dashboard",
   LOGIN: "/login",
-  // todo: rename to /call
-  CALLS: "/calls",
-  CALL: {
-    detail: (exerciseId: string) => `/calls/${exerciseId}`,
-  },
+  CALL: "/call",
+  CALL_DETAIL: (exerciseId: string) => `/call/${exerciseId}`,
   EXERCISE: {
     BASE: "/exercise",
     detail: (id: string) => `/exercise/${id}`,

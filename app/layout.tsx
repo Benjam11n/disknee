@@ -3,7 +3,7 @@ import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/shared/theme/theme-provider";
-import Chatbox from "@/components/chatbox/chatbox"
+import Chatbox from "@/components/chatbox/chatbox";
 
 import "./globals.css";
 
@@ -49,7 +49,7 @@ export default async function RootLayout({
           richColors
           closeButton
         />
-        <Chatbox /> {/* added this chat placeholder  - zen */}
+        <Chatbox />
       </body>
     </html>
   );
