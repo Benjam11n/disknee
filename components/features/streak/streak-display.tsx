@@ -1,8 +1,8 @@
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Flame, Snowflake, Zap, Calendar } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { FreezeInventory } from "./freeze-inventory";
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Flame, Snowflake, Zap, Calendar } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { FreezeInventory } from './freeze-inventory';
 
 interface StreakDisplayProps {
   currentStreak: number;
@@ -25,6 +25,7 @@ export function StreakDisplay({
   userId,
   className,
   compact = false,
+  // todo: use the two unused props
   onCheckInClick,
   canCheckIn = false,
   onFreezeActivated,
@@ -32,32 +33,57 @@ export function StreakDisplay({
   const isFrozen = frozenUntil && frozenUntil > new Date();
   const hasStreak = currentStreak > 0;
   const isNewDay =
-    lastCheckIn &&
-    new Date(lastCheckIn).toDateString() !== new Date().toDateString();
+    lastCheckIn && new Date(lastCheckIn).toDateString() !== new Date().toDateString();
 
+  // todo: move to utils file
   const getStreakColor = (streak: number) => {
-    if (streak >= 30) return "text-purple-600 bg-purple-50 border-purple-200";
-    if (streak >= 14) return "text-red-600 bg-red-50 border-red-200";
-    if (streak >= 7) return "text-orange-600 bg-orange-50 border-orange-200";
-    if (streak >= 3) return "text-yellow-600 bg-yellow-50 border-yellow-200";
-    return "text-blue-600 bg-blue-50 border-blue-200";
+    if (streak >= 30) {
+      return 'text-purple-600 bg-purple-50 border-purple-200';
+    }
+    if (streak >= 14) {
+      return 'text-red-600 bg-red-50 border-red-200';
+    }
+    if (streak >= 7) {
+      return 'text-orange-600 bg-orange-50 border-orange-200';
+    }
+    if (streak >= 3) {
+      return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+    }
+    return 'text-blue-600 bg-blue-50 border-blue-200';
   };
 
   const getStreakIcon = (streak: number) => {
-    if (streak >= 30) return Zap;
-    if (streak >= 7) return Flame;
+    if (streak >= 30) {
+      return Zap;
+    }
+    if (streak >= 7) {
+      return Flame;
+    }
     return Calendar;
   };
 
   const getStreakMilestone = (streak: number) => {
-    if (streak === 1) return "First day!";
-    if (streak === 3) return "3 days strong!";
-    if (streak === 7) return "One week! 🔥";
-    if (streak === 14) return "Two weeks!";
-    if (streak === 21) return "Three weeks!";
-    if (streak === 30) return "One month! ⭐";
-    if (streak >= 30 && streak % 30 === 0)
+    if (streak === 1) {
+      return 'First day!';
+    }
+    if (streak === 3) {
+      return '3 days strong!';
+    }
+    if (streak === 7) {
+      return 'One week! 🔥';
+    }
+    if (streak === 14) {
+      return 'Two weeks!';
+    }
+    if (streak === 21) {
+      return 'Three weeks!';
+    }
+    if (streak === 30) {
+      return 'One month! ⭐';
+    }
+    if (streak >= 30 && streak % 30 === 0) {
       return `${Math.floor(streak / 30)} months!`;
+    }
     return `${streak} days`;
   };
 
@@ -67,16 +93,14 @@ export function StreakDisplay({
 
   if (compact) {
     return (
-      <div className={cn("flex items-center gap-2", className)}>
+      <div className={cn('flex items-center gap-2', className)}>
         <div
           className={cn(
-            "flex items-center gap-1 px-3 py-1.5 rounded-full border-2 transition-all duration-300",
+            'flex items-center gap-1 px-3 py-1.5 rounded-full border-2 transition-all duration-300',
             streakColor
           )}
         >
-          <StreakIcon
-            className={cn("h-4 w-4", currentStreak > 0 && "animate-pulse")}
-          />
+          <StreakIcon className={cn('h-4 w-4', currentStreak > 0 && 'animate-pulse')} />
           <span className="font-bold text-sm">{currentStreak}</span>
         </div>
         {isFrozen && <Snowflake className="h-4 w-4 text-blue-400" />}
@@ -85,7 +109,12 @@ export function StreakDisplay({
   }
 
   return (
-    <Card className={cn("relative overflow-hidden shadow-md hover:shadow-lg transition-all duration-300", className)}>
+    <Card
+      className={cn(
+        'relative overflow-hidden shadow-md hover:shadow-lg transition-all duration-300',
+        className
+      )}
+    >
       {/* Streak indicator dot */}
       {isNewDay && !isFrozen && (
         <div className="absolute -top-2 -right-2 z-10">
@@ -102,29 +131,27 @@ export function StreakDisplay({
           {/* Icon with animation */}
           <div
             className={cn(
-              "relative mb-4 transition-all duration-500",
-              currentStreak > 0 && "scale-110"
+              'relative mb-4 transition-all duration-500',
+              currentStreak > 0 && 'scale-110'
             )}
           >
             <div
               className={cn(
-                "p-4 rounded-2xl transition-all duration-500",
+                'p-4 rounded-2xl transition-all duration-500',
                 streakColor,
-                currentStreak > 0 && "shadow-lg"
+                currentStreak > 0 && 'shadow-lg'
               )}
             >
               <StreakIcon
                 className={cn(
-                  "h-8 w-8 transition-all duration-300",
-                  currentStreak > 0 && "animate-pulse drop-shadow-md"
+                  'h-8 w-8 transition-all duration-300',
+                  currentStreak > 0 && 'animate-pulse drop-shadow-md'
                 )}
               />
             </div>
             {/* Fire animation for high streaks */}
             {currentStreak >= 7 && (
-              <span className="absolute -top-1 -right-1 text-2xl animate-bounce">
-                🔥
-              </span>
+              <span className="absolute -top-1 -right-1 text-2xl animate-bounce">🔥</span>
             )}
           </div>
 
@@ -133,9 +160,7 @@ export function StreakDisplay({
             <div className="text-4xl font-bold text-primary transition-all duration-300">
               {currentStreak}
             </div>
-            <p className="text-lg font-medium text-foreground">
-              {streakMilestone}
-            </p>
+            <p className="text-lg font-medium text-foreground">{streakMilestone}</p>
           </div>
 
           {/* Frozen Badge */}
@@ -153,9 +178,7 @@ export function StreakDisplay({
         {/* Stats Row */}
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="p-3 bg-muted/30 rounded-lg">
-            <div className="text-xl font-bold text-primary text-center">
-              {currentStreak}
-            </div>
+            <div className="text-xl font-bold text-primary text-center">{currentStreak}</div>
             <div className="text-xs text-muted-foreground text-center">Current</div>
           </div>
           <div className="p-3 bg-muted/30 rounded-lg">
@@ -173,12 +196,12 @@ export function StreakDisplay({
               {currentStreak >= 30
                 ? "🏆 Legendary status! You're an inspiration!"
                 : currentStreak >= 14
-                ? "💪 Two weeks! Amazing dedication!"
-                : currentStreak >= 7
-                ? "🔥 One week strong! Keep the fire burning!"
-                : currentStreak >= 3
-                ? "⚡ Great momentum! You're on a roll!"
-                : "🌟 Great start! Keep it going!"}
+                  ? '💪 Two weeks! Amazing dedication!'
+                  : currentStreak >= 7
+                    ? '🔥 One week strong! Keep the fire burning!'
+                    : currentStreak >= 3
+                      ? "⚡ Great momentum! You're on a roll!"
+                      : '🌟 Great start! Keep it going!'}
             </p>
           </div>
         )}

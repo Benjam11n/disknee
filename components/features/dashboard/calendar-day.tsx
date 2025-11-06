@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 interface CalendarDayProps {
   date: Date | null;
@@ -34,10 +34,10 @@ export function CalendarDay({
   `;
 
   const stateClasses = isSelected
-    ? "bg-primary text-primary-foreground hover:bg-primary/90"
+    ? 'bg-primary text-primary-foreground hover:bg-primary/90'
     : isToday
-    ? "bg-accent text-accent-foreground hover:bg-accent/90"
-    : "bg-card hover:bg-card/80 text-foreground hover:text-foreground";
+      ? 'bg-accent text-accent-foreground hover:bg-accent/90'
+      : 'bg-card hover:bg-card/80 text-foreground hover:text-foreground';
 
   return (
     <button
@@ -51,12 +51,8 @@ export function CalendarDay({
 
       {/* Indicators */}
       <div className="flex gap-1 mt-1">
-        {hasAppointment && (
-          <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-        )}
-        {hasPlan && (
-          <div className="h-1.5 w-1.5 rounded-full bg-secondary" />
-        )}
+        {hasAppointment && <div className="h-1.5 w-1.5 rounded-full bg-primary" />}
+        {hasPlan && <div className="h-1.5 w-1.5 rounded-full bg-secondary" />}
       </div>
     </button>
   );

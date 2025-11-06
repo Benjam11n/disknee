@@ -1,6 +1,6 @@
-import { notFound } from "next/navigation";
-import { CallExerciseClient } from "./call-exercise-client";
-import { getExerciseByIdAction } from "@/lib/actions/exercises";
+import { notFound } from 'next/navigation';
+import { CallExerciseClient } from './call-exercise-client';
+import { getExerciseByIdAction } from '@/lib/actions/exercises';
 
 export default async function CallExercisePage({ params }: RouteParams) {
   const { exerciseId } = await params;

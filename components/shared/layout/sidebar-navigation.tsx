@@ -1,20 +1,17 @@
-"use client";
+'use client';
 
-import React from "react";
+import React from 'react';
 import {
   Sidebar,
   SidebarContent,
   SidebarHeader as UISidebarHeader,
   SidebarProvider,
   SidebarRail,
-} from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
-import { SidebarHeader } from "@/components/features/layout/sidebar-header";
-import { SidebarNavigationMenu } from "@/components/features/layout/sidebar-navigation-menu";
-import {
-  navigation,
-  secondaryNavigation,
-} from "@/lib/constants/sidebar-navigation";
+} from '@/components/ui/sidebar';
+import { Separator } from '@/components/ui/separator';
+import { SidebarHeader } from '@/components/features/layout/sidebar-header';
+import { SidebarNavigationMenu } from '@/components/features/layout/sidebar-navigation-menu';
+import { navigation, secondaryNavigation } from '@/lib/constants/sidebar-navigation';
 
 export function SidebarNavigation({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(true);
@@ -29,20 +26,12 @@ export function SidebarNavigation({ children }: { children: React.ReactNode }) {
         <SidebarContent className="px-3 py-4">
           <div className="space-y-6">
             {/* Main Navigation */}
-            <SidebarNavigationMenu
-              items={navigation}
-              title="Main"
-              itemHeight="h-10"
-            />
+            <SidebarNavigationMenu items={navigation} title="Main" itemHeight="h-10" />
 
             <Separator className="bg-border/40" />
 
             {/* Secondary Navigation */}
-            <SidebarNavigationMenu
-              items={secondaryNavigation}
-              title="Support"
-              itemHeight="h-9"
-            />
+            <SidebarNavigationMenu items={secondaryNavigation} title="Support" itemHeight="h-9" />
           </div>
         </SidebarContent>
 

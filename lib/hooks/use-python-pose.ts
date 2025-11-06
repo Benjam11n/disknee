@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { logger } from "@/lib/logger";
+import { useState, useEffect } from 'react';
+import { logger } from '@/lib/logger';
 
 export interface Landmark {
   x: number;
@@ -17,7 +17,6 @@ export interface PoseData {
 
 export function usePythonPose(wsUrl: string) {
   const [poseData, setPoseData] = useState<PoseData | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let ws: WebSocket;
@@ -26,19 +25,19 @@ export function usePythonPose(wsUrl: string) {
     const connect = () => {
       ws = new WebSocket(wsUrl);
 
-      ws.onopen = () => logger.info("WebSocket connected");
+      ws.onopen = () => logger.info('WebSocket connected');
       ws.onclose = () => {
-        logger.info("WebSocket closed, reconnecting...");
+        logger.info('WebSocket closed, reconnecting...');
         reconnectTimeout = setTimeout(connect, 2000);
       };
-      ws.onerror = (err) => logger.error(err, "WebSocket error:");
+      ws.onerror = (err) => logger.error(err, 'WebSocket error:');
 
       ws.onmessage = (event) => {
         try {
           const data: PoseData = JSON.parse(event.data);
           setPoseData(data);
         } catch (err) {
-          logger.error(err, "Failed to parse pose data:");
+          logger.error(err, 'Failed to parse pose data:');
         }
       };
     };
@@ -51,5 +50,5 @@ export function usePythonPose(wsUrl: string) {
     };
   }, [wsUrl]);
 
-  return { poseData, error };
+  return { poseData };
 }

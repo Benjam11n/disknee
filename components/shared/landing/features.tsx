@@ -1,5 +1,5 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Target, Calendar, TrendingUp, Users, Shield, Award } from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { Target, Calendar, TrendingUp, Users, Shield, Award } from 'lucide-react';
 
 export function Features() {
   return (
@@ -7,8 +7,8 @@ export function Features() {
       <div className="text-center space-y-4 mb-16">
         <h2 className="text-3xl lg:text-4xl font-bold">Everything You Need for Recovery</h2>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-          DisKnee combines cutting-edge AI technology with proven
-          physiotherapy methods to accelerate your recovery journey.
+          DisKnee combines cutting-edge AI technology with proven physiotherapy methods to
+          accelerate your recovery journey.
         </p>
       </div>
 
@@ -20,8 +20,8 @@ export function Features() {
             </div>
             <h3 className="text-xl font-semibold">AI-Powered Tracking</h3>
             <p className="text-muted-foreground">
-              Real-time pose detection ensures you're performing exercises
-              correctly, preventing injuries and maximizing results.
+              Real-time pose detection ensures you're performing exercises correctly, preventing
+              injuries and maximizing results.
             </p>
           </CardContent>
         </Card>
@@ -33,8 +33,8 @@ export function Features() {
             </div>
             <h3 className="text-xl font-semibold">Personalized Programs</h3>
             <p className="text-muted-foreground">
-              Custom exercise plans tailored to your specific condition and
-              recovery goals, adjusted as you progress.
+              Custom exercise plans tailored to your specific condition and recovery goals, adjusted
+              as you progress.
             </p>
           </CardContent>
         </Card>
@@ -46,8 +46,8 @@ export function Features() {
             </div>
             <h3 className="text-xl font-semibold">Progress Analytics</h3>
             <p className="text-muted-foreground">
-              Track your recovery with detailed insights, accuracy scores,
-              and improvement trends over time.
+              Track your recovery with detailed insights, accuracy scores, and improvement trends
+              over time.
             </p>
           </CardContent>
         </Card>
@@ -59,8 +59,8 @@ export function Features() {
             </div>
             <h3 className="text-xl font-semibold">Virtual Appointments</h3>
             <p className="text-muted-foreground">
-              Connect with certified physiotherapists for remote
-              consultations and personalized guidance.
+              Connect with certified physiotherapists for remote consultations and personalized
+              guidance.
             </p>
           </CardContent>
         </Card>
@@ -72,8 +72,8 @@ export function Features() {
             </div>
             <h3 className="text-xl font-semibold">Safe & Secure</h3>
             <p className="text-muted-foreground">
-              HIPAA-compliant platform ensuring your health data is
-              protected with enterprise-grade security.
+              HIPAA-compliant platform ensuring your health data is protected with enterprise-grade
+              security.
             </p>
           </CardContent>
         </Card>
@@ -85,8 +85,8 @@ export function Features() {
             </div>
             <h3 className="text-xl font-semibold">Gamified Recovery</h3>
             <p className="text-muted-foreground">
-              Stay motivated with achievements, progress milestones, and a
-              rewarding recovery journey.
+              Stay motivated with achievements, progress milestones, and a rewarding recovery
+              journey.
             </p>
           </CardContent>
         </Card>

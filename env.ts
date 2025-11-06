@@ -1,5 +1,5 @@
-import { createEnv } from "@t3-oss/env-nextjs";
-import { z } from "zod";
+import { createEnv } from '@t3-oss/env-nextjs';
+import { z } from 'zod';
 
 export const env = createEnv({
   /**
@@ -12,10 +12,8 @@ export const env = createEnv({
     SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
     BETTER_AUTH_SECRET: z.string().min(32),
     BETTER_AUTH_URL: z.string().url().optional(),
-    NODE_ENV: z
-      .enum(["development", "production", "test"])
-      .default("development"),
-    NEXT_RUNTIME: z.enum(["nodejs", "edge"]).optional(),
+    NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+    NEXT_RUNTIME: z.enum(['nodejs', 'edge']).optional(),
   },
 
   /**
@@ -27,12 +25,8 @@ export const env = createEnv({
     NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
     NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
     NEXT_PUBLIC_APP_URL: z.string().url(),
-    NEXT_PUBLIC_VERCEL_ENV: z
-      .enum(["development", "preview", "production"])
-      .optional(),
-    NEXT_PUBLIC_LOG_LEVEL: z
-      .enum(["error", "warn", "info", "debug", "trace"])
-      .default("info"),
+    NEXT_PUBLIC_VERCEL_ENV: z.enum(['development', 'preview', 'production']).optional(),
+    NEXT_PUBLIC_LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug', 'trace']).default('info'),
   },
 
   /**
@@ -59,7 +53,7 @@ export const env = createEnv({
 /**
  * Helper to check if we're on the server
  */
-export const isServer = typeof window === "undefined";
+export const isServer = typeof window === 'undefined';
 
 /**
  * Helper to get environment info
@@ -67,16 +61,16 @@ export const isServer = typeof window === "undefined";
  */
 export const envInfo = {
   get isDevelopment() {
-    return env.NODE_ENV === "development";
+    return env.NODE_ENV === 'development';
   },
   get isProduction() {
-    return env.NODE_ENV === "production";
+    return env.NODE_ENV === 'production';
   },
   get isTest() {
-    return env.NODE_ENV === "test";
+    return env.NODE_ENV === 'test';
   },
   get isEdge() {
-    return isServer ? env.NEXT_RUNTIME === "edge" : false;
+    return isServer ? env.NEXT_RUNTIME === 'edge' : false;
   },
   get vercelEnv() {
     return env.NEXT_PUBLIC_VERCEL_ENV;

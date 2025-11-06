@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -10,24 +10,20 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "lucide-react";
-import { MoodSelector } from "./mood-selector";
-import { Mood } from "@prisma/client";
-import { logger } from "@/lib/logger";
-import { checkInAction } from "@/lib/actions/streaks";
-import { ROUTES } from "@/lib/constants/routes";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Calendar } from 'lucide-react';
+import { MoodSelector } from './mood-selector';
+import { Mood } from '@prisma/client';
+import { logger } from '@/lib/logger';
+import { checkInAction } from '@/lib/actions/streaks';
+import { ROUTES } from '@/lib/constants/routes';
 
 interface DailyCheckInDialogProps {
   isOpen: boolean;
   onClose: () => void;
   userId: string;
-  onCheckInComplete?: (
-    mood: Mood,
-    points: number,
-    encouragement: string
-  ) => void;
+  onCheckInComplete?: (mood: Mood, points: number, encouragement: string) => void;
 }
 
 export function DailyCheckInDialog({
@@ -39,7 +35,7 @@ export function DailyCheckInDialog({
   const router = useRouter();
   const [selectedMood, setSelectedMood] = useState<Mood | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [encouragement, setEncouragement] = useState("");
+  const [encouragement, setEncouragement] = useState('');
 
   const handleMoodSelect = (mood: Mood, message: string) => {
     setSelectedMood(mood);
@@ -71,10 +67,10 @@ export function DailyCheckInDialog({
       });
 
       if (!result.success) {
-        if (result.error === "Already checked in today") {
+        if (result.error === 'Already checked in today') {
           toast.error("You've already checked in today!");
         } else {
-          toast.error(result.error || "Failed to check in. Please try again.");
+          toast.error(result.error || 'Failed to check in. Please try again.');
         }
         return;
       }
@@ -95,22 +91,22 @@ export function DailyCheckInDialog({
       toast.success(message, {
         duration: 3000,
         action: {
-          label: "View Dashboard",
+          label: 'View Dashboard',
           onClick: () => router.push(ROUTES.DASHBOARD),
         },
       });
 
       onClose();
     } catch (error) {
-      logger.error(error, "Check-in error:");
-      toast.error("Failed to check in. Please try again.");
+      logger.error(error, 'Check-in error:');
+      toast.error('Failed to check in. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleSkip = () => {
-    toast("Check in later to keep your streak going!");
+    toast('Check in later to keep your streak going!');
     onClose();
   };
 
@@ -123,8 +119,7 @@ export function DailyCheckInDialog({
             Daily Check-In
           </DialogTitle>
           <DialogDescription>
-            How are you feeling today? Your check-in helps us personalize your
-            experience.
+            How are you feeling today? Your check-in helps us personalize your experience.
           </DialogDescription>
         </DialogHeader>
 
@@ -138,9 +133,7 @@ export function DailyCheckInDialog({
 
         {selectedMood && (
           <div className="mb-4 p-3 bg-muted/30 rounded-lg">
-            <p className="text-sm text-center italic text-muted-foreground">
-              "{encouragement}"
-            </p>
+            <p className="text-sm text-center italic text-muted-foreground">"{encouragement}"</p>
           </div>
         )}
 
@@ -153,12 +146,8 @@ export function DailyCheckInDialog({
           >
             Skip
           </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="w-full sm:w-auto"
-          >
-            {isSubmitting ? "Checking in..." : "Complete Check-In"}
+          <Button onClick={handleSubmit} disabled={isSubmitting} className="w-full sm:w-auto">
+            {isSubmitting ? 'Checking in...' : 'Complete Check-In'}
           </Button>
         </DialogFooter>
       </DialogContent>

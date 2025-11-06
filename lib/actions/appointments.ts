@@ -1,21 +1,21 @@
-"use server";
+'use server';
 
-import { prisma } from "@/lib/prisma";
-import { action } from "@/lib/handlers/action";
-import { handleError } from "@/lib/handlers/error";
+import { prisma } from '@/lib/prisma';
+import { action } from '@/lib/handlers/action';
+import { handleError } from '@/lib/handlers/error';
 import {
   CreateAppointmentSchema,
   GetAppointmentsSchema,
   GetUpcomingAppointmentsSchema,
   GetAppointmentByIdSchema,
-} from "@/lib/validations/appointment-validations";
+} from '@/lib/validations/appointment-validations';
 import {
   CreateAppointmentParams,
   GetAppointmentByIdParams,
   GetAppointmentsParams,
   GetUpcomingAppointmentsParams,
-} from "@/lib/types/appointments";
-import { Appointment } from "@prisma/client";
+} from '@/lib/types/appointments';
+import { Appointment } from '@prisma/client';
 
 export async function createAppointmentAction(
   params: CreateAppointmentParams
@@ -73,7 +73,7 @@ export async function getAppointmentsAction(
           lte: endDate ? new Date(endDate) : undefined,
         },
       },
-      orderBy: { start: "asc" },
+      orderBy: { start: 'asc' },
       take: limit,
       skip: offset,
     });
@@ -109,7 +109,7 @@ export async function getUpcomingAppointmentsAction(
           lte: futureDate,
         },
       },
-      orderBy: { start: "asc" },
+      orderBy: { start: 'asc' },
       take: limit,
     });
 
@@ -140,7 +140,7 @@ export async function getAppointmentByIdAction(
     });
 
     if (!appointment) {
-      return handleError(new Error("Appointment not found")) as ErrorResponse;
+      return handleError(new Error('Appointment not found')) as ErrorResponse;
     }
 
     return { success: true, data: appointment };

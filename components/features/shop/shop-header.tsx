@@ -1,5 +1,5 @@
-import { PointsDisplay } from "@/components/features/shop/points-display";
-import { ShopItem } from "@prisma/client";
+import { PointsDisplay } from '@/components/features/shop/points-display';
+import { ShopItem } from '@prisma/client';
 
 interface ShopHeaderProps {
   points: number;
@@ -13,9 +13,7 @@ export function ShopHeader({ points, equippedItems }: ShopHeaderProps) {
         <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
           Shop
         </h1>
-        <p className="text-muted-foreground mt-1">
-          Customize your character with awesome items!
-        </p>
+        <p className="text-muted-foreground mt-1">Customize your character with awesome items!</p>
       </div>
       <PointsDisplay points={points} equippedItems={equippedItems} />
     </div>

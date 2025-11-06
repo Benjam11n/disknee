@@ -1,31 +1,25 @@
-"use client";
+'use client';
 
-import { JSX } from "react";
+import { JSX } from 'react';
 
-import { Leaderboard } from "@/components/features/dashboard/leaderboard";
-import { CalendarAndPlans } from "@/components/features/dashboard/calendar-and-plans";
-import { ExerciseProgress } from "@/components/features/dashboard/exercise-progress";
-import { UpcomingAppointments } from "@/components/features/dashboard/upcoming-appointments";
-import { ProgressJourney } from "@/components/features/dashboard/progress-journey";
-import { HeroSection } from "@/components/features/dashboard/hero-section";
-import { DashboardLayout } from "@/components/features/dashboard/dashboard-layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useDashboardCalculations } from "@/lib/hooks/use-dashboard-calculations";
-import { useDashboardData } from "@/lib/hooks/use-dashboard-data";
-import { StreakDisplay } from "@/components/features/streak/streak-display";
-import { DailyCheckInDialog } from "@/components/features/streak/daily-check-in-dialog";
-import { useState, useEffect } from "react";
-import {
-  Appointment,
-  Exercise,
-  leaderboardByScore,
-  Plan,
-  ShopItem,
-} from "@prisma/client";
-import { logger } from "@/lib/logger";
-import { StreakData } from "@/lib/types/streaks";
-import { ROUTES } from "@/lib/constants/routes";
-import { useRouter } from "next/navigation";
+import { Leaderboard } from '@/components/features/dashboard/leaderboard';
+import { CalendarAndPlans } from '@/components/features/dashboard/calendar-and-plans';
+import { ExerciseProgress } from '@/components/features/dashboard/exercise-progress';
+import { UpcomingAppointments } from '@/components/features/dashboard/upcoming-appointments';
+import { ProgressJourney } from '@/components/features/dashboard/progress-journey';
+import { HeroSection } from '@/components/features/dashboard/hero-section';
+import { DashboardLayout } from '@/components/features/dashboard/dashboard-layout';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useDashboardCalculations } from '@/lib/hooks/use-dashboard-calculations';
+import { useDashboardData } from '@/lib/hooks/use-dashboard-data';
+import { StreakDisplay } from '@/components/features/streak/streak-display';
+import { DailyCheckInDialog } from '@/components/features/streak/daily-check-in-dialog';
+import { useState, useEffect } from 'react';
+import { Appointment, Exercise, leaderboardByScore, Plan, ShopItem } from '@prisma/client';
+import { logger } from '@/lib/logger';
+import { StreakData } from '@/lib/types/streaks';
+import { ROUTES } from '@/lib/constants/routes';
+import { useRouter } from 'next/navigation';
 
 interface DashboardData {
   patientName: string;
@@ -47,10 +41,7 @@ interface DashboardClientProps {
   userId: string;
 }
 
-export function DashboardClient({
-  initialData,
-  userId,
-}: DashboardClientProps): JSX.Element {
+export function DashboardClient({ initialData, userId }: DashboardClientProps): JSX.Element {
   const router = useRouter();
   const [isCheckInDialogOpen, setIsCheckInDialogOpen] = useState(false);
 
@@ -80,13 +71,12 @@ export function DashboardClient({
     }
   }, [streakData]);
 
-  const { weeklyTarget, weeklyTotalMins, overallTarget } =
-    useDashboardCalculations({
-      exercises,
-      overallPercent,
-      programWeeks,
-      weeksCompleted,
-    });
+  const { weeklyTarget, weeklyTotalMins, overallTarget } = useDashboardCalculations({
+    exercises,
+    overallPercent,
+    programWeeks,
+    weeksCompleted,
+  });
 
   const {
     showAllLeaderboard,
@@ -208,7 +198,7 @@ export function DashboardClient({
         onClose={() => setIsCheckInDialogOpen(false)}
         userId={userId}
         onCheckInComplete={(mood, points, encouragement) => {
-          logger.info({ mood, points, encouragement }, "Checked in:");
+          logger.info({ mood, points, encouragement }, 'Checked in:');
           // Refresh the page or update streak data
           window.location.reload();
         }}

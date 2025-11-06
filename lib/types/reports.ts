@@ -20,7 +20,7 @@ export type ReportWeek = {
   avgSatisfaction: number | null;
   avgFatigue: number | null;
   totalPoints: number;
-  reviewed: "REVIEWED" | "NOT_SENT" | "PENDING" | string;
+  reviewed: 'REVIEWED' | 'NOT_SENT' | 'PENDING' | string;
   feedback: string | null;
 };
 

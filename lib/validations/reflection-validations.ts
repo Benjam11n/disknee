@@ -1,4 +1,4 @@
-import * as z from "zod";
+import * as z from 'zod';
 
 export const reflectionSchema = z.object({
   rating: z.array(z.number()).min(1).max(5),

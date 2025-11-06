@@ -1,9 +1,5 @@
-import {
-  Avatar as AvatarUI,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar";
-import Avatar from "boring-avatars";
+import { Avatar as AvatarUI, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import Avatar from 'boring-avatars';
 
 interface BoringAvatarWrapperProps {
   name?: string | null;
@@ -12,14 +8,14 @@ interface BoringAvatarWrapperProps {
   image?: string | null;
   alt?: string;
   className?: string;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
 const sizeClasses = {
-  sm: "h-8 w-8",
-  md: "h-10 w-10",
-  lg: "h-16 w-16",
-  xl: "h-20 w-20",
+  sm: 'h-8 w-8',
+  md: 'h-10 w-10',
+  lg: 'h-16 w-16',
+  xl: 'h-20 w-20',
 };
 
 export function BoringAvatarWrapper({
@@ -29,20 +25,22 @@ export function BoringAvatarWrapper({
   image,
   alt,
   className,
-  size = "md",
+  size = 'md',
 }: BoringAvatarWrapperProps) {
   const avatarSize = sizeClasses[size];
 
   // Generate a consistent seed from email or userId
-  const seed = email || userId || name || "default";
+  const seed = email || userId || name || 'default';
 
   // Generate initials for fallback
   const getInitials = (name?: string | null) => {
-    if (!name) return "";
+    if (!name) {
+      return '';
+    }
     return name
-      .split(" ")
+      .split(' ')
       .map((word) => word[0])
-      .join("")
+      .join('')
       .toUpperCase()
       .slice(0, 2);
   };
@@ -55,18 +53,16 @@ export function BoringAvatarWrapper({
   };
 
   return (
-    <AvatarUI className={`${avatarSize} ${className || ""}`}>
+    <AvatarUI className={`${avatarSize} ${className || ''}`}>
       {image ? (
-        <AvatarImage src={image} alt={alt || name || "User avatar"} />
+        <AvatarImage src={image} alt={alt || name || 'User avatar'} />
       ) : (
-        <div
-          className={`w-full h-full flex items-center justify-center ${avatarSize}`}
-        >
+        <div className={`w-full h-full flex items-center justify-center ${avatarSize}`}>
           <Avatar
             size={sizeMap[size]}
             name={seed}
             variant="marble"
-            colors={["#92A5FD", "#FDEEB8", "#A8DADC", "#457B9D", "#1D3557"]}
+            colors={['#92A5FD', '#FDEEB8', '#A8DADC', '#457B9D', '#1D3557']}
           />
         </div>
       )}

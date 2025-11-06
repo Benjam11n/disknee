@@ -1,5 +1,5 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Video } from "lucide-react";
+import { Card, CardContent } from '@/components/ui/card';
+import { Video } from 'lucide-react';
 
 export function HeroMedia() {
   return (
@@ -15,8 +15,8 @@ export function HeroMedia() {
               <span className="text-sm font-medium">Real-time Motion Tracking</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Our AI analyzes your movements 30 times per second,
-              providing instant feedback on your exercise form.
+              Our AI analyzes your movements 30 times per second, providing instant feedback on your
+              exercise form.
             </p>
           </div>
         </CardContent>

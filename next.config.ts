@@ -1,8 +1,8 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
-  serverExternalPackages: ["pino", "pino-pretty"],
+  serverExternalPackages: ['pino', 'pino-pretty'],
 };
 
 export default nextConfig;

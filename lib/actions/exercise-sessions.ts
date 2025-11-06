@@ -1,20 +1,20 @@
-"use server";
+'use server';
 
-import { prisma } from "@/lib/prisma";
-import { action } from "@/lib/handlers/action";
-import { handleError } from "@/lib/handlers/error";
+import { prisma } from '@/lib/prisma';
+import { action } from '@/lib/handlers/action';
+import { handleError } from '@/lib/handlers/error';
 import {
   CreateExerciseSessionSchema,
   GetExerciseSessionsSchema,
   GetExerciseSessionByIdSchema,
-} from "@/lib/validations/exercise-session-validations";
+} from '@/lib/validations/exercise-session-validations';
 import {
   CreateExerciseSessionParams,
   GetExerciseSessionByIdParams,
   GetExerciseSessionsParams,
-} from "@/lib/types/exercise-sessions";
-import { ExerciseSession } from "@prisma/client";
-import { NotFoundError } from "@/lib/http-errors";
+} from '@/lib/types/exercise-sessions';
+import { ExerciseSession } from '@prisma/client';
+import { NotFoundError } from '@/lib/http-errors';
 
 export async function createExerciseSessionAction(
   params: CreateExerciseSessionParams
@@ -57,7 +57,7 @@ export async function createExerciseSessionAction(
     });
 
     if (!exerciseSession) {
-      throw new NotFoundError("Exercise session not created");
+      throw new NotFoundError('Exercise session not created');
     }
 
     return { success: true, data: exerciseSession };
@@ -89,7 +89,7 @@ export async function getExerciseSessionsAction(
           lte: endDate ? new Date(endDate) : undefined,
         },
       },
-      orderBy: { startedAt: "desc" },
+      orderBy: { startedAt: 'desc' },
       take: limit,
       skip: offset,
       include: {
@@ -127,7 +127,7 @@ export async function getExerciseSessionByIdAction(
     });
 
     if (!exerciseSession) {
-      throw new NotFoundError("Exercise session not found");
+      throw new NotFoundError('Exercise session not found');
     }
 
     return { success: true, data: exerciseSession };
@@ -152,7 +152,7 @@ export async function updateExerciseSessionAction(
     });
 
     if (!exerciseSession) {
-      throw new NotFoundError("Exercise session not found");
+      throw new NotFoundError('Exercise session not found');
     }
 
     return { success: true, data: exerciseSession };

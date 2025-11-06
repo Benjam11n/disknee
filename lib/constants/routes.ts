@@ -2,20 +2,20 @@
 // This ensures type safety and maintainability across the entire codebase
 
 export const ROUTES = {
-  HOME: "/",
-  DASHBOARD: "/dashboard",
-  LOGIN: "/login",
-  CALL: "/call",
+  HOME: '/',
+  DASHBOARD: '/dashboard',
+  LOGIN: '/login',
+  CALL: '/call',
   CALL_DETAIL: (exerciseId: string) => `/call/${exerciseId}`,
   EXERCISE: {
-    BASE: "/exercise",
+    BASE: '/exercise',
     detail: (id: string) => `/exercise/${id}`,
   },
-  REPORTS: "/reports",
-  LEADERBOARD: "/leaderboard",
-  SHOP: "/shop",
+  REPORTS: '/reports',
+  LEADERBOARD: '/leaderboard',
+  SHOP: '/shop',
 
   // not implemented yet
-  SETTINGS: "/settings",
-  HELP: "/help",
+  SETTINGS: '/settings',
+  HELP: '/help',
 } as const;

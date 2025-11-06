@@ -1,21 +1,21 @@
-"use server";
+'use server';
 
-import { prisma } from "@/lib/prisma";
-import { action } from "@/lib/handlers/action";
-import { handleError } from "@/lib/handlers/error";
+import { prisma } from '@/lib/prisma';
+import { action } from '@/lib/handlers/action';
+import { handleError } from '@/lib/handlers/error';
 import {
   GetShopItemsSchema,
   PurchaseItemSchema,
   EquipItemSchema,
   GetUserInventorySchema,
-} from "@/lib/validations/shop-validations";
+} from '@/lib/validations/shop-validations';
 import {
   GetShopItemsParams,
   PurchaseItemParams,
   EquipItemParams,
   GetUserInventoryParams,
-} from "@/lib/types/shop";
-import { ShopItem, UserInventory } from "@prisma/client";
+} from '@/lib/types/shop';
+import { ShopItem, UserInventory } from '@prisma/client';
 
 export async function getShopItemsAction(
   params: GetShopItemsParams
@@ -37,7 +37,7 @@ export async function getShopItemsAction(
       where: {
         isActive: activeOnly !== false,
       },
-      orderBy: { price: "asc" },
+      orderBy: { price: 'asc' },
     });
 
     return { success: true, data: items };
@@ -67,7 +67,7 @@ export async function getUserInventoryAction(
       include: {
         item: true,
       },
-      orderBy: { purchasedAt: "desc" },
+      orderBy: { purchasedAt: 'desc' },
     });
 
     return { success: true, data: inventory };
@@ -101,11 +101,11 @@ export async function purchaseItemAction(
       ]);
 
       if (!user || !item) {
-        throw new Error("User or item not found");
+        throw new Error('User or item not found');
       }
 
       if (user.points < item.price) {
-        throw new Error("Insufficient points");
+        throw new Error('Insufficient points');
       }
 
       // Check if already owned
@@ -119,7 +119,7 @@ export async function purchaseItemAction(
       });
 
       if (existing) {
-        throw new Error("Item already owned");
+        throw new Error('Item already owned');
       }
 
       // Deduct points
@@ -178,7 +178,7 @@ export async function equipItemAction(params: EquipItemParams) {
     });
 
     if (!inventoryItem) {
-      throw new Error("Item not found in inventory");
+      throw new Error('Item not found in inventory');
     }
 
     // If equipping, unequip all other items of the same type

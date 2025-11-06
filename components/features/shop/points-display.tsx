@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { Coins, Crown, TrendingUp, Target } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { ShopItem } from "@prisma/client";
-import { cn } from "@/lib/utils";
+import { Coins, Crown, TrendingUp, Target } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { ShopItem } from '@prisma/client';
+import { cn } from '@/lib/utils';
 
 interface PointsDisplayProps {
   points: number;
@@ -13,41 +13,37 @@ interface PointsDisplayProps {
   nextMilestone?: number;
 }
 
-export function PointsDisplay({
-  points,
-  equippedItems,
-  nextMilestone = 1000,
-}: PointsDisplayProps) {
-  const progress = Math.min(
-    ((points % nextMilestone) / nextMilestone) * 100,
-    100
-  );
+export function PointsDisplay({ points, equippedItems, nextMilestone = 1000 }: PointsDisplayProps) {
+  const progress = Math.min(((points % nextMilestone) / nextMilestone) * 100, 100);
   const pointsToNext = nextMilestone - (points % nextMilestone);
   const currentLevel = Math.floor(points / 100) + 1;
 
   const getRank = (points: number) => {
-    if (points >= 1000)
+    if (points >= 1000) {
       return {
-        name: "Gold",
-        color: "text-yellow-600 bg-yellow-50 border-yellow-200",
-        icon: "🏆",
+        name: 'Gold',
+        color: 'text-yellow-600 bg-yellow-50 border-yellow-200',
+        icon: '🏆',
       };
-    if (points >= 500)
+    }
+    if (points >= 500) {
       return {
-        name: "Silver",
-        color: "text-gray-600 bg-gray-50 border-gray-200",
-        icon: "🥈",
+        name: 'Silver',
+        color: 'text-gray-600 bg-gray-50 border-gray-200',
+        icon: '🥈',
       };
-    if (points >= 200)
+    }
+    if (points >= 200) {
       return {
-        name: "Bronze",
-        color: "text-orange-600 bg-orange-50 border-orange-200",
-        icon: "🥉",
+        name: 'Bronze',
+        color: 'text-orange-600 bg-orange-50 border-orange-200',
+        icon: '🥉',
       };
+    }
     return {
-      name: "Rookie",
-      color: "text-blue-600 bg-blue-50 border-blue-200",
-      icon: "⭐",
+      name: 'Rookie',
+      color: 'text-blue-600 bg-blue-50 border-blue-200',
+      icon: '⭐',
     };
   };
 
@@ -61,13 +57,11 @@ export function PointsDisplay({
       <CardContent className="p-6 relative">
         {/* Rank Badge */}
         <div className="flex justify-between items-start mb-4">
-          <Badge className={cn("text-xs font-bold px-3 py-1", rank.color)}>
+          <Badge className={cn('text-xs font-bold px-3 py-1', rank.color)}>
             <span className="mr-1">{rank.icon}</span>
             {rank.name} Rank
           </Badge>
-          <div className="text-xs text-muted-foreground">
-            Level {currentLevel}
-          </div>
+          <div className="text-xs text-muted-foreground">Level {currentLevel}</div>
         </div>
 
         {/* Main Points Display */}
@@ -79,12 +73,8 @@ export function PointsDisplay({
                 <div className="absolute -top-1 -right-1 h-3 w-3 bg-green-500 rounded-full animate-pulse" />
               </div>
               <div>
-                <div className="text-3xl font-bold text-yellow-800">
-                  {points.toLocaleString()}
-                </div>
-                <div className="text-sm text-yellow-600 font-medium">
-                  points
-                </div>
+                <div className="text-3xl font-bold text-yellow-800">{points.toLocaleString()}</div>
+                <div className="text-sm text-yellow-600 font-medium">points</div>
               </div>
             </div>
 

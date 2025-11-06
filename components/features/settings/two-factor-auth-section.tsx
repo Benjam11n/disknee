@@ -1,14 +1,8 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Shield, CheckCircle, AlertTriangle } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Shield, CheckCircle, AlertTriangle } from 'lucide-react';
 
 export function TwoFactorAuthSection() {
   return (
@@ -33,8 +27,7 @@ export function TwoFactorAuthSection() {
               <Badge variant="secondary">Not Active</Badge>
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              Two-factor authentication is not currently enabled for your
-              account.
+              Two-factor authentication is not currently enabled for your account.
             </p>
           </div>
         </div>
@@ -45,9 +38,7 @@ export function TwoFactorAuthSection() {
             <ul className="text-sm text-muted-foreground space-y-1">
               <li className="flex items-start gap-2">
                 <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                <span>
-                  Adds an extra layer of security beyond just your password
-                </span>
+                <span>Adds an extra layer of security beyond just your password</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
@@ -68,9 +59,7 @@ export function TwoFactorAuthSection() {
               <div className="text-center p-3 border rounded-lg">
                 <div className="text-2xl mb-2">📱</div>
                 <p className="text-sm font-medium">Step 1</p>
-                <p className="text-xs text-muted-foreground">
-                  Enter your password
-                </p>
+                <p className="text-xs text-muted-foreground">Enter your password</p>
               </div>
               <div className="text-center p-3 border rounded-lg">
                 <div className="text-2xl mb-2">🔑</div>
@@ -93,8 +82,8 @@ export function TwoFactorAuthSection() {
               <div>
                 <h4 className="font-medium">Coming Soon</h4>
                 <p className="text-sm text-muted-foreground">
-                  Two-factor authentication will be available in a future
-                  update. For now, ensure you use a strong, unique password.
+                  Two-factor authentication will be available in a future update. For now, ensure
+                  you use a strong, unique password.
                 </p>
               </div>
             </div>

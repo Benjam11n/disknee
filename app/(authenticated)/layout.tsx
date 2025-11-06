@@ -1,17 +1,13 @@
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import { SidebarNavigation } from "@/components/shared/layout/sidebar-navigation";
-import { Navbar } from "@/components/shared/navbar";
-import { ROUTES } from "@/lib/constants/routes";
-import { getAppointmentsAction } from "@/lib/actions/appointments";
-import { logger } from "@/lib/logger";
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { SidebarNavigation } from '@/components/shared/layout/sidebar-navigation';
+import { Navbar } from '@/components/shared/navbar';
+import { ROUTES } from '@/lib/constants/routes';
+import { getAppointmentsAction } from '@/lib/actions/appointments';
+import { logger } from '@/lib/logger';
 
-export default async function AuthenticatedLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
   const headersList = await headers();
   const session = await auth.api.getSession({
     headers: headersList,
@@ -20,9 +16,9 @@ export default async function AuthenticatedLayout({
   if (!session?.user) {
     logger.info(
       {
-        ip: headersList.get("x-forwarded-for") || "unknown",
+        ip: headersList.get('x-forwarded-for') || 'unknown',
       },
-      "Unauthorized access attempt, redirecting to login"
+      'Unauthorized access attempt, redirecting to login'
     );
     redirect(ROUTES.LOGIN);
   }
@@ -32,7 +28,7 @@ export default async function AuthenticatedLayout({
       userId: session.user.id,
       email: session.user.email,
     },
-    "User authenticated successfully"
+    'User authenticated successfully'
   );
 
   const appointmentsResponse = await getAppointmentsAction({
@@ -56,7 +52,7 @@ export default async function AuthenticatedLayout({
         appointmentId: nextAppointment.id,
         appointmentDate: nextAppointment.start,
       },
-      "Next appointment found"
+      'Next appointment found'
     );
   }
 

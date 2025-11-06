@@ -1,14 +1,8 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Palette } from "lucide-react";
-import { ThemeToggle } from "@/components/shared/theme/theme-toggle";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Palette } from 'lucide-react';
+import { ThemeToggle } from '@/components/shared/theme/theme-toggle';
 
 export function PreferencesSection() {
   return (
@@ -18,17 +12,13 @@ export function PreferencesSection() {
           <Palette className="h-5 w-5" />
           Preferences
         </CardTitle>
-        <CardDescription>
-          Customize your application experience.
-        </CardDescription>
+        <CardDescription>Customize your application experience.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h3 className="font-medium">Dark Mode</h3>
-            <p className="text-sm text-muted-foreground">
-              Toggle between light and dark themes.
-            </p>
+            <p className="text-sm text-muted-foreground">Toggle between light and dark themes.</p>
           </div>
           <ThemeToggle />
         </div>

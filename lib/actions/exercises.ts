@@ -1,22 +1,22 @@
-"use server";
+'use server';
 
-import { prisma } from "@/lib/prisma";
-import { action } from "@/lib/handlers/action";
-import { handleError } from "@/lib/handlers/error";
+import { prisma } from '@/lib/prisma';
+import { action } from '@/lib/handlers/action';
+import { handleError } from '@/lib/handlers/error';
 import {
   CreateExerciseSchema,
   GetExercisesSchema,
   GetExerciseByIdSchema,
   UpdateExerciseDoneSchema,
-} from "@/lib/validations/exercise-validations";
+} from '@/lib/validations/exercise-validations';
 import {
   CreateExerciseParams,
   GetExerciseByIdParams,
   GetExercisesParams,
   UpdateExerciseDoneParams,
-} from "@/lib/types/exercises";
-import { Exercise } from "@prisma/client";
-import { NotFoundError } from "@/lib/http-errors";
+} from '@/lib/types/exercises';
+import { Exercise } from '@prisma/client';
+import { NotFoundError } from '@/lib/http-errors';
 
 export async function createExerciseAction(
   params: CreateExerciseParams
@@ -31,13 +31,12 @@ export async function createExerciseAction(
     return handleError(validationResult) as ErrorResponse;
   }
 
-  const { title, estimatedMins, difficulty, done, planId } =
-    validationResult.params!;
+  const { title, estimatedMins, difficulty, done, planId } = validationResult.params!;
 
   try {
     const lastExercise = await prisma.exercise.findFirst({
       where: { planId },
-      orderBy: { sequence: "desc" },
+      orderBy: { sequence: 'desc' },
     });
 
     const nextSequence = lastExercise ? lastExercise.sequence + 1 : 1;
@@ -54,7 +53,7 @@ export async function createExerciseAction(
     });
 
     if (!exercise) {
-      throw new NotFoundError("Exercise not created");
+      throw new NotFoundError('Exercise not created');
     }
 
     return { success: true, data: exercise };
@@ -87,8 +86,8 @@ export async function getExercisesAction(
         planId: planId || undefined,
       },
       orderBy: planId
-        ? [{ sequence: "asc" }, { createdAt: "asc" }] // Order by sequence if planId is specified
-        : { createdAt: "desc" }, // Default ordering for general queries
+        ? [{ sequence: 'asc' }, { createdAt: 'asc' }] // Order by sequence if planId is specified
+        : { createdAt: 'desc' }, // Default ordering for general queries
       take: limit,
       skip,
     });
@@ -120,7 +119,7 @@ export async function getExerciseByIdAction(
     });
 
     if (!exercise) {
-      throw new NotFoundError("Exercise not found");
+      throw new NotFoundError('Exercise not found');
     }
 
     return { success: true, data: exercise };
@@ -151,7 +150,7 @@ export async function updateExerciseDoneAction(
     });
 
     if (!exercise) {
-      throw new NotFoundError("Exercise not found");
+      throw new NotFoundError('Exercise not found');
     }
 
     return { success: true, data: exercise };

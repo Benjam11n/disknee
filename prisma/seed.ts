@@ -1,12 +1,13 @@
-import { prisma } from "@/lib/prisma";
-import seedData from "./seed.json";
-import shopItems from "./shop-seed.json";
-import { ExerciseDifficulty, ReviewStatus } from "@prisma/client";
-import { createSeedUser } from "@/lib/seed-users";
-import { logger } from "@/lib/logger";
+import { prisma } from '@/lib/prisma';
+import seedData from './seed.json';
+import shopItems from './shop-seed.json';
+import { ExerciseDifficulty, ReviewStatus } from '@prisma/client';
+import { createSeedUser } from '@/lib/seed-users';
+import { logger } from '@/lib/logger';
+import { startOfWeekMonday } from '@/lib/utils/date-utils';
 
 async function main() {
-  logger.info("🌱 Seeding database with JSON data...");
+  logger.info('🌱 Seeding database with JSON data...');
 
   // Clean up existing data
   await prisma.userInventory.deleteMany();
@@ -21,13 +22,17 @@ async function main() {
   await prisma.weekReport.deleteMany();
   await prisma.user.deleteMany();
 
-  logger.info("🧹 Cleaned existing data");
+  logger.info('🧹 Cleaned existing data');
 
   // Create users with Better Auth
   const userCredentials = [
-    { name: "Donald Duck", email: "demo@disknee.com", password: "demo123" },
-    { name: "John Patient", email: "patient@example.com", password: "patient2024" },
-    { name: "Dr. Smith", email: "physio@example.com", password: "physio2024" },
+    { name: 'Donald Duck', email: 'demo@disknee.com', password: 'demo123' },
+    {
+      name: 'John Patient',
+      email: 'patient@example.com',
+      password: 'patient2024',
+    },
+    { name: 'Dr. Smith', email: 'physio@example.com', password: 'physio2024' },
   ];
 
   const users = [];
@@ -89,11 +94,11 @@ async function main() {
           title: ex.title,
           estimatedMins: ex.estimatedMins,
           difficulty:
-            ex.difficulty === "easy"
+            ex.difficulty === 'easy'
               ? ExerciseDifficulty.EASY
-              : ex.difficulty === "moderate"
-              ? ExerciseDifficulty.MODERATE
-              : ExerciseDifficulty.HARD,
+              : ex.difficulty === 'moderate'
+                ? ExerciseDifficulty.MODERATE
+                : ExerciseDifficulty.HARD,
           done: ex.done,
           sequence: exercisesInThisPlan,
           planId: plans[planIndex].id,
@@ -129,15 +134,11 @@ async function main() {
     for (const sessionData of seedData.sessions) {
       // Check if the exercise and user indices are valid
       if (sessionData.exerciseIndex >= exercises.length) {
-        logger.warn(
-          `⚠️ Skipping session with invalid exerciseIndex: ${sessionData.exerciseIndex}`
-        );
+        logger.warn(`⚠️ Skipping session with invalid exerciseIndex: ${sessionData.exerciseIndex}`);
         continue;
       }
       if (sessionData.userIndex >= users.length) {
-        logger.warn(
-          `⚠️ Skipping session with invalid userIndex: ${sessionData.userIndex}`
-        );
+        logger.warn(`⚠️ Skipping session with invalid userIndex: ${sessionData.userIndex}`);
         continue;
       }
 
@@ -145,8 +146,7 @@ async function main() {
         data: {
           startedAt: new Date(sessionData.startedAt),
           endedAt: new Date(
-            new Date(sessionData.startedAt).getTime() +
-              sessionData.duration * 1000
+            new Date(sessionData.startedAt).getTime() + sessionData.duration * 1000
           ),
           duration: sessionData.duration,
           repsCompleted: sessionData.repsCompleted,
@@ -154,15 +154,11 @@ async function main() {
           maxAccuracy: sessionData.maxAccuracy,
           exerciseId: exercises[sessionData.exerciseIndex].id,
           userId: users[sessionData.userIndex].id,
-          notes: `Score: ${
-            sessionData.accuracy * 100 + (sessionData.hasReflection ? 20 : 0)
-          }`,
+          notes: `Score: ${sessionData.accuracy * 100 + (sessionData.hasReflection ? 20 : 0)}`,
           // snapshot fields
-          pointsEarned:
-            sessionData.accuracy * 100 + (sessionData.hasReflection ? 20 : 0),
+          pointsEarned: sessionData.accuracy * 100 + (sessionData.hasReflection ? 20 : 0),
           exerciseTitle: exercises[sessionData.exerciseIndex].title,
-          difficulty:
-            exercises[sessionData.exerciseIndex].difficulty as ExerciseDifficulty,
+          difficulty: exercises[sessionData.exerciseIndex].difficulty as ExerciseDifficulty,
         },
       });
 
@@ -193,7 +189,7 @@ async function main() {
     });
 
     const totalScore = userSessions.reduce((sum, session) => {
-      return sum + (session.pointsEarned ?? (session.accuracy * 100 + (session.reflection ? 20 : 0)));
+      return sum + (session.pointsEarned ?? session.accuracy * 100 + (session.reflection ? 20 : 0));
     }, 0);
 
     if (userSessions.length > 0) {
@@ -213,20 +209,17 @@ async function main() {
     data: [
       {
         userId: donaldDuck.id,
-        itemId: "hat-baseball",
+        itemId: 'hat-baseball',
         isEquipped: true,
       },
       {
         userId: donaldDuck.id,
-        itemId: "accessory-glasses",
+        itemId: 'accessory-glasses',
         isEquipped: true,
       },
     ],
   });
   logger.info(`✅ Given ${donaldDuck.name} starter items`);
-
-  // --- NEW: create WeekReport rows for past weeks (based on exercise sessions) ---
-  const { startOfWeekMonday } = await import("../lib/utils/date-utils");
 
   // Build week reports for Donald (users[0]) from their sessions
   const donSessions = await prisma.exerciseSession.findMany({
@@ -234,33 +227,36 @@ async function main() {
     include: { reflection: true },
   });
 
-  const weeksMap: Record<string, { sessions: typeof donSessions; weekStart: Date }> =
-    {};
+  const weeksMap: Record<string, { sessions: typeof donSessions; weekStart: Date }> = {};
 
   for (const s of donSessions) {
     const wk = startOfWeekMonday(s.startedAt);
     const key = wk.toISOString().slice(0, 10);
-    if (!weeksMap[key]) weeksMap[key] = { sessions: [], weekStart: wk };
+    if (!weeksMap[key]) {
+      weeksMap[key] = { sessions: [], weekStart: wk };
+    }
     weeksMap[key].sessions.push(s);
   }
 
   // sample mapping for statuses / clinician assignment (fake)
   const weekStatusMap: Record<string, ReviewStatus> = {
-    "2025-10-13": ReviewStatus.NOT_SENT,
-    "2025-10-20": ReviewStatus.REVIEWED,
-    "2025-10-27": ReviewStatus.PENDING,
+    '2025-10-13': ReviewStatus.NOT_SENT,
+    '2025-10-20': ReviewStatus.REVIEWED,
+    '2025-10-27': ReviewStatus.PENDING,
   };
 
   const weekFeedbackMap: Record<string, string> = {
-    "2025-10-13": "Older week: no clinician review available.",
-    "2025-10-20": "Steady progress; check ankle ROM next visit.",
-    "2025-10-27": "Pending review - clinician to update notes.",
+    '2025-10-13': 'Older week: no clinician review available.',
+    '2025-10-20': 'Steady progress; check ankle ROM next visit.',
+    '2025-10-27': 'Pending review - clinician to update notes.',
   };
 
   let createdWeekReports = 0;
   for (const [key, { sessions, weekStart }] of Object.entries(weeksMap)) {
     // Only create reports for weeks before 2025-11-03 as requested
-    if (new Date(key) >= new Date("2025-11-03")) continue;
+    if (new Date(key) >= new Date('2025-11-03')) {
+      continue;
+    }
 
     const totalExercises = sessions.length;
     const totalPoints = sessions.reduce((s, it) => s + (it.pointsEarned ?? 0), 0);
@@ -268,17 +264,15 @@ async function main() {
     const reflections = sessions.filter((s) => s.reflection);
     const avgSatisfaction =
       reflections.length > 0
-        ? reflections.reduce((sum, r) => sum + (r.reflection!.rating || 0), 0) /
-          reflections.length
+        ? reflections.reduce((sum, r) => sum + (r.reflection!.rating || 0), 0) / reflections.length
         : null;
     const avgFatigue =
       reflections.length > 0
-        ? reflections.reduce((sum, r) => sum + (r.reflection!.fatigue || 0), 0) /
-          reflections.length
+        ? reflections.reduce((sum, r) => sum + (r.reflection!.fatigue || 0), 0) / reflections.length
         : null;
 
     const status = weekStatusMap[key] ?? ReviewStatus.NOT_SENT;
-    const feedback = weekFeedbackMap[key] ?? "";
+    const feedback = weekFeedbackMap[key] ?? '';
 
     // clinician assigned only for REVIEWED weeks (use Dr. Smith if exists)
     const clinicianId = status === ReviewStatus.REVIEWED && users[2] ? users[2].id : null;
@@ -319,12 +313,11 @@ async function main() {
   logger.info(`✅ Created/updated ${createdWeekReports} WeekReport(s) for ${donaldDuck.name}`);
 
   const avgAccuracy = seedData.sessions
-    ? seedData.sessions.reduce((sum, s) => sum + s.accuracy, 0) /
-      seedData.sessions.length
+    ? seedData.sessions.reduce((sum, s) => sum + s.accuracy, 0) / seedData.sessions.length
     : 0;
 
-  logger.info("\n✅ Database seeded successfully!");
-  logger.info("\n📊 Summary:");
+  logger.info('\n✅ Database seeded successfully!');
+  logger.info('\n📊 Summary:');
   logger.info(`  - Users: ${users.length}`);
   logger.info(`  - Plans: ${plans.length}`);
   logger.info(`  - Exercises: ${exercises.length}`);
@@ -332,14 +325,14 @@ async function main() {
   logger.info(`  - Shop items: ${createdShopItems.length}`);
   logger.info(`  - Average accuracy: ${avgAccuracy.toFixed(1)}%`);
 
-  logger.info("\n💡 Score formula: (accuracy × 100) + 20 bonus for reflection");
-  logger.info("\n🛍️  Shop is ready with hats and accessories!");
-  logger.info("\n🎯 Leaderboard will show rankings for all users!");
+  logger.info('\n💡 Score formula: (accuracy × 100) + 20 bonus for reflection');
+  logger.info('\n🛍️  Shop is ready with hats and accessories!');
+  logger.info('\n🎯 Leaderboard will show rankings for all users!');
 
-  logger.info("\n🔐 Login Credentials:");
-  logger.info("  • demo@disknee.com / demo123");
-  logger.info("  • patient@example.com / patient2024");
-  logger.info("  • physio@example.com / physio2024");
+  logger.info('\n🔐 Login Credentials:');
+  logger.info('  • demo@disknee.com / demo123');
+  logger.info('  • patient@example.com / patient2024');
+  logger.info('  • physio@example.com / physio2024');
 }
 
 main()
@@ -347,7 +340,7 @@ main()
     await prisma.$disconnect();
   })
   .catch(async (e) => {
-    logger.error("❌ Error seeding database:", e);
+    logger.error('❌ Error seeding database:', e);
     await prisma.$disconnect();
     process.exit(1);
   });

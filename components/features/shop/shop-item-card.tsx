@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ShopItem } from "@prisma/client";
-import { Coins, Check, ShoppingBag, Sparkles, Lock, Star } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ShopItem } from '@prisma/client';
+import { Coins, Check, ShoppingBag, Sparkles, Lock, Star } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ShopItemCardProps {
   item: ShopItem;
@@ -18,29 +18,35 @@ interface ShopItemCardProps {
 }
 
 function getRarity(price: number) {
-  if (price >= 500) return {
-    tier: "Legendary",
-    color: "border-purple-400 bg-purple-50 dark:bg-purple-950/30 dark:border-purple-500",
-    textColor: "text-purple-700 dark:text-purple-300",
-    shadow: "shadow-purple-200 dark:shadow-purple-900/50"
-  };
-  if (price >= 300) return {
-    tier: "Epic",
-    color: "border-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 dark:border-indigo-500",
-    textColor: "text-indigo-700 dark:text-indigo-300",
-    shadow: "shadow-indigo-200 dark:shadow-indigo-900/50"
-  };
-  if (price >= 150) return {
-    tier: "Rare",
-    color: "border-blue-400 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-500",
-    textColor: "text-blue-700 dark:text-blue-300",
-    shadow: "shadow-blue-200 dark:shadow-blue-900/50"
-  };
+  if (price >= 500) {
+    return {
+      tier: 'Legendary',
+      color: 'border-purple-400 bg-purple-50 dark:bg-purple-950/30 dark:border-purple-500',
+      textColor: 'text-purple-700 dark:text-purple-300',
+      shadow: 'shadow-purple-200 dark:shadow-purple-900/50',
+    };
+  }
+  if (price >= 300) {
+    return {
+      tier: 'Epic',
+      color: 'border-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 dark:border-indigo-500',
+      textColor: 'text-indigo-700 dark:text-indigo-300',
+      shadow: 'shadow-indigo-200 dark:shadow-indigo-900/50',
+    };
+  }
+  if (price >= 150) {
+    return {
+      tier: 'Rare',
+      color: 'border-blue-400 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-500',
+      textColor: 'text-blue-700 dark:text-blue-300',
+      shadow: 'shadow-blue-200 dark:shadow-blue-900/50',
+    };
+  }
   return {
-    tier: "Common",
-    color: "border-gray-300 bg-gray-50 dark:bg-gray-900/50 dark:border-gray-600",
-    textColor: "text-gray-700 dark:text-gray-300",
-    shadow: "shadow-gray-200 dark:shadow-gray-800/50"
+    tier: 'Common',
+    color: 'border-gray-300 bg-gray-50 dark:bg-gray-900/50 dark:border-gray-600',
+    textColor: 'text-gray-700 dark:text-gray-300',
+    shadow: 'shadow-gray-200 dark:shadow-gray-800/50',
   };
 }
 
@@ -60,13 +66,14 @@ export function ShopItemCard({
   return (
     <Card
       className={cn(
-        "group relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer",
-        "bg-card dark:bg-gray-900/80 border-border",
+        'group relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer',
+        'bg-card dark:bg-gray-900/80 border-border',
         rarity.color,
         rarity.shadow,
-        isOwned && "ring-2 ring-primary/30",
-        isEquipped && "bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10",
-        !canAfford && !isOwned && "opacity-75"
+        isOwned && 'ring-2 ring-primary/30',
+        isEquipped &&
+          'bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10',
+        !canAfford && !isOwned && 'opacity-75'
       )}
     >
       {/* Top badges */}
@@ -91,9 +98,22 @@ export function ShopItemCard({
       {/* Rarity stars in corner */}
       <div className="absolute top-2 right-2 z-10">
         <div className="flex">
-          {rarity.tier === "Legendary" && <Star className="h-4 w-4 text-purple-500 dark:text-purple-400 fill-purple-500 dark:fill-purple-400" />}
-          {rarity.tier === "Epic" && <><Star className="h-4 w-4 text-indigo-500 dark:text-indigo-400 fill-indigo-500 dark:fill-indigo-400" /><Star className="h-4 w-4 text-indigo-500 dark:text-indigo-400 fill-indigo-500 dark:fill-indigo-400 -ml-1" /></>}
-          {rarity.tier === "Rare" && <><Star className="h-4 w-4 text-blue-500 dark:text-blue-400 fill-blue-500 dark:fill-blue-400" /><Star className="h-4 w-4 text-blue-500 dark:text-blue-400 fill-blue-500 dark:fill-blue-400 -ml-1" /><Star className="h-4 w-4 text-blue-500 dark:text-blue-400 fill-blue-500 dark:fill-blue-400 -ml-1" /></>}
+          {rarity.tier === 'Legendary' && (
+            <Star className="h-4 w-4 text-purple-500 dark:text-purple-400 fill-purple-500 dark:fill-purple-400" />
+          )}
+          {rarity.tier === 'Epic' && (
+            <>
+              <Star className="h-4 w-4 text-indigo-500 dark:text-indigo-400 fill-indigo-500 dark:fill-indigo-400" />
+              <Star className="h-4 w-4 text-indigo-500 dark:text-indigo-400 fill-indigo-500 dark:fill-indigo-400 -ml-1" />
+            </>
+          )}
+          {rarity.tier === 'Rare' && (
+            <>
+              <Star className="h-4 w-4 text-blue-500 dark:text-blue-400 fill-blue-500 dark:fill-blue-400" />
+              <Star className="h-4 w-4 text-blue-500 dark:text-blue-400 fill-blue-500 dark:fill-blue-400 -ml-1" />
+              <Star className="h-4 w-4 text-blue-500 dark:text-blue-400 fill-blue-500 dark:fill-blue-400 -ml-1" />
+            </>
+          )}
         </div>
       </div>
 
@@ -101,11 +121,9 @@ export function ShopItemCard({
         <div className="flex flex-col items-center space-y-3">
           {/* Item icon with hover effect */}
           <div className="relative">
-            <div className="text-6xl transition-transform group-hover:scale-110">
-              {item.icon}
-            </div>
+            <div className="text-6xl transition-transform group-hover:scale-110">{item.icon}</div>
             {/* Shimmer effect for rare items */}
-            {rarity.tier !== "Common" && (
+            {rarity.tier !== 'Common' && (
               <div className="absolute inset-0 animate-pulse opacity-30">
                 <div className="text-6xl blur-xl">{item.icon}</div>
               </div>
@@ -113,15 +131,12 @@ export function ShopItemCard({
           </div>
 
           {/* Item type badge */}
-          <Badge
-            variant={item.type === "hat" ? "default" : "secondary"}
-            className="text-xs"
-          >
+          <Badge variant={item.type === 'hat' ? 'default' : 'secondary'} className="text-xs">
             {item.type}
           </Badge>
 
           {/* Rarity text */}
-          <span className={cn("text-xs font-semibold uppercase tracking-wider", rarity.textColor)}>
+          <span className={cn('text-xs font-semibold uppercase tracking-wider', rarity.textColor)}>
             {rarity.tier}
           </span>
         </div>
@@ -131,16 +146,28 @@ export function ShopItemCard({
         <div className="text-center">
           <h3 className="font-bold text-lg">{item.name}</h3>
           {item.description && (
-            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-              {item.description}
-            </p>
+            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{item.description}</p>
           )}
         </div>
 
         {/* Price section */}
         <div className="flex items-center justify-center space-x-2">
-          <Coins className={cn("h-5 w-5", canAfford ? "text-yellow-600 dark:text-yellow-400" : "text-gray-400 dark:text-gray-500")} />
-          <span className={cn("font-bold text-2xl", canAfford ? "text-yellow-700 dark:text-yellow-400" : "text-gray-500 dark:text-gray-400")}>
+          <Coins
+            className={cn(
+              'h-5 w-5',
+              canAfford
+                ? 'text-yellow-600 dark:text-yellow-400'
+                : 'text-gray-400 dark:text-gray-500'
+            )}
+          />
+          <span
+            className={cn(
+              'font-bold text-2xl',
+              canAfford
+                ? 'text-yellow-700 dark:text-yellow-400'
+                : 'text-gray-500 dark:text-gray-400'
+            )}
+          >
             {item.price}
           </span>
         </div>
@@ -150,7 +177,7 @@ export function ShopItemCard({
           {isOwned ? (
             <Button
               onClick={onEquip}
-              variant={isEquipped ? "outline" : "default"}
+              variant={isEquipped ? 'outline' : 'default'}
               size="sm"
               className="w-full"
             >

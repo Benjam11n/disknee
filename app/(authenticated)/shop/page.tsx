@@ -1,12 +1,12 @@
-import { getShopItemsAction } from "@/lib/actions/shop";
-import { getUserByIdAction } from "@/lib/actions/users";
-import { getUserInventoryAction } from "@/lib/actions/shop";
-import { ShopClient } from "./shop-client";
-import { ShopItem, UserInventory } from "@prisma/client";
-import { notFound, redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { ROUTES } from "@/lib/constants/routes";
+import { getShopItemsAction } from '@/lib/actions/shop';
+import { getUserByIdAction } from '@/lib/actions/users';
+import { getUserInventoryAction } from '@/lib/actions/shop';
+import { ShopClient } from './shop-client';
+import { ShopItem, UserInventory } from '@prisma/client';
+import { notFound, redirect } from 'next/navigation';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import { ROUTES } from '@/lib/constants/routes';
 
 export default async function ShopPage() {
   const session = await auth.api.getSession({
@@ -41,9 +41,7 @@ export default async function ShopPage() {
   const userPoints = userResponse.data?.points || 0;
 
   const inventoryResponse = await getUserInventoryAction({ userId });
-  const userInventory = inventoryResponse.success
-    ? inventoryResponse.data || []
-    : [];
+  const userInventory = inventoryResponse.success ? inventoryResponse.data || [] : [];
 
   return (
     <ShopClient

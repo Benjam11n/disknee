@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useEffect, useRef } from "react";
-import { Landmark, POSE_CONNECTIONS } from "@/lib/pose-utils";
+import { useEffect, useRef } from 'react';
+import { Landmark, POSE_CONNECTIONS } from '@/lib/pose-utils';
 
 /**
  * PoseOverlay Component
@@ -25,10 +25,14 @@ export function PoseOverlay({ landmarks }: PoseOverlayProps) {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) {
+      return;
+    }
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      return;
+    }
 
     // Get actual display dimensions from DOM
     const rect = canvas.getBoundingClientRect();
@@ -46,12 +50,10 @@ export function PoseOverlay({ landmarks }: PoseOverlayProps) {
       ? landmarks
           .map(
             (l) =>
-              `${Math.round(l.x * 100)}_${Math.round(l.y * 100)}_${Math.round(
-                l.visibility * 100
-              )}`
+              `${Math.round(l.x * 100)}_${Math.round(l.y * 100)}_${Math.round(l.visibility * 100)}`
           )
-          .join("|")
-      : "empty";
+          .join('|')
+      : 'empty';
 
     // Skip redraw if landmarks haven't changed significantly
     if (lastLandmarksRef.current === landmarksHash) {
@@ -74,21 +76,16 @@ export function PoseOverlay({ landmarks }: PoseOverlayProps) {
       }));
 
       // Draw connections with smoother lines
-      ctx.strokeStyle = "#00ff00";
+      ctx.strokeStyle = '#00ff00';
       ctx.lineWidth = 2;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
 
       POSE_CONNECTIONS.forEach(([start, end]) => {
         const startPoint = canvasLandmarks[start];
         const endPoint = canvasLandmarks[end];
 
-        if (
-          startPoint &&
-          endPoint &&
-          startPoint.visibility > 0.5 &&
-          endPoint.visibility > 0.5
-        ) {
+        if (startPoint && endPoint && startPoint.visibility > 0.5 && endPoint.visibility > 0.5) {
           ctx.beginPath();
           ctx.moveTo(startPoint.x, startPoint.y);
           ctx.lineTo(endPoint.x, endPoint.y);
@@ -108,8 +105,8 @@ export function PoseOverlay({ landmarks }: PoseOverlayProps) {
             landmark.y,
             8
           );
-          gradient.addColorStop(0, "rgba(255, 0, 0, 0.8)");
-          gradient.addColorStop(1, "rgba(255, 0, 0, 0)");
+          gradient.addColorStop(0, 'rgba(255, 0, 0, 0.8)');
+          gradient.addColorStop(1, 'rgba(255, 0, 0, 0)');
 
           ctx.beginPath();
           ctx.arc(landmark.x, landmark.y, 8, 0, 2 * Math.PI);
@@ -119,9 +116,9 @@ export function PoseOverlay({ landmarks }: PoseOverlayProps) {
           // Draw main point
           ctx.beginPath();
           ctx.arc(landmark.x, landmark.y, 4, 0, 2 * Math.PI);
-          ctx.fillStyle = "#ff0000";
+          ctx.fillStyle = '#ff0000';
           ctx.fill();
-          ctx.strokeStyle = "#ffffff";
+          ctx.strokeStyle = '#ffffff';
           ctx.lineWidth = 1;
           ctx.stroke();
         }
@@ -129,14 +126,14 @@ export function PoseOverlay({ landmarks }: PoseOverlayProps) {
 
       // Highlight key joints with different colors
       const keyJoints = [
-        { index: 11, color: "#ffff00" }, // Left shoulder
-        { index: 12, color: "#ffff00" }, // Right shoulder
-        { index: 23, color: "#ffff00" }, // Left hip
-        { index: 24, color: "#ffff00" }, // Right hip
-        { index: 25, color: "#00ffff" }, // Left knee
-        { index: 26, color: "#00ffff" }, // Right knee
-        { index: 13, color: "#ff00ff" }, // Left elbow
-        { index: 14, color: "#ff00ff" }, // Right elbow
+        { index: 11, color: '#ffff00' }, // Left shoulder
+        { index: 12, color: '#ffff00' }, // Right shoulder
+        { index: 23, color: '#ffff00' }, // Left hip
+        { index: 24, color: '#ffff00' }, // Right hip
+        { index: 25, color: '#00ffff' }, // Left knee
+        { index: 26, color: '#00ffff' }, // Right knee
+        { index: 13, color: '#ff00ff' }, // Left elbow
+        { index: 14, color: '#ff00ff' }, // Right elbow
       ];
 
       keyJoints.forEach(({ index, color }) => {
@@ -153,8 +150,8 @@ export function PoseOverlay({ landmarks }: PoseOverlayProps) {
             12
           );
           gradient.addColorStop(0, color);
-          gradient.addColorStop(0.5, color + "80");
-          gradient.addColorStop(1, color + "00");
+          gradient.addColorStop(0.5, color + '80');
+          gradient.addColorStop(1, color + '00');
 
           ctx.beginPath();
           ctx.arc(landmark.x, landmark.y, 12, 0, 2 * Math.PI);
@@ -166,7 +163,7 @@ export function PoseOverlay({ landmarks }: PoseOverlayProps) {
           ctx.arc(landmark.x, landmark.y, 6, 0, 2 * Math.PI);
           ctx.fillStyle = color;
           ctx.fill();
-          ctx.strokeStyle = "#ffffff";
+          ctx.strokeStyle = '#ffffff';
           ctx.lineWidth = 2;
           ctx.stroke();
         }
@@ -178,7 +175,7 @@ export function PoseOverlay({ landmarks }: PoseOverlayProps) {
     <canvas
       ref={canvasRef}
       className="absolute top-0 left-0 w-full h-full pointer-events-none transition-opacity duration-75"
-      style={{ willChange: "transform" }}
+      style={{ willChange: 'transform' }}
     />
   );
 }

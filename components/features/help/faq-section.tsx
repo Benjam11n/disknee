@@ -1,13 +1,7 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { HelpCircle } from "lucide-react";
-import { faqs } from "@/lib/constants/help-constants";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { HelpCircle } from 'lucide-react';
+import { faqs } from '@/lib/constants/help-constants';
 
 export function FAQSection() {
   return (
@@ -17,9 +11,7 @@ export function FAQSection() {
           <HelpCircle className="h-5 w-5" />
           Frequently Asked Questions
         </CardTitle>
-        <CardDescription>
-          Common questions about your recovery journey
-        </CardDescription>
+        <CardDescription>Common questions about your recovery journey</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">

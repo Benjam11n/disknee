@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { LandingPageNavbar } from "@/components/shared/landing/landing-page-navbar";
-import { LandingPageFooter } from "@/components/shared/landing/landing-page-footer";
-import { Hero } from "@/components/shared/landing/hero";
-import { HeroMedia } from "@/components/shared/landing/hero-media";
-import { Features } from "@/components/shared/landing/features";
+import { LandingPageNavbar } from '@/components/shared/landing/landing-page-navbar';
+import { LandingPageFooter } from '@/components/shared/landing/landing-page-footer';
+import { Hero } from '@/components/shared/landing/hero';
+import { HeroMedia } from '@/components/shared/landing/hero-media';
+import { Features } from '@/components/shared/landing/features';
 
 export function LandingPage() {
   const scrollToFeatures = () => {
-    const element = document.getElementById("features");
-    element?.scrollIntoView({ behavior: "smooth" });
+    const element = document.getElementById('features');
+    element?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (

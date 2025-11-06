@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Users, Activity, Award } from "lucide-react";
-import { ROUTES } from "@/lib/constants/routes";
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Users, Activity, Award } from 'lucide-react';
+import { ROUTES } from '@/lib/constants/routes';
 
 interface HeroProps {
   onLearnMore?: () => void;
@@ -18,9 +18,8 @@ export function Hero({ onLearnMore }: HeroProps) {
           <span className="text-primary"> Knee Rehabilitation</span>
         </h1>
         <p className="text-xl text-muted-foreground lg:text-2xl mb-8">
-          Recover smarter with personalized exercise plans, real-time AI
-          feedback, and comprehensive progress tracking—all from the
-          comfort of your home.
+          Recover smarter with personalized exercise plans, real-time AI feedback, and comprehensive
+          progress tracking—all from the comfort of your home.
         </p>
       </div>
 

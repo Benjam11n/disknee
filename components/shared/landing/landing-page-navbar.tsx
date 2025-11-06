@@ -1,19 +1,17 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Logo } from "@/components/shared/logo";
-import { ROUTES } from "@/lib/constants/routes";
-import { ThemeToggle } from "@/components/shared/theme/theme-toggle";
+import { useState } from 'react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Logo } from '@/components/shared/logo';
+import { ROUTES } from '@/lib/constants/routes';
+import { ThemeToggle } from '@/components/shared/theme/theme-toggle';
 
 interface LandingPageNavbarProps {
   scrollToFeatures?: () => void;
 }
 
-export function LandingPageNavbar({
-  scrollToFeatures,
-}: LandingPageNavbarProps) {
+export function LandingPageNavbar({ scrollToFeatures }: LandingPageNavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleFeaturesClick = () => {
@@ -53,17 +51,8 @@ export function LandingPageNavbar({
 
           <div className="md:hidden flex items-center gap-2">
             <ThemeToggle />
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+            <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {isMenuOpen ? (
                   <path
                     strokeLinecap="round"

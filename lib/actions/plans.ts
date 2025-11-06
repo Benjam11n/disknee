@@ -1,19 +1,14 @@
-"use server";
+'use server';
 
-import { prisma } from "@/lib/prisma";
-import { action } from "@/lib/handlers/action";
-import { handleError } from "@/lib/handlers/error";
-import {
-  GetPlansSchema,
-  GetPlanByIdSchema,
-} from "@/lib/validations/plan-validations";
-import { GetPlanByIdParams, GetPlansParams } from "@/lib/types/plans";
-import { Plan } from "@prisma/client";
-import { NotFoundError } from "@/lib/http-errors";
+import { prisma } from '@/lib/prisma';
+import { action } from '@/lib/handlers/action';
+import { handleError } from '@/lib/handlers/error';
+import { GetPlansSchema, GetPlanByIdSchema } from '@/lib/validations/plan-validations';
+import { GetPlanByIdParams, GetPlansParams } from '@/lib/types/plans';
+import { Plan } from '@prisma/client';
+import { NotFoundError } from '@/lib/http-errors';
 
-export async function getPlansAction(
-  params: GetPlansParams
-): Promise<ActionResponse<Plan[]>> {
+export async function getPlansAction(params: GetPlansParams): Promise<ActionResponse<Plan[]>> {
   const validationResult = await action({
     params: params,
     schema: GetPlansSchema,
@@ -34,7 +29,7 @@ export async function getPlansAction(
           lte: endDate ? new Date(endDate) : undefined,
         },
       },
-      orderBy: { date: "asc" },
+      orderBy: { date: 'asc' },
       take: limit,
       skip: offset,
     });
@@ -45,9 +40,7 @@ export async function getPlansAction(
   }
 }
 
-export async function getPlanByIdAction(
-  params: GetPlanByIdParams
-): Promise<ActionResponse<Plan>> {
+export async function getPlanByIdAction(params: GetPlanByIdParams): Promise<ActionResponse<Plan>> {
   const validationResult = await action({
     params: params,
     schema: GetPlanByIdSchema,
@@ -66,7 +59,7 @@ export async function getPlanByIdAction(
     });
 
     if (!plan) {
-      throw new NotFoundError("Plan not found");
+      throw new NotFoundError('Plan not found');
     }
 
     return { success: true, data: plan };

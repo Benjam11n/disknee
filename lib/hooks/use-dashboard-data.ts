@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
-import { Appointment, Plan, leaderboardByScore } from "@prisma/client";
-import { buildMonthMatrix, formatYMD, formatTime24Hour } from "@/lib/utils/date-utils";
-import { PlanWithExercises } from "@/lib/types/plans";
+import { useMemo, useState } from 'react';
+import { Appointment, Plan, leaderboardByScore } from '@prisma/client';
+import { buildMonthMatrix, formatYMD, formatTime24Hour } from '@/lib/utils/date-utils';
+import { PlanWithExercises } from '@/lib/types/plans';
 
 interface UseDashboardDataProps {
   appointments: Appointment[];
@@ -20,10 +20,7 @@ export function useDashboardData({
 
   // Calendar
   const today = useMemo(() => new Date(), []);
-  const { monthMatrix, monthLabel } = useMemo(
-    () => buildMonthMatrix(today),
-    [today]
-  );
+  const { monthMatrix, monthLabel } = useMemo(() => buildMonthMatrix(today), [today]);
   const [selectedDate, setSelectedDate] = useState<Date>(today);
 
   // Highlight sets
@@ -39,9 +36,7 @@ export function useDashboardData({
   const planDays = useMemo<Set<string>>(
     () =>
       new Set(
-        (Array.isArray(plans) ? plans : [])
-          .filter(Boolean)
-          .map((p) => formatYMD(new Date(p.date)))
+        (Array.isArray(plans) ? plans : []).filter(Boolean).map((p) => formatYMD(new Date(p.date)))
       ),
     [plans]
   );
@@ -50,7 +45,9 @@ export function useDashboardData({
   const selectedPlans: PlanWithExercises[] = useMemo(() => {
     const sel = selectedDate ? formatYMD(selectedDate) : null;
 
-    if (!sel) return [];
+    if (!sel) {
+      return [];
+    }
     return (Array.isArray(plans) ? plans : []).filter(
       (p) => p?.date && formatYMD(new Date(p.date)) === sel
     );
@@ -65,17 +62,13 @@ export function useDashboardData({
       .map((a) => ({
         ...a,
         date: formatYMD(new Date(a.start)),
-        time: formatTime24Hour(
-          a.start instanceof Date ? a.start.toISOString() : a.start
-        ),
+        time: formatTime24Hour(a.start instanceof Date ? a.start.toISOString() : a.start),
       }));
   }, [appointments]);
 
   // Find patient rank from leaderboard
   const patientRank = useMemo(() => {
-    const patientEntry = leaderboard.find(
-      (entry) => entry.name === patientName
-    );
+    const patientEntry = leaderboard.find((entry) => entry.name === patientName);
     return patientEntry?.rank || leaderboard.length + 1;
   }, [leaderboard, patientName]);
 

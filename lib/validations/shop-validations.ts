@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const GetShopItemsSchema = z.object({
   activeOnly: z.coerce.boolean().default(true),

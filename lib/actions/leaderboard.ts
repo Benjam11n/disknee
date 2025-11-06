@@ -1,18 +1,15 @@
-"use server";
+'use server';
 
-import { prisma } from "@/lib/prisma";
-import { action } from "@/lib/handlers/action";
-import { handleError } from "@/lib/handlers/error";
+import { prisma } from '@/lib/prisma';
+import { action } from '@/lib/handlers/action';
+import { handleError } from '@/lib/handlers/error';
 import {
   GetLeaderboardSchema,
   GetLeaderboardByRankSchema,
-} from "@/lib/validations/leaderboard-validations";
-import {
-  GetLeaderboardByRankParams,
-  GetLeaderboardParams,
-} from "@/lib/types/leaderboard";
-import { leaderboardByAccuracy, leaderboardByScore } from "@prisma/client";
-import { NotFoundError } from "@/lib/http-errors";
+} from '@/lib/validations/leaderboard-validations';
+import { GetLeaderboardByRankParams, GetLeaderboardParams } from '@/lib/types/leaderboard';
+import { leaderboardByAccuracy, leaderboardByScore } from '@prisma/client';
+import { NotFoundError } from '@/lib/http-errors';
 
 export async function getLeaderboardAction(
   params: GetLeaderboardParams
@@ -27,14 +24,13 @@ export async function getLeaderboardAction(
     return handleError(validationResult) as ErrorResponse;
   }
 
-  const { limit, offset, sortBy, sortOrder, name, rankingType } =
-    validationResult.params!;
+  const { limit, offset, sortBy, sortOrder, name, rankingType } = validationResult.params!;
 
   try {
-    if (rankingType === "accuracy") {
+    if (rankingType === 'accuracy') {
       const leaderboard = await prisma.leaderboardByAccuracy.findMany({
         where: {
-          name: name ? { contains: name, mode: "insensitive" } : undefined,
+          name: name ? { contains: name, mode: 'insensitive' } : undefined,
         },
         orderBy: { [sortBy]: sortOrder },
         take: limit,
@@ -42,14 +38,14 @@ export async function getLeaderboardAction(
       });
 
       if (!leaderboard.length) {
-        throw new NotFoundError("Leaderboard not found");
+        throw new NotFoundError('Leaderboard not found');
       }
 
       return { success: true, data: leaderboard };
     } else {
       const leaderboard = await prisma.leaderboardByScore.findMany({
         where: {
-          name: name ? { contains: name, mode: "insensitive" } : undefined,
+          name: name ? { contains: name, mode: 'insensitive' } : undefined,
         },
         orderBy: { [sortBy]: sortOrder },
         take: limit,
@@ -57,7 +53,7 @@ export async function getLeaderboardAction(
       });
 
       if (!leaderboard.length) {
-        throw new NotFoundError("Leaderboard not found");
+        throw new NotFoundError('Leaderboard not found');
       }
 
       return { success: true, data: leaderboard };
@@ -68,7 +64,7 @@ export async function getLeaderboardAction(
 }
 
 export async function getLeaderboardByRankAction(
-  params: GetLeaderboardByRankParams & { rankingType?: "score" | "accuracy" }
+  params: GetLeaderboardByRankParams & { rankingType?: 'score' | 'accuracy' }
 ): Promise<ActionResponse<leaderboardByScore[] | leaderboardByAccuracy[]>> {
   const validationResult = await action({
     params: params,
@@ -83,7 +79,7 @@ export async function getLeaderboardByRankAction(
   const { startRank, endRank, rankingType } = validationResult.params!;
 
   try {
-    if (rankingType === "accuracy") {
+    if (rankingType === 'accuracy') {
       const leaderboard = await prisma.leaderboardByAccuracy.findMany({
         where: {
           rank: {
@@ -91,11 +87,11 @@ export async function getLeaderboardByRankAction(
             lte: endRank,
           },
         },
-        orderBy: { rank: "asc" },
+        orderBy: { rank: 'asc' },
       });
 
       if (!leaderboard.length) {
-        throw new NotFoundError("Leaderboard not found");
+        throw new NotFoundError('Leaderboard not found');
       }
 
       return { success: true, data: leaderboard };
@@ -107,11 +103,11 @@ export async function getLeaderboardByRankAction(
             lte: endRank,
           },
         },
-        orderBy: { rank: "asc" },
+        orderBy: { rank: 'asc' },
       });
 
       if (!leaderboard.length) {
-        throw new NotFoundError("Leaderboard not found");
+        throw new NotFoundError('Leaderboard not found');
       }
 
       return { success: true, data: leaderboard };

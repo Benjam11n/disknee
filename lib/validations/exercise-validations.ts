@@ -1,16 +1,16 @@
-import { ExerciseDifficulty } from "@prisma/client";
-import { z } from "zod";
+import { ExerciseDifficulty } from '@prisma/client';
+import { z } from 'zod';
 
 const ExerciseBaseSchema = z.object({
-  title: z.string().min(1, "Title is required").max(200, "Title too long"),
+  title: z.string().min(1, 'Title is required').max(200, 'Title too long'),
   estimatedMins: z
     .number()
     .int()
-    .min(1, "Duration must be at least 1 minute")
-    .max(180, "Duration cannot exceed 3 hours"),
+    .min(1, 'Duration must be at least 1 minute')
+    .max(180, 'Duration cannot exceed 3 hours'),
   difficulty: z.nativeEnum(ExerciseDifficulty),
   done: z.boolean().default(false),
-  videoUrl: z.string().url("Invalid URL format").optional().or(z.literal("")),
+  videoUrl: z.string().url('Invalid URL format').optional().or(z.literal('')),
 });
 
 export const CreateExerciseSchema = ExerciseBaseSchema.extend({

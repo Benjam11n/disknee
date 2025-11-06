@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Form,
@@ -7,12 +7,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
-import { Slider } from "@/components/ui/slider";
-import { ReflectionFormData } from "@/lib/validations/reflection-validations";
-import { UseFormReturn } from "react-hook-form";
-import { getFatigueLabel } from "@/lib/utils/session-utils";
+} from '@/components/ui/form';
+import { Textarea } from '@/components/ui/textarea';
+import { Slider } from '@/components/ui/slider';
+import { ReflectionFormData } from '@/lib/validations/reflection-validations';
+import { UseFormReturn } from 'react-hook-form';
+import { getFatigueLabel } from '@/lib/utils/session-utils';
 
 interface ReflectionFormFieldsProps {
   form: UseFormReturn<ReflectionFormData>;
@@ -72,9 +72,7 @@ export function ReflectionFormFields({ form }: ReflectionFormFieldsProps) {
                     className="w-full"
                   />
                   <div className="flex justify-center items-center gap-2 text-sm font-medium text-muted-foreground">
-                    <span>
-                      Current level: {getFatigueLabel(field.value[0])}
-                    </span>
+                    <span>Current level: {getFatigueLabel(field.value[0])}</span>
                   </div>
                   <div className="flex justify-between text-xs text-muted-foreground px-2">
                     <span>🟢 Very Low</span>

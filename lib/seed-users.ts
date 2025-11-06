@@ -1,10 +1,6 @@
-import { auth } from "./auth";
+import { auth } from './auth';
 
-export async function createSeedUser(userCred: {
-  name: string;
-  email: string;
-  password: string;
-}) {
+export async function createSeedUser(userCred: { name: string; email: string; password: string }) {
   // Create user using Better Auth's internal API
   const user = await auth.api.signUpEmail({
     body: {

@@ -1,6 +1,6 @@
-import { ExerciseDifficulty } from "@prisma/client";
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { ExerciseDifficulty } from '@prisma/client';
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -19,26 +19,26 @@ export function getRankDisplay(rank: number): string {
 export function getDifficultyBadgeVariant(difficulty?: ExerciseDifficulty) {
   switch (difficulty) {
     case ExerciseDifficulty.EASY:
-      return "default";
+      return 'default';
     case ExerciseDifficulty.MODERATE:
-      return "secondary";
+      return 'secondary';
     case ExerciseDifficulty.HARD:
-      return "destructive";
+      return 'destructive';
     default:
-      return "outline";
+      return 'outline';
   }
 }
 
 export function getDifficultyColor(difficulty?: ExerciseDifficulty) {
   switch (difficulty) {
     case ExerciseDifficulty.EASY:
-      return "text-emerald-600 dark:text-emerald-400";
+      return 'text-emerald-600 dark:text-emerald-400';
     case ExerciseDifficulty.MODERATE:
-      return "text-amber-600 dark:text-amber-400";
+      return 'text-amber-600 dark:text-amber-400';
     case ExerciseDifficulty.HARD:
-      return "text-rose-600 dark:text-rose-400";
+      return 'text-rose-600 dark:text-rose-400';
     default:
-      return "text-muted-foreground";
+      return 'text-muted-foreground';
   }
 }
 
@@ -46,31 +46,27 @@ export function getDifficultyStyles(difficulty?: ExerciseDifficulty) {
   switch (difficulty) {
     case ExerciseDifficulty.EASY:
       return {
-        row: "border-l-4 border-l-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/50",
-        toggle: "border-emerald-500 text-emerald-600 dark:text-emerald-50",
-        toggleChecked:
-          "bg-emerald-500 text-emerald-50 border-emerald-600 dark:border-emerald-700",
+        row: 'border-l-4 border-l-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/50',
+        toggle: 'border-emerald-500 text-emerald-600 dark:text-emerald-50',
+        toggleChecked: 'bg-emerald-500 text-emerald-50 border-emerald-600 dark:border-emerald-700',
       };
     case ExerciseDifficulty.MODERATE:
       return {
-        row: "border-l-4 border-l-amber-500 bg-amber-50/50 dark:bg-amber-900/50",
-        toggle: "border-amber-500 text-amber-600 dark:text-amber-50",
-        toggleChecked:
-          "bg-amber-500 text-amber-50 border-amber-600 dark:border-amber-700",
+        row: 'border-l-4 border-l-amber-500 bg-amber-50/50 dark:bg-amber-900/50',
+        toggle: 'border-amber-500 text-amber-600 dark:text-amber-50',
+        toggleChecked: 'bg-amber-500 text-amber-50 border-amber-600 dark:border-amber-700',
       };
     case ExerciseDifficulty.HARD:
       return {
-        row: "border-l-4 border-l-rose-500 bg-rose-50/50 dark:bg-rose-900/50",
-        toggle: "border-rose-500 text-rose-600 dark:text-rose-50",
-        toggleChecked:
-          "bg-rose-500 text-rose-50 border-rose-600 dark:border-rose-700",
+        row: 'border-l-4 border-l-rose-500 bg-rose-50/50 dark:bg-rose-900/50',
+        toggle: 'border-rose-500 text-rose-600 dark:text-rose-50',
+        toggleChecked: 'bg-rose-500 text-rose-50 border-rose-600 dark:border-rose-700',
       };
     default:
       return {
-        row: "border-l-4 border-l-muted dark:border-l-muted-foreground",
-        toggle: "border-muted text-muted-foreground dark:text-muted-foreground",
-        toggleChecked:
-          "bg-muted text-muted-foreground dark:bg-muted-foreground",
+        row: 'border-l-4 border-l-muted dark:border-l-muted-foreground',
+        toggle: 'border-muted text-muted-foreground dark:text-muted-foreground',
+        toggleChecked: 'bg-muted text-muted-foreground dark:bg-muted-foreground',
       };
   }
 }

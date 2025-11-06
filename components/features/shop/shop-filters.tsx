@@ -1,15 +1,15 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Filter, Search } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Filter, Search } from 'lucide-react';
 
 interface ShopFiltersProps {
   searchTerm: string;
   setSearchTerm: (value: string) => void;
   selectedCategory: string;
   setSelectedCategory: (value: string) => void;
-  sortBy: "name" | "price-asc" | "price-desc";
-  setSortBy: (value: "name" | "price-asc" | "price-desc") => void;
+  sortBy: 'name' | 'price-asc' | 'price-desc';
+  setSortBy: (value: 'name' | 'price-asc' | 'price-desc') => void;
   categories: string[];
   resultsCount: number;
 }
@@ -51,7 +51,7 @@ export function ShopFilters({
             {categories.map((category) => (
               <Button
                 key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
+                variant={selectedCategory === category ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setSelectedCategory(category)}
                 className="capitalize"
@@ -64,23 +64,23 @@ export function ShopFilters({
           {/* Sort Options */}
           <div className="flex gap-2">
             <Button
-              variant={sortBy === "name" ? "default" : "outline"}
+              variant={sortBy === 'name' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setSortBy("name")}
+              onClick={() => setSortBy('name')}
             >
               Name
             </Button>
             <Button
-              variant={sortBy === "price-asc" ? "default" : "outline"}
+              variant={sortBy === 'price-asc' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setSortBy("price-asc")}
+              onClick={() => setSortBy('price-asc')}
             >
               Price ↑
             </Button>
             <Button
-              variant={sortBy === "price-desc" ? "default" : "outline"}
+              variant={sortBy === 'price-desc' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setSortBy("price-desc")}
+              onClick={() => setSortBy('price-desc')}
             >
               Price ↓
             </Button>
@@ -89,7 +89,7 @@ export function ShopFilters({
 
         {/* Results count */}
         <div className="text-sm text-muted-foreground">
-          {resultsCount} {resultsCount === 1 ? "item" : "items"} found
+          {resultsCount} {resultsCount === 1 ? 'item' : 'items'} found
         </div>
       </CardContent>
     </Card>

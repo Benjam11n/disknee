@@ -1,21 +1,18 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  getAvailableFreezesAction,
-  activateFreezeAction,
-} from "@/lib/actions/streaks";
-import { Snowflake, Shield, Clock } from "lucide-react";
-import { toast } from "sonner";
-import { logger } from "@/lib/logger";
+} from '@/components/ui/dialog';
+import { getAvailableFreezesAction, activateFreezeAction } from '@/lib/actions/streaks';
+import { Snowflake, Shield, Clock } from 'lucide-react';
+import { toast } from 'sonner';
+import { logger } from '@/lib/logger';
 
 interface FreezeInventoryProps {
   userId: string;
@@ -38,6 +35,7 @@ export function FreezeInventory({
   onFreezeActivated,
 }: FreezeInventoryProps) {
   const [freezes, setFreezes] = useState<FreezeItem[]>([]);
+  // todo: use this to show loading state
   const [loading, setLoading] = useState(true);
   const [activating, setActivating] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
@@ -54,7 +52,7 @@ export function FreezeInventory({
         setFreezes(result.data);
       }
     } catch (error) {
-      logger.error(error, "Failed to load freezes:");
+      logger.error(error, 'Failed to load freezes:');
     } finally {
       setLoading(false);
     }
@@ -69,20 +67,17 @@ export function FreezeInventory({
         await loadFreezes(); // Reload freezes
         onFreezeActivated?.();
       } else {
-        toast.error(result.error || "Failed to activate freeze");
+        toast.error(result.error || 'Failed to activate freeze');
       }
     } catch (error) {
-      toast.error("Failed to activate freeze");
-      console.error(error);
+      toast.error('Failed to activate freeze');
+      logger.error(error, 'Failed to activate freeze:');
     } finally {
       setActivating(null);
     }
   };
 
-  const totalFreezeDays = freezes.reduce(
-    (sum, freeze) => sum + freeze.duration,
-    0
-  );
+  const totalFreezeDays = freezes.reduce((sum, freeze) => sum + freeze.duration, 0);
 
   if (freezes.length === 0 && !isFrozen) {
     return null;
@@ -104,20 +99,15 @@ export function FreezeInventory({
       {freezes.length > 0 && (
         <Dialog open={showAll} onOpenChange={setShowAll}>
           <DialogTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full justify-between"
-            >
+            <Button variant="outline" size="sm" className="w-full justify-between">
               <div className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
                 <span>
-                  {totalFreezeDays} Freeze Day{totalFreezeDays !== 1 ? "s" : ""}{" "}
-                  Available
+                  {totalFreezeDays} Freeze Day{totalFreezeDays !== 1 ? 's' : ''} Available
                 </span>
               </div>
               <span className="text-xs text-muted-foreground">
-                ({freezes.length} item{freezes.length !== 1 ? "s" : ""})
+                ({freezes.length} item{freezes.length !== 1 ? 's' : ''})
               </span>
             </Button>
           </DialogTrigger>
@@ -137,9 +127,7 @@ export function FreezeInventory({
                 <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                   <div className="flex items-center gap-2 mb-1">
                     <Clock className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm font-medium text-blue-800">
-                      Currently Active
-                    </span>
+                    <span className="text-sm font-medium text-blue-800">Currently Active</span>
                   </div>
                   <p className="text-xs text-blue-700">
                     Protected until {frozenUntil.toLocaleDateString()}
@@ -155,17 +143,13 @@ export function FreezeInventory({
                   >
                     <div className="flex items-center gap-3">
                       <div className="text-2xl">
-                        {freeze.duration === 1
-                          ? "❄️"
-                          : freeze.duration <= 3
-                          ? "🧊"
-                          : "🌨️"}
+                        {freeze.duration === 1 ? '❄️' : freeze.duration <= 3 ? '🧊' : '🌨️'}
                       </div>
                       <div>
                         <p className="font-medium">{freeze.name}</p>
                         <p className="text-xs text-muted-foreground">
                           Protects streak for {freeze.duration} day
-                          {freeze.duration !== 1 ? "s" : ""}
+                          {freeze.duration !== 1 ? 's' : ''}
                         </p>
                       </div>
                     </div>
@@ -177,9 +161,9 @@ export function FreezeInventory({
                       {activating === freeze.id ? (
                         <span className="animate-pulse">Activating...</span>
                       ) : isFrozen ? (
-                        "Active"
+                        'Active'
                       ) : (
-                        "Use"
+                        'Use'
                       )}
                     </Button>
                   </div>

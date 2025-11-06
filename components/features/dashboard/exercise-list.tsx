@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { ExerciseItem } from "./exercise-item";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Exercise } from "@prisma/client";
-import { canStartExercise } from "@/lib/utils/exercise-utils";
+import { ExerciseItem } from './exercise-item';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Exercise } from '@prisma/client';
+import { canStartExercise } from '@/lib/utils/exercise-utils';
 
 interface ExerciseListProps {
   exercises: Exercise[];
@@ -12,26 +12,20 @@ interface ExerciseListProps {
   weeklyTotalMins: number;
 }
 
-export function ExerciseList({
-  exercises,
-  pillPercent,
-  weeklyTotalMins,
-}: ExerciseListProps) {
+export function ExerciseList({ exercises, pillPercent, weeklyTotalMins }: ExerciseListProps) {
   return (
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Exercises</h2>
-        <div className="text-sm text-muted-foreground">
-          {weeklyTotalMins} min this week
-        </div>
+        <div className="text-sm text-muted-foreground">{weeklyTotalMins} min this week</div>
       </div>
 
       {/* Progress with shadcn/ui Progress component */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium">Weekly Progress</span>
-          <Badge variant={pillPercent === 100 ? "default" : "secondary"}>
+          <Badge variant={pillPercent === 100 ? 'default' : 'secondary'}>
             {pillPercent}% complete
           </Badge>
         </div>
@@ -40,7 +34,7 @@ export function ExerciseList({
 
       {/* Exercise list */}
       <ul className="space-y-2">
-        {exercises.map((exercise, index) => (
+        {exercises.map((exercise) => (
           <ExerciseItem
             key={exercise.id}
             exercise={exercise}

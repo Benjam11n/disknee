@@ -1,15 +1,15 @@
-import { getExercisesAction } from "@/lib/actions/exercises";
-import { getAppointmentsAction } from "@/lib/actions/appointments";
-import { getPlansAction } from "@/lib/actions/plans";
-import { getLeaderboardAction } from "@/lib/actions/leaderboard";
-import { getUserByIdAction } from "@/lib/actions/users";
-import { getUserInventoryAction } from "@/lib/actions/shop";
-import { DashboardClient } from "@/components/features/dashboard/dashboard-client";
-import { Plan, ShopItem, UserInventory, User } from "@prisma/client";
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import { headers } from "next/headers";
-import { ROUTES } from "@/lib/constants/routes";
+import { getExercisesAction } from '@/lib/actions/exercises';
+import { getAppointmentsAction } from '@/lib/actions/appointments';
+import { getPlansAction } from '@/lib/actions/plans';
+import { getLeaderboardAction } from '@/lib/actions/leaderboard';
+import { getUserByIdAction } from '@/lib/actions/users';
+import { getUserInventoryAction } from '@/lib/actions/shop';
+import { DashboardClient } from '@/components/features/dashboard/dashboard-client';
+import { Plan, ShopItem, UserInventory, User } from '@prisma/client';
+import { auth } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
+import { ROUTES } from '@/lib/constants/routes';
 
 export default async function RehabDashboardPage() {
   const session = await auth.api.getSession({
@@ -36,23 +36,19 @@ export default async function RehabDashboardPage() {
     getLeaderboardAction({
       limit: 50,
       offset: 0,
-      sortBy: "rank",
-      sortOrder: "asc",
-      rankingType: "score",
+      sortBy: 'rank',
+      sortOrder: 'asc',
+      rankingType: 'score',
     }),
     getUserByIdAction({ userId }),
     getUserInventoryAction({ userId }),
   ]);
 
   // Handle exercises data
-  const exercises = exercisesResponse.success
-    ? exercisesResponse.data || []
-    : [];
+  const exercises = exercisesResponse.success ? exercisesResponse.data || [] : [];
 
   // Handle appointments data
-  const appointments = appointmentsResponse.success
-    ? appointmentsResponse.data || []
-    : [];
+  const appointments = appointmentsResponse.success ? appointmentsResponse.data || [] : [];
 
   // Handle plans data - filter for current month
   const today = new Date();
@@ -68,22 +64,18 @@ export default async function RehabDashboardPage() {
     });
   }
 
-  const leaderboard = leaderboardResponse.success
-    ? leaderboardResponse.data || []
-    : [];
+  const leaderboard = leaderboardResponse.success ? leaderboardResponse.data || [] : [];
 
   const user: User =
     userResponse.success && userResponse.data
       ? userResponse.data
-      : ({ id: "default", name: "Donald Duck", points: 0 } as User);
+      : ({ id: 'default', name: 'Donald Duck', points: 0 } as User);
 
   const inventory = inventoryResponse.success
     ? (inventoryResponse.data as (UserInventory & { item: ShopItem })[]) || []
     : [];
 
-  const equippedItems = inventory
-    .filter((item) => item.isEquipped)
-    .map((item) => item.item);
+  const equippedItems = inventory.filter((item) => item.isEquipped).map((item) => item.item);
 
   const initialData = {
     patientName: user.name,

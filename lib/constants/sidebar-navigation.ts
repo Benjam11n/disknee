@@ -7,8 +7,8 @@ import {
   HelpCircle,
   LucideIcon,
   NotebookText,
-} from "lucide-react";
-import { ROUTES } from "@/lib/constants/routes";
+} from 'lucide-react';
+import { ROUTES } from '@/lib/constants/routes';
 
 export type NavigationItem = {
   name: string;
@@ -18,27 +18,27 @@ export type NavigationItem = {
 
 export const navigation: NavigationItem[] = [
   {
-    name: "Dashboard",
+    name: 'Dashboard',
     href: ROUTES.DASHBOARD,
     icon: Home,
   },
   {
-    name: "Exercises",
+    name: 'Exercises',
     href: ROUTES.EXERCISE.BASE,
     icon: Activity,
   },
   {
-    name: "Reports",
+    name: 'Reports',
     href: ROUTES.REPORTS,
     icon: NotebookText,
   },
   {
-    name: "Shop",
+    name: 'Shop',
     href: ROUTES.SHOP,
     icon: ShoppingBag,
   },
   {
-    name: "Leaderboard",
+    name: 'Leaderboard',
     href: ROUTES.LEADERBOARD,
     icon: Trophy,
   },
@@ -46,12 +46,12 @@ export const navigation: NavigationItem[] = [
 
 export const secondaryNavigation: NavigationItem[] = [
   {
-    name: "Settings",
+    name: 'Settings',
     href: ROUTES.SETTINGS,
     icon: Settings,
   },
   {
-    name: "Help & Support",
+    name: 'Help & Support',
     href: ROUTES.HELP,
     icon: HelpCircle,
   },

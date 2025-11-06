@@ -1,19 +1,13 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { ROUTES } from "@/lib/constants/routes";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { ROUTES } from '@/lib/constants/routes';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Form,
   FormControl,
@@ -21,16 +15,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Loader2, Eye, EyeOff } from "lucide-react";
-import { authClient } from "@/lib/auth-client";
-import { Logo } from "@/components/shared/logo";
-import {
-  loginSchema,
-  type LoginFormData,
-} from "@/lib/validations/auth-validations";
-import { useState } from "react";
-import { logger } from "@/lib/logger";
+} from '@/components/ui/form';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { authClient } from '@/lib/auth-client';
+import { Logo } from '@/components/shared/logo';
+import { loginSchema, type LoginFormData } from '@/lib/validations/auth-validations';
+import { useState } from 'react';
+import { logger } from '@/lib/logger';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -40,8 +31,8 @@ export default function LoginPage() {
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
   });
 
@@ -56,14 +47,14 @@ export default function LoginPage() {
       },
       {
         onSuccess(context) {
-          logger.info(context, "context");
-          toast.success("Successfully signed in!");
+          logger.info(context, 'context');
+          toast.success('Successfully signed in!');
           router.push(ROUTES.DASHBOARD);
           router.refresh();
         },
         onError(ctx) {
-          logger.error(ctx, "ctx");
-          toast.error(ctx.error.message || "Invalid credentials");
+          logger.error(ctx, 'ctx');
+          toast.error(ctx.error.message || 'Invalid credentials');
         },
       }
     );
@@ -113,7 +104,7 @@ export default function LoginPage() {
                       <div className="relative">
                         <Input
                           placeholder="Enter your password"
-                          type={showPassword ? "text" : "password"}
+                          type={showPassword ? 'text' : 'password'}
                           autoComplete="current-password"
                           className="pr-10"
                           {...field}
@@ -147,7 +138,7 @@ export default function LoginPage() {
                     Signing in...
                   </>
                 ) : (
-                  "Sign In"
+                  'Sign In'
                 )}
               </Button>
             </form>

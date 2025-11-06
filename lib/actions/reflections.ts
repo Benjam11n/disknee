@@ -1,11 +1,11 @@
-"use server";
+'use server';
 
-import { Reflection } from "@prisma/client";
-import { CreateReflectionParams } from "@/lib/types/exercise-sessions";
-import { action } from "@/lib/handlers/action";
-import { CreateReflectionSchema } from "@/lib/validations/exercise-session-validations";
-import { handleError } from "@/lib/handlers/error";
-import { prisma } from "@/lib/prisma";
+import { Reflection } from '@prisma/client';
+import { CreateReflectionParams } from '@/lib/types/exercise-sessions';
+import { action } from '@/lib/handlers/action';
+import { CreateReflectionSchema } from '@/lib/validations/exercise-session-validations';
+import { handleError } from '@/lib/handlers/error';
+import { prisma } from '@/lib/prisma';
 
 export async function createReflectionAction(
   params: CreateReflectionParams
@@ -20,8 +20,7 @@ export async function createReflectionAction(
     return handleError(validationResult) as ErrorResponse;
   }
 
-  const { exerciseSessionId, rating, fatigue, feedback } =
-    validationResult.params!;
+  const { exerciseSessionId, rating, fatigue, feedback } = validationResult.params!;
 
   try {
     const reflection = await prisma.reflection.create({

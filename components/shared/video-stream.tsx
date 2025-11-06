@@ -1,18 +1,15 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState, useCallback } from "react";
-import { PoseLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
-import { Landmark } from "@/lib/pose-utils";
-import { logger } from "@/lib/logger";
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { PoseLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
+import { Landmark } from '@/lib/pose-utils';
+import { logger } from '@/lib/logger';
 
 const DETECTION_INTERVAL = 2; // Detect every 2 frames (~30fps)
 const DETECTION_FPS = 1000 / 30; // 30fps interval
 
 interface VideoStreamProps {
-  onPoseResults?: (results: {
-    poseLandmarks: Landmark[];
-    image: HTMLVideoElement;
-  }) => void;
+  onPoseResults?: (results: { poseLandmarks: Landmark[]; image: HTMLVideoElement }) => void;
   isVideoOn: boolean;
   isCallActive: boolean;
   flipped?: boolean; // mirror video
@@ -43,13 +40,13 @@ export function VideoStream({
   // Load crown image once
   useEffect(() => {
     const img = new Image();
-    img.src = "/crown.png"; // ensure this exists in /public
+    img.src = '/crown.png'; // ensure this exists in /public
     img.onload = () => {
-      logger.info("Crown image loaded successfully");
+      logger.info('Crown image loaded successfully');
       crownImage.current = img;
     };
     img.onerror = () => {
-      logger.error("Failed to load crown image");
+      logger.error('Failed to load crown image');
     };
   }, []);
 
@@ -58,16 +55,16 @@ export function VideoStream({
     try {
       setIsLoading(true);
       const vision = await FilesetResolver.forVisionTasks(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
+        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm'
       );
 
       const poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
         baseOptions: {
           modelAssetPath:
-            "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
-          delegate: "GPU" as const,
+            'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task',
+          delegate: 'GPU' as const,
         },
-        runningMode: "VIDEO" as const,
+        runningMode: 'VIDEO' as const,
         numPoses: 1,
       });
 
@@ -75,17 +72,19 @@ export function VideoStream({
       setIsLoading(false);
     } catch (err) {
       logger.error(err);
-      setError("Failed to initialize pose detection");
+      setError('Failed to initialize pose detection');
       setIsLoading(false);
     }
   }, []);
 
   const startCamera = useCallback(async () => {
-    if (!videoRef.current) return;
+    if (!videoRef.current) {
+      return;
+    }
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 640, height: 480, facingMode: "user" },
+        video: { width: 640, height: 480, facingMode: 'user' },
         audio: false,
       });
       streamRef.current = stream;
@@ -98,7 +97,7 @@ export function VideoStream({
       await videoRef.current.play();
     } catch (err) {
       logger.error(err);
-      setError("Failed to access camera. Grant permissions and reload.");
+      setError('Failed to access camera. Grant permissions and reload.');
     }
   }, []);
 
@@ -107,8 +106,12 @@ export function VideoStream({
       streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
     }
-    if (animationRef.current) cancelAnimationFrame(animationRef.current);
-    if (videoRef.current) videoRef.current.srcObject = null;
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
     lastLandmarks.current = null;
     smoothedLandmarks.current = null;
     frameCount.current = 0;
@@ -120,7 +123,9 @@ export function VideoStream({
     landmarks: Landmark[],
     flipped: boolean
   ) => {
-    if (!landmarks) return;
+    if (!landmarks) {
+      return;
+    }
 
     const width = ctx.canvas.width;
     const height = ctx.canvas.height;
@@ -141,23 +146,17 @@ export function VideoStream({
       [12, 24],
     ];
 
-    ctx.strokeStyle = "lime";
+    ctx.strokeStyle = 'lime';
     ctx.lineWidth = 2;
-    ctx.fillStyle = "red";
+    ctx.fillStyle = 'red';
 
     connections.forEach(([startIdx, endIdx]) => {
       const start = landmarks[startIdx];
       const end = landmarks[endIdx];
       if (start && end) {
         ctx.beginPath();
-        ctx.moveTo(
-          flipped ? width - start.x * width : start.x * width,
-          start.y * height
-        );
-        ctx.lineTo(
-          flipped ? width - end.x * width : end.x * width,
-          end.y * height
-        );
+        ctx.moveTo(flipped ? width - start.x * width : start.x * width, start.y * height);
+        ctx.lineTo(flipped ? width - end.x * width : end.x * width, end.y * height);
         ctx.stroke();
       }
     });
@@ -172,7 +171,9 @@ export function VideoStream({
 
     // --- 👑 Draw Crown Above Nose ---
     const nose = landmarks[0];
-    if (!nose) return;
+    if (!nose) {
+      return;
+    }
 
     const noseX = flipped ? width - nose.x * width : nose.x * width;
     const noseY = nose.y * height;
@@ -183,18 +184,12 @@ export function VideoStream({
     if (img && img.complete && img.naturalWidth > 0) {
       const crownWidth = 120;
       const crownHeight = 80;
-      ctx.drawImage(
-        img,
-        noseX - crownWidth / 2,
-        crownY - crownHeight / 2,
-        crownWidth,
-        crownHeight
-      );
+      ctx.drawImage(img, noseX - crownWidth / 2, crownY - crownHeight / 2, crownWidth, crownHeight);
     } else {
       // fallback emoji crown
-      ctx.font = "80px sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText("👑", noseX, crownY);
+      ctx.font = '80px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('👑', noseX, crownY);
     }
   };
 
@@ -206,8 +201,10 @@ export function VideoStream({
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      return;
+    }
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
@@ -245,8 +242,7 @@ export function VideoStream({
                 y: prev.y * smoothingFactor + lm.y * (1 - smoothingFactor),
                 z: prev.z * smoothingFactor + lm.z * (1 - smoothingFactor),
                 visibility:
-                  prev.visibility * smoothingFactor +
-                  lm.visibility * (1 - smoothingFactor),
+                  prev.visibility * smoothingFactor + lm.visibility * (1 - smoothingFactor),
               };
             });
           }
@@ -258,14 +254,15 @@ export function VideoStream({
           onPoseResults?.({ poseLandmarks: smoothed, image: video });
         }
       } catch (err) {
-        logger.error(err, "Pose detection error:");
+        logger.error(err, 'Pose detection error:');
       }
     } else if (lastLandmarks.current) {
       onPoseResults?.({ poseLandmarks: lastLandmarks.current, image: video });
     }
 
-    if (ctx && lastLandmarks.current)
+    if (ctx && lastLandmarks.current) {
       drawLandmarks(ctx, lastLandmarks.current, flipped);
+    }
 
     animationRef.current = requestAnimationFrame(detectPose);
   }, [onPoseResults, flipped]);
@@ -277,16 +274,12 @@ export function VideoStream({
       stopCamera();
     }
     return () => stopCamera();
-  }, [
-    isCallActive,
-    isVideoOn,
-    initializePoseLandmarker,
-    startCamera,
-    stopCamera,
-  ]);
+  }, [isCallActive, isVideoOn, initializePoseLandmarker, startCamera, stopCamera]);
 
   useEffect(() => {
-    if (videoRef.current?.readyState === 4) detectPose();
+    if (videoRef.current?.readyState === 4) {
+      detectPose();
+    }
   }, [detectPose]);
 
   return (

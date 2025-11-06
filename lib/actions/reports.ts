@@ -1,19 +1,17 @@
-"use server";
+'use server';
 
-import { prisma } from "@/lib/prisma";
-import { ReviewStatus } from "@prisma/client";
-import { startOfWeekMonday } from "@/lib/utils/date-utils";
-import { logger } from "@/lib/logger";
-import { action } from "@/lib/handlers/action";
-import z from "zod";
-import { handleError } from "@/lib/handlers/error";
-import { UnauthorizedError } from "@/lib/http-errors";
-import { ReportsData } from "@/lib/types/reports";
-import { ExerciseSessionWithReflection } from "../types/exercise-sessions";
+import { prisma } from '@/lib/prisma';
+import { ReviewStatus } from '@prisma/client';
+import { startOfWeekMonday } from '@/lib/utils/date-utils';
+import { logger } from '@/lib/logger';
+import { action } from '@/lib/handlers/action';
+import z from 'zod';
+import { handleError } from '@/lib/handlers/error';
+import { UnauthorizedError } from '@/lib/http-errors';
+import { ReportsData } from '@/lib/types/reports';
+import { ExerciseSessionWithReflection } from '../types/exercise-sessions';
 
-export async function getReportsDataAction(): Promise<
-  ActionResponse<ReportsData>
-> {
+export async function getReportsDataAction(): Promise<ActionResponse<ReportsData>> {
   const validationResult = await action({
     params: {},
     authorize: true,
@@ -27,14 +25,14 @@ export async function getReportsDataAction(): Promise<
   const session = validationResult.session;
 
   if (!session?.user?.id) {
-    throw new UnauthorizedError("Unauthorized");
+    throw new UnauthorizedError('Unauthorized');
   }
 
   try {
     const sessions = await prisma.exerciseSession.findMany({
       where: { userId: session.user.id },
       include: { reflection: true },
-      orderBy: { startedAt: "desc" },
+      orderBy: { startedAt: 'desc' },
     });
 
     const weeksMap = new Map<
@@ -66,8 +64,8 @@ export async function getReportsDataAction(): Promise<
           .map(([dayIso, sessions]) => ({
             date: dayIso,
             items: sessions.map((ss) => ({
-              title: ss.exerciseTitle ?? "Exercise",
-              status: ss.endedAt ? "Completed" : "Incomplete",
+              title: ss.exerciseTitle ?? 'Exercise',
+              status: ss.endedAt ? 'Completed' : 'Incomplete',
               endedOn: ss.endedAt ? ss.endedAt.toISOString() : null,
               satisfaction: ss.reflection?.rating ?? null,
               fatigue: ss.reflection?.fatigue ?? null,
@@ -81,17 +79,13 @@ export async function getReportsDataAction(): Promise<
         const totalExercises = allItems.length;
         const avgSatisfaction =
           totalExercises > 0
-            ? +(
-                allItems.reduce((s, it) => s + (it.satisfaction || 0), 0) /
-                totalExercises
-              ).toFixed(1)
+            ? +(allItems.reduce((s, it) => s + (it.satisfaction || 0), 0) / totalExercises).toFixed(
+                1
+              )
             : null;
         const avgFatigue =
           totalExercises > 0
-            ? +(
-                allItems.reduce((s, it) => s + (it.fatigue || 0), 0) /
-                totalExercises
-              ).toFixed(1)
+            ? +(allItems.reduce((s, it) => s + (it.fatigue || 0), 0) / totalExercises).toFixed(1)
             : null;
         const totalPoints = allItems.reduce((s, it) => s + (it.points || 0), 0);
 
@@ -126,7 +120,7 @@ export async function getReportsDataAction(): Promise<
 
     return { success: true, data: { weeksWithMeta } };
   } catch (error) {
-    logger.error(error, "Failed to get reports data");
+    logger.error(error, 'Failed to get reports data');
     throw error;
   }
 }

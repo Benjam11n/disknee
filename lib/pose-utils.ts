@@ -67,8 +67,7 @@ interface PoseMetrics {
 
 // Calculate angle between three points
 export function calculateAngle(a: Landmark, b: Landmark, c: Landmark): number {
-  const radians =
-    Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
+  const radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
   let angle = Math.abs((radians * 180.0) / Math.PI);
 
   if (angle > 180.0) {
@@ -79,31 +78,18 @@ export function calculateAngle(a: Landmark, b: Landmark, c: Landmark): number {
 }
 
 // Calculate visibility for three points
-export function calculateVisibility(
-  a: Landmark,
-  b: Landmark,
-  c: Landmark
-): number {
+export function calculateVisibility(a: Landmark, b: Landmark, c: Landmark): number {
   return (a.visibility + b.visibility + c.visibility) / 3;
 }
 
 // Calculate knee angle (hip-knee-ankle)
-export function calculateKneeAngle(
-  landmarks: Landmark[],
-  side: "left" | "right"
-): AngleData {
+export function calculateKneeAngle(landmarks: Landmark[], side: 'left' | 'right'): AngleData {
   const hip =
-    side === "left"
-      ? landmarks[POSE_LANDMARKS.LEFT_HIP]
-      : landmarks[POSE_LANDMARKS.RIGHT_HIP];
+    side === 'left' ? landmarks[POSE_LANDMARKS.LEFT_HIP] : landmarks[POSE_LANDMARKS.RIGHT_HIP];
   const knee =
-    side === "left"
-      ? landmarks[POSE_LANDMARKS.LEFT_KNEE]
-      : landmarks[POSE_LANDMARKS.RIGHT_KNEE];
+    side === 'left' ? landmarks[POSE_LANDMARKS.LEFT_KNEE] : landmarks[POSE_LANDMARKS.RIGHT_KNEE];
   const ankle =
-    side === "left"
-      ? landmarks[POSE_LANDMARKS.LEFT_ANKLE]
-      : landmarks[POSE_LANDMARKS.RIGHT_ANKLE];
+    side === 'left' ? landmarks[POSE_LANDMARKS.LEFT_ANKLE] : landmarks[POSE_LANDMARKS.RIGHT_ANKLE];
 
   return {
     angle: calculateAngle(hip, knee, ankle),
@@ -112,22 +98,15 @@ export function calculateKneeAngle(
 }
 
 // Calculate elbow angle (shoulder-elbow-wrist)
-export function calculateElbowAngle(
-  landmarks: Landmark[],
-  side: "left" | "right"
-): AngleData {
+export function calculateElbowAngle(landmarks: Landmark[], side: 'left' | 'right'): AngleData {
   const shoulder =
-    side === "left"
+    side === 'left'
       ? landmarks[POSE_LANDMARKS.LEFT_SHOULDER]
       : landmarks[POSE_LANDMARKS.RIGHT_SHOULDER];
   const elbow =
-    side === "left"
-      ? landmarks[POSE_LANDMARKS.LEFT_ELBOW]
-      : landmarks[POSE_LANDMARKS.RIGHT_ELBOW];
+    side === 'left' ? landmarks[POSE_LANDMARKS.LEFT_ELBOW] : landmarks[POSE_LANDMARKS.RIGHT_ELBOW];
   const wrist =
-    side === "left"
-      ? landmarks[POSE_LANDMARKS.LEFT_WRIST]
-      : landmarks[POSE_LANDMARKS.RIGHT_WRIST];
+    side === 'left' ? landmarks[POSE_LANDMARKS.LEFT_WRIST] : landmarks[POSE_LANDMARKS.RIGHT_WRIST];
 
   return {
     angle: calculateAngle(shoulder, elbow, wrist),
@@ -136,22 +115,15 @@ export function calculateElbowAngle(
 }
 
 // Calculate hip angle (shoulder-hip-knee)
-export function calculateHipAngle(
-  landmarks: Landmark[],
-  side: "left" | "right"
-): AngleData {
+export function calculateHipAngle(landmarks: Landmark[], side: 'left' | 'right'): AngleData {
   const shoulder =
-    side === "left"
+    side === 'left'
       ? landmarks[POSE_LANDMARKS.LEFT_SHOULDER]
       : landmarks[POSE_LANDMARKS.RIGHT_SHOULDER];
   const hip =
-    side === "left"
-      ? landmarks[POSE_LANDMARKS.LEFT_HIP]
-      : landmarks[POSE_LANDMARKS.RIGHT_HIP];
+    side === 'left' ? landmarks[POSE_LANDMARKS.LEFT_HIP] : landmarks[POSE_LANDMARKS.RIGHT_HIP];
   const knee =
-    side === "left"
-      ? landmarks[POSE_LANDMARKS.LEFT_KNEE]
-      : landmarks[POSE_LANDMARKS.RIGHT_KNEE];
+    side === 'left' ? landmarks[POSE_LANDMARKS.LEFT_KNEE] : landmarks[POSE_LANDMARKS.RIGHT_KNEE];
 
   return {
     angle: calculateAngle(shoulder, hip, knee),
@@ -209,9 +181,7 @@ export function calculateOverallAccuracy(
     referenceAngles.kneeAngle &&
     currentAngles.kneeAngle.visibility > 0.5
   ) {
-    const diff = Math.abs(
-      currentAngles.kneeAngle.angle - referenceAngles.kneeAngle.angle
-    );
+    const diff = Math.abs(currentAngles.kneeAngle.angle - referenceAngles.kneeAngle.angle);
     const score = Math.max(0, 100 - diff * 2); // 2 points per degree deviation
     totalScore += score;
     count++;
@@ -223,9 +193,7 @@ export function calculateOverallAccuracy(
     referenceAngles.elbowAngle &&
     currentAngles.elbowAngle.visibility > 0.5
   ) {
-    const diff = Math.abs(
-      currentAngles.elbowAngle.angle - referenceAngles.elbowAngle.angle
-    );
+    const diff = Math.abs(currentAngles.elbowAngle.angle - referenceAngles.elbowAngle.angle);
     const score = Math.max(0, 100 - diff * 2);
     totalScore += score;
     count++;
@@ -237,9 +205,7 @@ export function calculateOverallAccuracy(
     referenceAngles.backAngle &&
     currentAngles.backAngle.visibility > 0.5
   ) {
-    const diff = Math.abs(
-      currentAngles.backAngle.angle - referenceAngles.backAngle.angle
-    );
+    const diff = Math.abs(currentAngles.backAngle.angle - referenceAngles.backAngle.angle);
     const score = Math.max(0, 100 - diff * 3); // Back angle is more important
     totalScore += score;
     count++;

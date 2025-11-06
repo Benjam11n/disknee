@@ -1,8 +1,8 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Target, Calendar, Sparkles } from "lucide-react";
-import { ShopItem } from "@prisma/client";
-import { getGreeting, getDailyQuote, getStreakMotivation } from "@/lib/utils/motivation-utils";
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { TrendingUp, Target, Calendar, Sparkles } from 'lucide-react';
+import { getGreeting, getDailyQuote, getStreakMotivation } from '@/lib/utils/motivation-utils';
+import { ShopItem } from '@prisma/client';
 
 interface HeroSectionProps {
   patientName: string;
@@ -17,9 +17,9 @@ export function HeroSection({
   streakCount = 0,
   userPoints = 0,
   completionRate = 0,
+  // todo: use this unused prop
   equippedItems = [],
 }: HeroSectionProps) {
-
   return (
     <div className="space-y-4 max-w-[1400px] mx-auto px-4 pt-8">
       {/* Welcome Card */}
@@ -34,9 +34,7 @@ export function HeroSection({
                   {getGreeting()}, {patientName}!
                 </h1>
               </div>
-              <p className="text-lg text-muted-foreground mb-4">
-                {getDailyQuote()}
-              </p>
+              <p className="text-lg text-muted-foreground mb-4">{getDailyQuote()}</p>
               <Badge
                 variant="secondary"
                 className="text-base px-4 py-2 bg-secondary text-secondary-foreground"
@@ -49,9 +47,7 @@ export function HeroSection({
             <div className="hidden md:flex gap-6 ml-8">
               {streakCount > 0 && (
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-primary">
-                    {streakCount}
-                  </div>
+                  <div className="text-3xl font-bold text-primary">{streakCount}</div>
                   <div className="text-sm text-muted-foreground flex items-center gap-1">
                     <span>Day Streak</span>
                     {streakCount >= 3 && <span>🔥</span>}
@@ -59,9 +55,7 @@ export function HeroSection({
                 </div>
               )}
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary">
-                  {userPoints}
-                </div>
+                <div className="text-3xl font-bold text-primary">{userPoints}</div>
                 <div className="text-sm text-muted-foreground">Points</div>
               </div>
               {completionRate > 0 && (
@@ -82,9 +76,7 @@ export function HeroSection({
         {streakCount > 0 && (
           <Card className="shadow-sm">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-primary">
-                {streakCount}
-              </div>
+              <div className="text-2xl font-bold text-primary">{streakCount}</div>
               <div className="text-xs text-muted-foreground">Day Streak</div>
             </CardContent>
           </Card>
@@ -122,9 +114,7 @@ export function HeroSection({
               <div>
                 <p className="font-medium">Stay Consistent</p>
                 <p className="text-sm text-muted-foreground">
-                  {streakCount > 0
-                    ? "Keep your streak alive!"
-                    : "Start your journey today"}
+                  {streakCount > 0 ? 'Keep your streak alive!' : 'Start your journey today'}
                 </p>
               </div>
             </div>
@@ -134,9 +124,7 @@ export function HeroSection({
               </div>
               <div>
                 <p className="font-medium">Complete Exercises</p>
-                <p className="text-sm text-muted-foreground">
-                  Stick to your plan
-                </p>
+                <p className="text-sm text-muted-foreground">Stick to your plan</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -145,9 +133,7 @@ export function HeroSection({
               </div>
               <div>
                 <p className="font-medium">Track Progress</p>
-                <p className="text-sm text-muted-foreground">
-                  Every check-in counts
-                </p>
+                <p className="text-sm text-muted-foreground">Every check-in counts</p>
               </div>
             </div>
           </div>

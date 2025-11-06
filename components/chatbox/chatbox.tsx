@@ -1,11 +1,11 @@
-"use client";
-import React, { useEffect, useRef, useState } from "react";
-import ChatBubble from "./chatbubble";
-import styles from "./chatbox.module.css";
+'use client';
+import React, { useEffect, useRef, useState } from 'react';
+import ChatBubble from './chatbubble';
+import styles from './chatbox.module.css';
 
 type Message = {
   id: string;
-  author: "system" | "user";
+  author: 'system' | 'user';
   text: string;
   createdAt: string;
 };
@@ -14,28 +14,30 @@ const Chatbox: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>(() => [
     {
-      id: "m-1",
-      author: "system",
-      text: "Ask your doctor something.",
+      id: 'm-1',
+      author: 'system',
+      text: 'Ask your doctor something.',
       createdAt: new Date().toISOString(),
     },
   ]);
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
   const listRef = useRef<HTMLDivElement | null>(null);
 
   const toggleChatbox = () => setIsOpen((v) => !v);
 
   const sendMessage = () => {
     const trimmed = input.trim();
-    if (!trimmed) return;
+    if (!trimmed) {
+      return;
+    }
     const msg: Message = {
       id: `m-${Date.now()}`,
-      author: "user",
+      author: 'user',
       text: trimmed,
       createdAt: new Date().toISOString(),
     };
     setMessages((m) => [...m, msg]);
-    setInput("");
+    setInput('');
 
     // simulate acknowledgement
     setTimeout(() => {
@@ -43,8 +45,8 @@ const Chatbox: React.FC = () => {
         ...m,
         {
           id: `m-bot-${Date.now()}`,
-          author: "system",
-          text: "Thanks — your clinician will review and reply soon.",
+          author: 'system',
+          text: 'Thanks — your clinician will review and reply soon.',
           createdAt: new Date().toISOString(),
         },
       ]);
@@ -58,7 +60,7 @@ const Chatbox: React.FC = () => {
   }, [isOpen, messages]);
 
   const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
@@ -72,18 +74,28 @@ const Chatbox: React.FC = () => {
         <div className={styles.window} role="dialog" aria-label="Chat with your clinician">
           <div className={styles.header}>
             <div className={styles.headerTitle}>Message your doctor</div>
-            <button aria-label="Close chat" className={styles.closeBtn} onClick={() => setIsOpen(false)}>
+            <button
+              aria-label="Close chat"
+              className={styles.closeBtn}
+              onClick={() => setIsOpen(false)}
+            >
               ×
             </button>
           </div>
 
           <div className={styles.messages} ref={listRef}>
             {messages.map((m) => (
-              <div key={m.id} className={m.author === "user" ? styles.msgRowUser : styles.msgRowSystem}>
-                <div className={m.author === "user" ? styles.msgUser : styles.msgSystem}>
+              <div
+                key={m.id}
+                className={m.author === 'user' ? styles.msgRowUser : styles.msgRowSystem}
+              >
+                <div className={m.author === 'user' ? styles.msgUser : styles.msgSystem}>
                   <div className={styles.msgText}>{m.text}</div>
                   <div className={styles.msgTime}>
-                    {new Date(m.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    {new Date(m.createdAt).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
                   </div>
                 </div>
               </div>

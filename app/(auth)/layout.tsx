@@ -1,23 +1,14 @@
-import { Toaster } from "sonner";
-import { ThemeProvider } from "@/components/shared/theme/theme-provider";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
-import { Home } from "lucide-react";
-import Link from "next/link";
-import { ROUTES } from "@/lib/constants/routes";
+import { Toaster } from 'sonner';
+import { ThemeProvider } from '@/components/shared/theme/theme-provider';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
+import { Home } from 'lucide-react';
+import Link from 'next/link';
+import { ROUTES } from '@/lib/constants/routes';
 
-export default function AuthLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-    >
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
       <TooltipProvider>
         <div className="min-h-screen bg-gradient-to-br from-pink-100 to-orange-200 dark:from-pink-300 dark:to-orange-800 relative">
           {children}
@@ -32,12 +23,7 @@ export default function AuthLayout({
             </Button>
           </div>
         </div>
-        <Toaster
-          position="top-right"
-          visibleToasts={5}
-          richColors
-          closeButton
-        />
+        <Toaster position="top-right" visibleToasts={5} richColors closeButton />
       </TooltipProvider>
     </ThemeProvider>
   );

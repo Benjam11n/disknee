@@ -1,4 +1,4 @@
-import { Exercise } from "@prisma/client";
+import { Exercise } from '@prisma/client';
 
 /**
  * Get the next exercise that should be completed in a sequence
@@ -16,10 +16,7 @@ export function getNextExercise(exercises: Exercise[]): Exercise | null {
  * @param exerciseId - ID of the exercise to check
  * @returns true if this exercise is the next one to be completed
  */
-export function isNextExercise(
-  exercises: Exercise[],
-  exerciseId: string
-): boolean {
+export function isNextExercise(exercises: Exercise[], exerciseId: string): boolean {
   const nextExercise = getNextExercise(exercises);
   return nextExercise?.id === exerciseId;
 }
@@ -30,17 +27,18 @@ export function isNextExercise(
  * @param exerciseId - ID of the exercise to check
  * @returns true if exercise can be started
  */
-export function canStartExercise(
-  exercises: Exercise[],
-  exerciseId: string
-): boolean {
+export function canStartExercise(exercises: Exercise[], exerciseId: string): boolean {
   const exercise = exercises.find((ex) => ex.id === exerciseId);
 
   // Can't start if exercise doesn't exist
-  if (!exercise) return false;
+  if (!exercise) {
+    return false;
+  }
 
   // Can start if already done
-  if (exercise.done) return true;
+  if (exercise.done) {
+    return true;
+  }
 
   // Can start if it's the next exercise in sequence
   return isNextExercise(exercises, exerciseId);
@@ -52,10 +50,7 @@ export function canStartExercise(
  * @param planId - Plan ID to filter by
  * @returns Filtered and sorted exercises
  */
-export function getExercisesForPlan(
-  exercises: Exercise[],
-  planId: string
-): Exercise[] {
+export function getExercisesForPlan(exercises: Exercise[], planId: string): Exercise[] {
   return exercises
     .filter((exercise) => exercise.planId === planId)
     .sort((a, b) => a.sequence - b.sequence);

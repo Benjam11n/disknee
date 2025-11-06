@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
-import { ZodError } from "zod";
+import { NextResponse } from 'next/server';
+import { ZodError } from 'zod';
 
-import { RequestError, ValidationError } from "@/lib/http-errors";
-import { logger } from "@/lib/logger";
+import { RequestError, ValidationError } from '@/lib/http-errors';
+import { logger } from '@/lib/logger';
 
-type ResponseType = "api" | "server";
+type ResponseType = 'api' | 'server';
 
 const formatResponse = (
   responseType: ResponseType,
@@ -20,19 +20,16 @@ const formatResponse = (
     },
   };
 
-  return responseType === "api"
+  return responseType === 'api'
     ? NextResponse.json(responseContent, { status })
     : { status, ...responseContent };
 };
 
-export const handleError = (
-  error: unknown,
-  responseType: ResponseType = "server"
-) => {
+export const handleError = (error: unknown, responseType: ResponseType = 'server') => {
   if (error instanceof RequestError) {
     logger.error(
       {
-        type: "RequestError",
+        type: 'RequestError',
         statusCode: error.statusCode,
         errors: error.errors,
         stack: error.stack,
@@ -40,12 +37,7 @@ export const handleError = (
       `${responseType.toUpperCase()} Error: ${error.message}`
     );
 
-    return formatResponse(
-      responseType,
-      error.statusCode,
-      error.message,
-      error.errors
-    );
+    return formatResponse(responseType, error.statusCode, error.message, error.errors);
   }
 
   if (error instanceof ZodError) {
@@ -55,7 +47,7 @@ export const handleError = (
 
     logger.error(
       {
-        type: "ValidationError",
+        type: 'ValidationError',
         fieldErrors: validationError.errors,
         issues: error.issues,
       },
@@ -73,7 +65,7 @@ export const handleError = (
   if (error instanceof Error) {
     logger.error(
       {
-        type: "Error",
+        type: 'Error',
         stack: error.stack,
       },
       error.message
@@ -84,11 +76,11 @@ export const handleError = (
 
   logger.error(
     {
-      type: "UnknownError",
+      type: 'UnknownError',
       error: String(error),
     },
-    "An unexpected error occurred"
+    'An unexpected error occurred'
   );
 
-  return formatResponse(responseType, 500, "An unexpected error occurred");
+  return formatResponse(responseType, 500, 'An unexpected error occurred');
 };

@@ -1,13 +1,13 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Play, Clock, CheckCircle, Circle, TrendingUp } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Exercise } from "@prisma/client";
-import { ROUTES } from "@/lib/constants/routes";
-import Link from "next/link";
-import { getExerciseMotivation } from "@/lib/utils/motivation-utils";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Play, Clock, CheckCircle, Circle, TrendingUp } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Exercise } from '@prisma/client';
+import { ROUTES } from '@/lib/constants/routes';
+import Link from 'next/link';
+import { getExerciseMotivation } from '@/lib/utils/motivation-utils';
 
 interface ExerciseProgressProps {
   exercises: Exercise[];
@@ -24,11 +24,9 @@ export function ExerciseProgress({
 }: ExerciseProgressProps) {
   const completedCount = exercises.filter((ex) => ex.done).length;
   const totalCount = exercises.length;
-  const completionPercentage =
-    totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+  const completionPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
   const remainingTime =
-    weeklyTotalMins -
-    exercises.reduce((acc, ex) => acc + (ex.done ? ex.estimatedMins : 0), 0);
+    weeklyTotalMins - exercises.reduce((acc, ex) => acc + (ex.done ? ex.estimatedMins : 0), 0);
 
   // Group exercises by status
   const completedExercises = exercises.filter((ex) => ex.done);
@@ -50,12 +48,12 @@ export function ExerciseProgress({
           <Badge
             variant="secondary"
             className={cn(
-              "text-sm px-3 py-1",
+              'text-sm px-3 py-1',
               completionPercentage === 100
-                ? "bg-green-100 text-green-800 border-green-200"
+                ? 'bg-green-100 text-green-800 border-green-200'
                 : completionPercentage >= 50
-                ? "bg-yellow-100 text-yellow-800 border-yellow-200"
-                : "bg-muted text-muted-foreground"
+                  ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                  : 'bg-muted text-muted-foreground'
             )}
           >
             {completedCount}/{totalCount} completed
@@ -77,18 +75,14 @@ export function ExerciseProgress({
             <span>
               {completedCount} of {totalCount} exercises
             </span>
-            <span>
-              {remainingTime > 0 ? `${remainingTime} mins left` : "All done!"}
-            </span>
+            <span>{remainingTime > 0 ? `${remainingTime} mins left` : 'All done!'}</span>
           </div>
         </div>
 
         {/* Time Stats */}
         <div className="grid grid-cols-3 gap-4">
           <div className="text-center p-3 bg-primary/5 rounded-lg">
-            <div className="text-2xl font-bold text-primary">
-              {weeklyTotalMins}
-            </div>
+            <div className="text-2xl font-bold text-primary">{weeklyTotalMins}</div>
             <div className="text-xs text-muted-foreground">Total Minutes</div>
           </div>
           <div className="text-center p-3 bg-green-50 rounded-lg">
@@ -99,10 +93,7 @@ export function ExerciseProgress({
           </div>
           <div className="text-center p-3 bg-muted/30 rounded-lg">
             <div className="text-2xl font-bold text-foreground">
-              {completedExercises.reduce(
-                (acc, ex) => acc + ex.estimatedMins,
-                0
-              )}
+              {completedExercises.reduce((acc, ex) => acc + ex.estimatedMins, 0)}
             </div>
             <div className="text-xs text-muted-foreground">Minutes Done</div>
           </div>
@@ -159,9 +150,7 @@ export function ExerciseProgress({
                     >
                       <div className="flex items-center gap-2">
                         <Circle className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium">
-                          {exercise.title}
-                        </span>
+                        <span className="text-sm font-medium">{exercise.title}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -195,17 +184,12 @@ export function ExerciseProgress({
 
         {/* Quick Actions */}
         <div className="flex gap-2 pt-2">
-          {completionPercentage < 100 &&
-            upcomingExercises.length > 0 &&
-            onStartExercise && (
-              <Button
-                className="flex-1"
-                onClick={() => onStartExercise(upcomingExercises[0].id)}
-              >
-                <Play className="h-4 w-4 mr-2" />
-                Start Next Exercise
-              </Button>
-            )}
+          {completionPercentage < 100 && upcomingExercises.length > 0 && onStartExercise && (
+            <Button className="flex-1" onClick={() => onStartExercise(upcomingExercises[0].id)}>
+              <Play className="h-4 w-4 mr-2" />
+              Start Next Exercise
+            </Button>
+          )}
           {completionPercentage > 0 && (
             <Button variant="outline" className="flex-1">
               <Link href={ROUTES.EXERCISE.BASE}>View All Exercises</Link>

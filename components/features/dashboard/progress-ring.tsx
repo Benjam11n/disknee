@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 interface ProgressRingProps {
   progress: number; // 0-1
@@ -23,11 +23,7 @@ export function ProgressRing({
 
   return (
     <div className={`relative inline-flex items-center justify-center ${className}`}>
-      <svg
-        width={size}
-        height={size}
-        className="transform -rotate-90"
-      >
+      <svg width={size} height={size} className="transform -rotate-90">
         {/* Background circle */}
         <circle
           cx={size / 2}

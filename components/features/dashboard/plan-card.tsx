@@ -1,8 +1,8 @@
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Play } from "lucide-react";
-import { PlanWithExercises } from "@/lib/types/plans";
-import { formatDate, getDaysUntil } from "@/lib/utils/plan-utils";
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Play } from 'lucide-react';
+import { PlanWithExercises } from '@/lib/types/plans';
+import { formatDate, getDaysUntil } from '@/lib/utils/plan-utils';
 
 interface PlanCardProps {
   plan: PlanWithExercises;
@@ -18,7 +18,7 @@ export function PlanCard({ plan, onClick }: PlanCardProps) {
       <div className="flex items-start justify-between">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="font-medium">{plan.title || "Exercise Plan"}</span>
+            <span className="font-medium">{plan.title || 'Exercise Plan'}</span>
             <Badge variant="secondary" className="text-xs">
               {getDaysUntil(plan.date)}
             </Badge>
@@ -30,14 +30,14 @@ export function PlanCard({ plan, onClick }: PlanCardProps) {
           {plan.exercises && plan.exercises.length > 0 && (
             <p className="text-xs text-muted-foreground mt-1">
               {plan.exercises.length} exercise
-              {plan.exercises.length !== 1 ? "s" : ""}
+              {plan.exercises.length !== 1 ? 's' : ''}
             </p>
           )}
         </div>
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Play className="h-3 w-3" />
-              <span>Start</span>
-            </div>
+          <Play className="h-3 w-3" />
+          <span>Start</span>
+        </div>
       </div>
     </Card>
   );

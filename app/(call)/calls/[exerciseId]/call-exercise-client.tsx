@@ -1,35 +1,27 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Phone,
-  PhoneOff,
-  Video,
-  VideoOff,
-  PlayCircle,
-  PauseCircle,
-  Activity,
-} from "lucide-react";
-import { toast } from "sonner";
-import { Exercise } from "@prisma/client";
-import { logger } from "@/lib/logger";
+import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Phone, PhoneOff, Video, VideoOff, PlayCircle, PauseCircle, Activity } from 'lucide-react';
+import { toast } from 'sonner';
+import { Exercise } from '@prisma/client';
+import { logger } from '@/lib/logger';
 
-import { VideoStream } from "@/components/shared/video-stream";
-import { ModelVideo } from "@/components/shared/model-video";
-import { ReflectionDialog } from "@/components/shared/reflection-dialog";
-import { Landmark } from "@/lib/pose-utils";
+import { VideoStream } from '@/components/shared/video-stream';
+import { ModelVideo } from '@/components/shared/model-video';
+import { ReflectionDialog } from '@/components/shared/reflection-dialog';
+import { Landmark } from '@/lib/pose-utils';
 import {
   createExerciseSessionAction,
   updateExerciseSessionAction,
-} from "@/lib/actions/exercise-sessions";
-import { updateExerciseDoneAction } from "@/lib/actions/exercises";
-import { ROUTES } from "@/lib/constants/routes";
-import { formatTime } from "@/lib/utils/session-utils";
-import { createReflectionAction } from "@/lib/actions/reflections";
+} from '@/lib/actions/exercise-sessions';
+import { updateExerciseDoneAction } from '@/lib/actions/exercises';
+import { ROUTES } from '@/lib/constants/routes';
+import { formatTime } from '@/lib/utils/session-utils';
+import { createReflectionAction } from '@/lib/actions/reflections';
 
 interface Ex4State {
   reps: number;
@@ -49,10 +41,8 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
   const [isModelPlaying, setIsModelPlaying] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
   const [showReflection, setShowReflection] = useState(false);
-  const [exerciseSessionId, setExerciseSessionId] = useState<string | null>(
-    null
-  );
-  const [poseLandmarks, setPoseLandmarks] = useState<Landmark[]>([]);
+  const [exerciseSessionId, setExerciseSessionId] = useState<string | null>(null);
+  const [poseLandmarks, setPoseLandmarks] = useState<Landmark[]>([]); // todo: unused
   const [sessionTime, setSessionTime] = useState(0);
   const [ex4State, setEx4State] = useState<Ex4State>({
     reps: 0,
@@ -68,9 +58,7 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
     if (isCallActive && !sessionStartTime.current) {
       sessionStartTime.current = Date.now();
       const interval = setInterval(() => {
-        setSessionTime(
-          Math.floor((Date.now() - sessionStartTime.current!) / 1000)
-        );
+        setSessionTime(Math.floor((Date.now() - sessionStartTime.current!) / 1000));
       }, 1000);
       return () => clearInterval(interval);
     }
@@ -78,12 +66,14 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
 
   // WebSocket connection
   useEffect(() => {
-    if (!isCallActive) return;
+    if (!isCallActive) {
+      return;
+    }
 
-    wsRef.current = new WebSocket("ws://localhost:8000");
-    wsRef.current.onopen = () => logger.info("WebSocket connected");
-    wsRef.current.onclose = () => logger.info("WebSocket closed");
-    wsRef.current.onerror = (e) => logger.error(e, "WebSocket error");
+    wsRef.current = new WebSocket('ws://localhost:8000');
+    wsRef.current.onopen = () => logger.info('WebSocket connected');
+    wsRef.current.onclose = () => logger.info('WebSocket closed');
+    wsRef.current.onerror = (e) => logger.error(e, 'WebSocket error');
 
     wsRef.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -112,11 +102,12 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
         repsCompleted: 0,
         accuracy: 0,
       });
-      if (exerciseSession.success && exerciseSession.data)
+      if (exerciseSession.success && exerciseSession.data) {
         setExerciseSessionId(exerciseSession.data.id);
+      }
     } catch (err) {
       logger.error(err);
-      toast.error("Failed to start session");
+      toast.error('Failed to start session');
     }
   };
 
@@ -132,11 +123,11 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
           maxAccuracy: 90,
         });
         await updateExerciseDoneAction({ id: exercise.id, done: true });
-        toast.success("Session completed!");
+        toast.success('Session completed!');
         setShowReflection(true);
       } catch (err) {
         logger.error(err);
-        toast.error("Failed to end session");
+        toast.error('Failed to end session');
       }
     }
   };
@@ -153,12 +144,12 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
         fatigue: reflection.fatigue,
         feedback: reflection.feedback,
       });
-      toast.success("Reflection saved!");
+      toast.success('Reflection saved!');
       setShowReflection(false);
       router.push(ROUTES.DASHBOARD);
     } catch (err) {
       logger.error(err);
-      toast.error("Failed to save reflection");
+      toast.error('Failed to save reflection');
     }
   };
 
@@ -170,14 +161,12 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
           <VideoStream
             isVideoOn={isVideoOn}
             isCallActive={isCallActive}
-            onPoseResults={({ poseLandmarks }) =>
-              setPoseLandmarks(poseLandmarks)
-            }
+            onPoseResults={({ poseLandmarks }) => setPoseLandmarks(poseLandmarks)}
           />
 
           {/* Overlay for reps, angle, and hold timer */}
           <div className="absolute top-4 left-4 text-white text-lg font-bold bg-black/40 px-3 py-2 rounded-md space-y-1">
-            <div>Knee Angle: {ex4State.currentAngle?.toFixed(0) ?? "N/A"}°</div>
+            <div>Knee Angle: {ex4State.currentAngle?.toFixed(0) ?? 'N/A'}°</div>
             <div>Reps: {ex4State.reps}</div>
             <div>Hold Time: {ex4State.holdTime.toFixed(1)}s</div>
           </div>
@@ -200,10 +189,7 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
 
         {/* Model Video */}
         <Card className="relative bg-black overflow-hidden">
-          <ModelVideo
-            isPlaying={isModelPlaying}
-            exerciseType="knee-extension"
-          />
+          <ModelVideo isPlaying={isModelPlaying} exerciseType="knee-extension" />
           <div className="absolute top-4 right-4">
             <Badge variant="secondary" className="bg-black/50 text-white">
               Perfect Form
@@ -218,9 +204,8 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
           <div>
             <h2 className="text-2xl font-bold mb-2">{exercise.title}</h2>
             <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-              <Activity className="h-4 w-4" />{" "}
-              {exercise.difficulty.toLowerCase()} | {exercise.estimatedMins} min
-              | {formatTime(sessionTime)}
+              <Activity className="h-4 w-4" /> {exercise.difficulty.toLowerCase()} |{' '}
+              {exercise.estimatedMins} min | {formatTime(sessionTime)}
             </div>
           </div>
 
@@ -238,18 +223,14 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
                 <>
                   <Button
                     onClick={() => setIsVideoOn((prev) => !prev)}
-                    variant={isVideoOn ? "default" : "secondary"}
+                    variant={isVideoOn ? 'default' : 'secondary'}
                     size="lg"
                   >
-                    {isVideoOn ? (
-                      <VideoOff className="h-5 w-5" />
-                    ) : (
-                      <Video className="h-5 w-5" />
-                    )}
+                    {isVideoOn ? <VideoOff className="h-5 w-5" /> : <Video className="h-5 w-5" />}
                   </Button>
                   <Button
                     onClick={() => setIsModelPlaying((prev) => !prev)}
-                    variant={isModelPlaying ? "default" : "secondary"}
+                    variant={isModelPlaying ? 'default' : 'secondary'}
                     size="lg"
                   >
                     {isModelPlaying ? (
@@ -258,11 +239,7 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
                       <PlayCircle className="h-5 w-5" />
                     )}
                   </Button>
-                  <Button
-                    onClick={endCall}
-                    className="bg-red-600 hover:bg-red-700"
-                    size="lg"
-                  >
+                  <Button onClick={endCall} className="bg-red-600 hover:bg-red-700" size="lg">
                     <PhoneOff className="h-5 w-5" />
                   </Button>
                 </>

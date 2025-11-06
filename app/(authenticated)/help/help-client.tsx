@@ -1,9 +1,9 @@
-import { HelpHeroSection } from "@/components/features/help/help-hero-section";
-import { QuickActions } from "@/components/features/help/quick-actions";
-import { FirstWeekGuide } from "@/components/features/help/first-week-guide";
-import { FAQSection } from "@/components/features/help/faq-section";
-import { ContactSupportSection } from "@/components/features/help/contact-support-section";
-import { EncouragementSection } from "@/components/features/help/encouragement-section";
+import { HelpHeroSection } from '@/components/features/help/help-hero-section';
+import { QuickActions } from '@/components/features/help/quick-actions';
+import { FirstWeekGuide } from '@/components/features/help/first-week-guide';
+import { FAQSection } from '@/components/features/help/faq-section';
+import { ContactSupportSection } from '@/components/features/help/contact-support-section';
+import { EncouragementSection } from '@/components/features/help/encouragement-section';
 
 export function HelpClient() {
   return (

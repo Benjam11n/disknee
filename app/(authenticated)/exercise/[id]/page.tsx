@@ -1,10 +1,7 @@
-import { notFound } from "next/navigation";
-import { Suspense } from "react";
-import {
-  getExerciseByIdAction,
-  getExercisesAction,
-} from "@/lib/actions/exercises";
-import { ExerciseDetailClient } from "./exercise-detail-client";
+import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
+import { getExerciseByIdAction, getExercisesAction } from '@/lib/actions/exercises';
+import { ExerciseDetailClient } from './exercise-detail-client';
 
 export default async function ExerciseDetailPage({ params }: RouteParams) {
   const { id } = await params;
@@ -28,9 +25,7 @@ export default async function ExerciseDetailPage({ params }: RouteParams) {
   }
 
   const exercise = result.data;
-  const planExercises = exercisesResult.success
-    ? exercisesResult.data || []
-    : [];
+  const planExercises = exercisesResult.success ? exercisesResult.data || [] : [];
 
   return (
     <Suspense fallback={<div>Loading exercise details...</div>}>

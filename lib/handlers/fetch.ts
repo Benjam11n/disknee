@@ -1,6 +1,6 @@
-import { RequestError } from "@/lib/http-errors";
-import { handleError } from "./error";
-import { logger } from "@/lib/logger";
+import { RequestError } from '@/lib/http-errors';
+import { handleError } from './error';
+import { logger } from '@/lib/logger';
 
 interface FetchOptions extends RequestInit {
   timeout?: number;
@@ -15,33 +15,28 @@ export async function fetchHandler<T>(
   url: string,
   options: FetchOptions = {}
 ): Promise<ActionResponse<T>> {
-  const {
-    timeout = 5000,
-    headers: customHeaders = {},
-    authorize = true,
-    ...restOptions
-  } = options;
+  const { timeout = 5000, headers: customHeaders = {}, authorize = true, ...restOptions } = options;
 
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
 
   const defaultHeaders: HeadersInit = {
-    "Content-Type": "application/json",
-    Accept: "application/json",
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
   };
 
-  let headers: HeadersInit = { ...defaultHeaders, ...customHeaders };
+  const headers: HeadersInit = { ...defaultHeaders, ...customHeaders };
 
   const config: RequestInit = {
     ...restOptions,
     headers,
     signal: controller.signal,
-    credentials: authorize ? "include" : restOptions.credentials,
+    credentials: authorize ? 'include' : restOptions.credentials,
   };
 
   logger.debug(
     {
-      method: config.method || "GET",
+      method: config.method || 'GET',
       timeout,
       authorize,
     },
@@ -66,9 +61,9 @@ export async function fetchHandler<T>(
 
     return await response.json();
   } catch (err) {
-    const error = isError(err) ? err : new Error("Unknown error");
+    const error = isError(err) ? err : new Error('Unknown error');
 
-    if (error.name === "AbortError") {
+    if (error.name === 'AbortError') {
       logger.warn(
         {
           timeout,
@@ -80,7 +75,7 @@ export async function fetchHandler<T>(
       logger.error(
         {
           url,
-          method: config.method || "GET",
+          method: config.method || 'GET',
           error: error.name,
           stack: error.stack,
         },

@@ -9,7 +9,7 @@
   --chat-bg: hsl(var(--card));
   --chat-muted: hsl(var(--muted-foreground));
   --chat-system-bg: hsl(var(--muted));
-  --chat-user-shadow: rgba(59,130,246,0.12);
+  --chat-user-shadow: rgba(59, 130, 246, 0.12);
 }
 
 /* Dark-mode fallback (global class in your app) */
@@ -21,7 +21,7 @@
   --chat-bg: hsl(var(--card));
   --chat-muted: hsl(var(--muted-foreground));
   --chat-system-bg: hsl(var(--popover));
-  --chat-user-shadow: rgba(3,105,161,0.12);
+  --chat-user-shadow: rgba(3, 105, 161, 0.12);
 }
 
 /* Container (fixed bottom-right) */
@@ -44,13 +44,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 20px rgba(2,6,23,0.12);
+  box-shadow: 0 8px 20px rgba(2, 6, 23, 0.12);
   cursor: pointer;
-  transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    opacity 0.12s ease;
 }
 .bubble:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 28px rgba(2,6,23,0.16);
+  box-shadow: 0 12px 28px rgba(2, 6, 23, 0.16);
 }
 
 /* Chat window */
@@ -61,12 +64,12 @@
   background: var(--chat-bg);
   color: var(--chat-text);
   border-radius: 12px;
-  box-shadow: 0 12px 40px rgba(2,6,23,0.12);
+  box-shadow: 0 12px 40px rgba(2, 6, 23, 0.12);
   margin-bottom: 12px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid rgba(0,0,0,0.04);
+  border: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 /* header */
@@ -75,8 +78,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 14px;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
-  background: linear-gradient(90deg, rgba(0,0,0,0.02), rgba(0,0,0,0.01));
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.01));
 }
 .headerTitle {
   font-weight: 600;
@@ -144,7 +147,7 @@
   display: flex;
   gap: 8px;
   padding: 10px;
-  border-top: 1px solid rgba(0,0,0,0.06);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
   align-items: center;
   background: var(--chat-bg);
 }
@@ -152,7 +155,7 @@
   flex: 1;
   padding: 8px 10px;
   border-radius: 10px;
-  border: 1px solid rgba(0,0,0,0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   font-size: 14px;
   outline: none;
   background: color-mix(in srgb, var(--input) 95%, transparent);

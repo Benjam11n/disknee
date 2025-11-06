@@ -1,12 +1,12 @@
-import { getExercisesAction } from "@/lib/actions/exercises";
-import { getPlansAction } from "@/lib/actions/plans";
-import { auth } from "@/lib/auth";
-import { ExerciseList } from "@/components/features/dashboard/exercise-list";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { headers } from "next/headers";
-import { List } from "lucide-react";
+import { getExercisesAction } from '@/lib/actions/exercises';
+import { getPlansAction } from '@/lib/actions/plans';
+import { auth } from '@/lib/auth';
+import { ExerciseList } from '@/components/features/dashboard/exercise-list';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { headers } from 'next/headers';
+import { List } from 'lucide-react';
 
 export default async function ExercisePage() {
   const session = await auth.api.getSession({
@@ -47,9 +47,7 @@ export default async function ExercisePage() {
   const exercisesResponse = await getExercisesAction({ page: 1, limit: 50 });
 
   if (!exercisesResponse.success) {
-    throw new Error(
-      exercisesResponse.error?.message ?? `Failed to fetch exercises`
-    );
+    throw new Error(exercisesResponse.error?.message ?? `Failed to fetch exercises`);
   }
 
   if (!exercisesResponse.data) {
@@ -62,8 +60,7 @@ export default async function ExercisePage() {
 
   const completedCount = weeklyExercises.filter((ex) => ex.done).length;
   const totalCount = weeklyExercises.length;
-  const pillPercent =
-    totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  const pillPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   const weeklyTotalMins = weeklyExercises.reduce((total, exercise) => {
     return total + (exercise.estimatedMins || 0);
@@ -75,9 +72,7 @@ export default async function ExercisePage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Weekly Exercises</h1>
-            <p className="text-muted-foreground">
-              Your exercises for this week
-            </p>
+            <p className="text-muted-foreground">Your exercises for this week</p>
           </div>
           <Link href="/exercises/all">
             <Button variant="outline">

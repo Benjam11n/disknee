@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { Card } from "@/components/ui/card";
-import { CalendarDay } from "./calendar-day";
-import { sameDay, formatYMD } from "@/lib/utils/date-utils";
+import { Card } from '@/components/ui/card';
+import { CalendarDay } from './calendar-day';
+import { sameDay, formatYMD } from '@/lib/utils/date-utils';
 
 interface CalendarProps {
   monthMatrix: (Date | null)[][];
@@ -23,7 +23,7 @@ export function Calendar({
   planDays,
   onSelectDate,
 }: CalendarProps) {
-  const weekDays = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+  const weekDays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
   return (
     <Card className="p-4">
@@ -38,10 +38,7 @@ export function Calendar({
         {/* Week day headers */}
         <div className="grid grid-cols-7 gap-1">
           {weekDays.map((day) => (
-            <div
-              key={day}
-              className="text-center text-xs font-medium text-muted-foreground py-2"
-            >
+            <div key={day} className="text-center text-xs font-medium text-muted-foreground py-2">
               {day}
             </div>
           ))}
@@ -50,7 +47,7 @@ export function Calendar({
         {/* Calendar days */}
         <div className="grid grid-cols-7 gap-1">
           {monthMatrix.flat().map((date, index) => {
-            const dateStr = date ? formatYMD(date) : "";
+            const dateStr = date ? formatYMD(date) : '';
             const isToday = date && sameDay(date, today);
             const isSelected = date && sameDay(date, selectedDate);
             const hasAppointment = date && apptDays.has(dateStr);

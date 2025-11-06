@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 const ExerciseSessionBaseSchema = z.object({
   startedAt: z.date(),
@@ -12,8 +12,8 @@ const ExerciseSessionBaseSchema = z.object({
 });
 
 export const CreateExerciseSessionSchema = ExerciseSessionBaseSchema.extend({
-  startedAt: z.string().datetime("Invalid start date format"),
-  endedAt: z.string().datetime("Invalid end date format").optional(),
+  startedAt: z.string().datetime('Invalid start date format'),
+  endedAt: z.string().datetime('Invalid end date format').optional(),
   exerciseId: z.string(),
 });
 
@@ -27,8 +27,8 @@ export const CreateReflectionSchema = z.object({
 export const GetExerciseSessionsSchema = z.object({
   limit: z.coerce.number().min(1).max(100).default(20),
   offset: z.coerce.number().min(0).default(0),
-  startDate: z.string().datetime("Invalid start date format").optional(),
-  endDate: z.string().datetime("Invalid end date format").optional(),
+  startDate: z.string().datetime('Invalid start date format').optional(),
+  endDate: z.string().datetime('Invalid end date format').optional(),
 });
 
 export const GetExerciseSessionByIdSchema = z.object({

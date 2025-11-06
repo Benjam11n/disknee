@@ -1,11 +1,12 @@
-"use server";
+'use server';
 
-import { ZodError, ZodSchema } from "zod";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
-import { UnauthorizedError } from "@/lib/http-errors";
+import { ZodError, ZodSchema } from 'zod';
+import { headers } from 'next/headers';
+import { auth } from '@/lib/auth';
+import { UnauthorizedError } from '@/lib/http-errors';
 
-import { ValidationError } from "@/lib/http-errors";
+import { ValidationError } from '@/lib/http-errors';
+import { logger } from '../logger';
 
 type ActionOptions<T> = {
   params?: T;
@@ -18,21 +19,15 @@ type ActionOptions<T> = {
 // 3. Connecting to the database.
 // 4. Returning the params and session.
 
-export async function action<T>({
-  params,
-  schema,
-  authorize = true,
-}: ActionOptions<T>) {
+export async function action<T>({ params, schema, authorize = true }: ActionOptions<T>) {
   if (schema && params) {
     try {
       schema.parse(params);
     } catch (error) {
       if (error instanceof ZodError) {
-        return new ValidationError(
-          error.flatten().fieldErrors as Record<string, string[]>
-        );
+        return new ValidationError(error.flatten().fieldErrors as Record<string, string[]>);
       } else {
-        return new Error("Schema validation failed");
+        return new Error('Schema validation failed');
       }
     }
   }
@@ -45,10 +40,11 @@ export async function action<T>({
       });
 
       if (!session) {
-        return new UnauthorizedError("Authentication required");
+        return new UnauthorizedError('Authentication required');
       }
     } catch (error) {
-      return new UnauthorizedError("Failed to authenticate");
+      logger.error(error, 'Failed to authenticate');
+      return new UnauthorizedError('Failed to authenticate');
     }
   }
 
