@@ -91,10 +91,21 @@ export function VideoStream({
       videoRef.current.srcObject = stream;
 
       await new Promise((resolve) => {
-        videoRef.current!.onloadedmetadata = () => resolve(true);
+        videoRef.current!.onloadedmetadata = () => {
+          // Start animation loop when video metadata is loaded
+          if (!animationRef.current) {
+            animationRef.current = requestAnimationFrame(detectPose);
+          }
+          resolve(true);
+        };
       });
 
       await videoRef.current.play();
+
+      // Also start animation loop after play begins
+      if (!animationRef.current) {
+        animationRef.current = requestAnimationFrame(detectPose);
+      }
     } catch (err) {
       logger.error(err);
       setError('Failed to access camera. Grant permissions and reload.');
@@ -194,6 +205,31 @@ export function VideoStream({
   };
 
   const detectPose = useCallback(() => {
+    // Always draw video if camera is on, even if pose detection isn't ready
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+
+      if (ctx && video.readyState === 4) {
+        // Set canvas dimensions
+        if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+        }
+
+        // Draw video frame
+        ctx.save();
+        if (flipped) {
+          ctx.translate(canvas.width, 0);
+          ctx.scale(-1, 1);
+        }
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        ctx.restore();
+      }
+    }
+
+    // Return early if pose detection isn't ready
     if (!videoRef.current || !canvasRef.current || !poseLandmarkerRef.current) {
       animationRef.current = requestAnimationFrame(detectPose);
       return;
@@ -205,17 +241,6 @@ export function VideoStream({
     if (!ctx) {
       return;
     }
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    ctx.save();
-    if (flipped) {
-      ctx.translate(canvas.width, 0);
-      ctx.scale(-1, 1);
-    }
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    ctx.restore();
 
     frameCount.current++;
     const now = performance.now();
@@ -277,8 +302,9 @@ export function VideoStream({
   }, [isCallActive, isVideoOn, initializePoseLandmarker, startCamera, stopCamera]);
 
   useEffect(() => {
-    if (videoRef.current?.readyState === 4) {
-      detectPose();
+    // Start animation loop when video is ready
+    if (videoRef.current?.readyState === 4 && !animationRef.current) {
+      animationRef.current = requestAnimationFrame(detectPose);
     }
   }, [detectPose]);
 
