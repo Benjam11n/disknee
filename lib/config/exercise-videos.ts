@@ -3,12 +3,12 @@
  */
 
 export const EXERCISE_VIDEOS = {
-  'knee-extension': '/knee-extension-demo.mp4',
-  'calf-raises': '/calf-raises-demo.mp4',
+  'knee-extension': '/knee-extension.mp4',
+  'calf-raises': '/calf-raises.mp4',
   squat: '/spanish-squat.mp4',
-  'simple-squat': '/spanish-squat.mp4',
-  'hip-abduction': '/hip-abduction-demo.mp4',
-  'step-down': '/step-down-demo.mp4',
+  'simple-squat': '/simple-squat.mp4',
+  'hip-abduction': '/hip-abduction.mp4',
+  'step-down': '/step-down.mp4',
 } as const;
 
 export type ExerciseType = keyof typeof EXERCISE_VIDEOS;

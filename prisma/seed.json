@@ -14,7 +14,7 @@
       "done": false,
       "estimatedMins": 8,
       "difficulty": "easy",
-      "videoUrl": "spanish-squat.mp4",
+      "videoUrl": "/simple-squat.mp4",
       "type": "simple-squat"
     },
     {
@@ -23,7 +23,7 @@
       "done": true,
       "estimatedMins": 8,
       "difficulty": "easy",
-      "videoUrl": "spanish-squat.mp4",
+      "videoUrl": "/knee-extension.mp4",
       "type": "knee-extension"
     },
     {
@@ -32,7 +32,7 @@
       "done": false,
       "estimatedMins": 12,
       "difficulty": "moderate",
-      "videoUrl": "spanish-squat.mp4",
+      "videoUrl": "/spanish-squat.mp4",
       "type": "squat"
     },
     {
@@ -41,7 +41,7 @@
       "done": false,
       "estimatedMins": 10,
       "difficulty": "moderate",
-      "videoUrl": "spanish-squat.mp4",
+      "videoUrl": "/step-down.mp4",
       "type": "step-down"
     },
     {
@@ -50,7 +50,7 @@
       "done": false,
       "estimatedMins": 8,
       "difficulty": "easy",
-      "videoUrl": "spanish-squat.mp4",
+      "videoUrl": "/hip-abduction.mp4",
       "type": "hip-abduction"
     },
     {
@@ -59,7 +59,7 @@
       "done": false,
       "estimatedMins": 6,
       "difficulty": "easy",
-      "videoUrl": "spanish-squat.mp4",
+      "videoUrl": "/calf-raises.mp4",
       "type": "calf-raises"
     }
   ],
