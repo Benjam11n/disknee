@@ -16,6 +16,8 @@ import { Calendar } from "lucide-react";
 import { MoodSelector } from "./mood-selector";
 import { Mood } from "@prisma/client";
 import { logger } from "@/lib/logger";
+import { checkInAction } from "@/lib/actions/streaks";
+import { ROUTES } from "@/lib/constants/routes";
 
 interface DailyCheckInDialogProps {
   isOpen: boolean;
@@ -53,7 +55,6 @@ export function DailyCheckInDialog({
     setIsSubmitting(true);
 
     try {
-      // Calculate points based on mood
       const moodPoints = {
         [Mood.ENERGIZED]: 15,
         [Mood.OKAY]: 10,
@@ -63,27 +64,39 @@ export function DailyCheckInDialog({
 
       const points = moodPoints[selectedMood];
 
-      // TODO: Call API to save check-in
-      // await checkInAction({ userId, mood: selectedMood, points });
+      const result = await checkInAction({
+        userId,
+        mood: selectedMood,
+        points,
+      });
 
-      // Award streak bonus points
-      let streakBonus = 0;
-      if (selectedMood === Mood.ENERGIZED) streakBonus = 5;
-      if (selectedMood === Mood.OKAY) streakBonus = 3;
+      if (!result.success) {
+        if (result.error === "Already checked in today") {
+          toast.error("You've already checked in today!");
+        } else {
+          toast.error(result.error || "Failed to check in. Please try again.");
+        }
+        return;
+      }
 
-      const totalPoints = points + streakBonus;
+      // Get the actual points and streak data from the API response
+      const { pointsEarned, streakBonus, mood: savedMood } = result.data!;
 
       // Call parent callback if provided
       if (onCheckInComplete) {
-        onCheckInComplete(selectedMood, totalPoints, encouragement);
+        onCheckInComplete(savedMood, pointsEarned, encouragement);
       }
 
-      // Show success toast
-      toast.success(`Check-in complete! +${totalPoints} points earned!`, {
+      const message =
+        streakBonus > 0
+          ? `Check-in complete! +${pointsEarned} points earned (+${streakBonus} streak bonus!)`
+          : `Check-in complete! +${pointsEarned} points earned!`;
+
+      toast.success(message, {
         duration: 3000,
         action: {
           label: "View Dashboard",
-          onClick: () => router.push("/dashboard"),
+          onClick: () => router.push(ROUTES.DASHBOARD),
         },
       });
 
