@@ -6,6 +6,7 @@ export const EXERCISE_VIDEOS = {
   'knee-extension': '/knee-extension-demo.mp4',
   'calf-raises': '/calf-raises-demo.mp4',
   squat: '/spanish-squat.mp4',
+  'simple-squat': '/spanish-squat.mp4',
   'hip-abduction': '/hip-abduction-demo.mp4',
   'step-down': '/step-down-demo.mp4',
 } as const;
@@ -35,6 +36,7 @@ export function getExerciseDisplayName(exerciseType?: string | null): string {
     'knee-extension': 'Knee Extension',
     'calf-raises': 'Calf Raises',
     squat: 'Spanish Squat',
+    'simple-squat': 'Simple Squat',
     'hip-abduction': 'Hip Abduction',
     'step-down': 'Step-Down',
   };

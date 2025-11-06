@@ -77,6 +77,8 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
         return 'Ankle Angle';
       case 'squat':
         return 'Hip/Knee Angle';
+      case 'simple-squat':
+        return 'Hip Angle';
       case 'hip-abduction':
         return 'Hip Angle';
       case 'step-down':
