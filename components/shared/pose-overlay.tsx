@@ -1,7 +1,28 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { Landmark, POSE_CONNECTIONS } from '@/lib/pose-utils';
+
+interface Landmark {
+  x: number;
+  y: number;
+  z: number;
+  visibility: number;
+}
+
+// MediaPipe pose connections
+const POSE_CONNECTIONS = [
+  [11, 13],
+  [13, 15], // Right arm
+  [12, 14],
+  [14, 16], // Left arm
+  [11, 12], // Shoulders
+  [11, 23],
+  [12, 24], // Torso
+  [23, 25],
+  [25, 27], // Right leg
+  [24, 26],
+  [26, 28], // Left leg
+];
 
 /**
  * PoseOverlay Component

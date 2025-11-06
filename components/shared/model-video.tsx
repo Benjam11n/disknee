@@ -2,6 +2,7 @@
 
 import { logger } from '@/lib/logger';
 import { useEffect, useRef } from 'react';
+import { getExerciseVideo } from '@/lib/config/exercise-videos';
 
 interface ModelVideoProps {
   isPlaying: boolean;
@@ -13,13 +14,14 @@ interface ModelVideoProps {
 
 export function ModelVideo({
   isPlaying,
-  exerciseType = 'squat',
+  exerciseType,
   videoUrl,
   onTogglePlay,
 }: ModelVideoProps) {
-  // todo: use videoUrl
-  logger.info(videoUrl, 'videoUrl');
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Get the appropriate video URL based on exercise type
+  const videoSource = videoUrl || getExerciseVideo(exerciseType);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -45,7 +47,7 @@ export function ModelVideo({
     <div className="w-full h-full relative bg-black">
       <video
         ref={videoRef}
-        src={'/spanish-squat.mp4'}
+        src={videoSource}
         className="w-full h-full object-cover cursor-pointer"
         loop
         playsInline

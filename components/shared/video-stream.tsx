@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { logger } from '@/lib/logger';
 import { PoseSocketClient } from '@/lib/pose-socket-client';
+import { env } from '@/env';
 
 interface Landmark {
   x: number;
@@ -17,6 +18,11 @@ interface VideoStreamProps {
   flipped?: boolean;
   exerciseId?: string;
   onPoseUpdate?: (data: any) => void;
+  crownSettings?: {
+    emoji?: string; // Crown emoji (default: 👑)
+    size?: number; // Font size in pixels (default: 60)
+    yOffset?: number; // Vertical offset from nose (default: -60)
+  };
 }
 
 export function VideoStream({
@@ -25,7 +31,14 @@ export function VideoStream({
   flipped = true,
   exerciseId,
   onPoseUpdate,
+  crownSettings,
 }: VideoStreamProps) {
+  // Set default crown settings
+  const crownConfig = {
+    emoji: crownSettings?.emoji || '👑',
+    size: crownSettings?.size || 60,
+    yOffset: crownSettings?.yOffset || -60,
+  };
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -98,11 +111,11 @@ export function VideoStream({
         const noseX = flipped ? width - nose.x * width : nose.x * width;
         const noseY = nose.y * height;
 
-        ctx.font = '100px Arial';
+        ctx.font = `${crownConfig.size}px Arial`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
 
-        ctx.fillText('👑', noseX, noseY - 60);
+        ctx.fillText(crownConfig.emoji, noseX, noseY + crownConfig.yOffset);
       }
     },
     []
@@ -205,7 +218,7 @@ export function VideoStream({
       // Connect to backend WebSocket for pose detection
       if (exerciseId && !poseClientRef.current) {
         poseClientRef.current = new PoseSocketClient({
-          baseUrl: 'http://localhost:8000',
+          baseUrl: env.NEXT_PUBLIC_BACKEND_URL,
           exerciseId: exerciseId,
           onPoseResult: (result) => {
             // Handle pose results from backend

@@ -1,6 +1,7 @@
 import structlog
 from typing import Dict, Any
 import time
+import math
 import numpy as np
 from .detector import PoseDetector
 
@@ -109,7 +110,9 @@ class ExerciseProcessor:
         "LEFT_HIP": 23,
         "LEFT_KNEE": 25,
         "LEFT_ANKLE": 27,
-        "LEFT_TOE": 31
+        "LEFT_TOE": 31,
+        "RIGHT_SHOULDER": 12,
+        "LEFT_SHOULDER": 11
     }
 
     def __init__(self, exercise_id: str):
@@ -150,7 +153,7 @@ class ExerciseProcessor:
             "ex5": {
                 "name": "Seated Calf Raise",
                 "hold_time_required": 3.0,
-                "ankle_hold_threshold": 140,  # degrees
+                "ankle_hold_threshold": 135,  # degrees
                 "ankle_reset_threshold": 120,  # degrees
                 "min_visibility": 0.5,
                 "target_reps": 5
@@ -162,6 +165,23 @@ class ExerciseProcessor:
                 "knee_reset_threshold": 100,   # Bent position
                 "min_visibility": 0.5,
                 "target_reps": 5
+            },
+            "squat": {
+                "name": "Spanish Squat",
+                "hold_time_required": 1.0,     # Hold at bottom
+                "hip_depth_threshold": 120,    # Hip angle for squat depth
+                "hip_reset_threshold": 160,     # Hip angle when standing
+                "knee_depth_threshold": 90,    # Optional: track knee angle too
+                "min_visibility": 0.5,
+                "target_reps": 5
+            },
+            "hip-abduction": {
+                "name": "Hip Abduction",
+                "hold_time_required": 1.0,     # Hold at top
+                "hip_abduct_threshold": 45,    # Minimum abduction angle
+                "hip_reset_threshold": 15,     # Reset position
+                "min_visibility": 0.5,
+                "target_reps": 15
             }
         }
         return params.get(exercise_id, params["ex5"])
@@ -244,8 +264,12 @@ class ExerciseProcessor:
             exercise_result = self._process_calf_raise(pose_result)
         elif self.exercise_id == "knee-extension":
             exercise_result = self._process_knee_extension(pose_result)
+        elif self.exercise_id == "squat":
+            exercise_result = self._process_squat(pose_result)
+        elif self.exercise_id == "hip-abduction":
+            exercise_result = self._process_hip_abduction(pose_result)
         else:
-            exercise_result = {"feedback": "Unknown exercise type"}
+            exercise_result = {"feedback": f"Exercise type '{self.exercise_id}' not supported"}
 
         self.last_processed_time = timestamp
 
@@ -451,6 +475,217 @@ class ExerciseProcessor:
             "feedback": feedback,
             "angles": {
                 "knee": self.state.current_angle
+            },
+            "rep_completed": rep_completed
+        }
+
+    def _process_squat(self, pose_result: Dict[str, Any]) -> Dict[str, Any]:
+        """Process squat exercise logic"""
+        landmarks = pose_result.get("landmarks")
+        if not landmarks:
+            self.state.exercise_active = False
+            return {"feedback": "No landmarks detected"}
+
+        # Check if pose is stable
+        pose_stable = pose_result.get("pose_stable", True)
+        if not pose_stable:
+            feedback = f"Hip: {self.state.smoothed_angle or 'N/A'}° | Reps: {self.state.reps}/{params['target_reps']}" if hasattr(self, 'params') else "Keep still..."
+            return {
+                "feedback": feedback,
+                "angles": {"hip": self.state.smoothed_angle},
+                "rep_completed": False
+            }
+
+        # Get landmarks for squat tracking
+        min_visibility = 0.3
+        shoulder = self.detector.get_landmark_point(landmarks, self.LANDMARKS["RIGHT_SHOULDER"], min_visibility)
+        hip = self.detector.get_landmark_point(landmarks, self.LANDMARKS["RIGHT_HIP"], min_visibility)
+        knee = self.detector.get_landmark_point(landmarks, self.LANDMARKS["RIGHT_KNEE"], min_visibility)
+
+        use_left_side = False
+        if not all([shoulder, hip, knee]):
+            # Try left side if right side not visible
+            shoulder = self.detector.get_landmark_point(landmarks, self.LANDMARKS["LEFT_SHOULDER"], min_visibility)
+            hip = self.detector.get_landmark_point(landmarks, self.LANDMARKS["LEFT_HIP"], min_visibility)
+            knee = self.detector.get_landmark_point(landmarks, self.LANDMARKS["LEFT_KNEE"], min_visibility)
+            use_left_side = True
+
+        if not all([shoulder, hip, knee]):
+            self.state.exercise_active = False
+            self.state.current_angle = None
+            side = "left" if use_left_side else "right"
+            return {"feedback": f"Required {side} side landmarks not visible", "angles": {}}
+
+        # Calculate hip angle (shoulder-hip-knee)
+        hip_angle = self.detector.calculate_angle(shoulder, hip, knee)
+
+        # Validate angle
+        if hip_angle < 40 or hip_angle > 180:
+            logger.warning(f"Invalid hip angle detected: {hip_angle:.1f}°")
+            return {
+                "feedback": f"Invalid position detected. Adjust form.",
+                "angles": {"hip": self.state.smoothed_angle}
+            }
+
+        # Apply smoothing to angle
+        smoothed_angle = self.state.smooth_angle(hip_angle, 0.7)
+        self.state.current_angle = round(smoothed_angle, 1)
+        self.state.exercise_active = True
+
+        # Exercise logic
+        params = self.exercise_params
+        rep_completed = False
+        feedback = ""
+
+        # Check if in squat position (hip angle below threshold)
+        if hip_angle <= params["hip_depth_threshold"] and self.state.ready_for_next:
+            if not self.state.timer_started:
+                self.state.timer_started = True
+                self.state.start_time = time.time()
+                feedback = "Hold at bottom..."
+            else:
+                self.state.hold_time = time.time() - (self.state.start_time or time.time())
+                feedback = f"Hold: {self.state.hold_time:.1f}s"
+
+                # Count rep if held long enough
+                if self.state.hold_time >= params["hold_time_required"]:
+                    self.state.reps += 1
+                    self.state.timer_started = False
+                    self.state.start_time = None
+                    self.state.ready_for_next = False
+                    self.state.hold_time = 0
+                    rep_completed = True
+                    feedback = f"Rep {self.state.reps} completed!"
+        else:
+            # Stop timer if angle rises above threshold
+            if self.state.timer_started:
+                self.state.timer_started = False
+                self.state.start_time = None
+                self.state.hold_time = 0
+
+            # Reset condition (standing up)
+            if hip_angle >= params["hip_reset_threshold"]:
+                self.state.ready_for_next = True
+
+        if not feedback:
+            feedback = f"Hip: {self.state.current_angle}° | Reps: {self.state.reps}/{params['target_reps']}"
+
+        return {
+            "feedback": feedback,
+            "angles": {
+                "hip": self.state.current_angle
+            },
+            "rep_completed": rep_completed
+        }
+
+    def _process_hip_abduction(self, pose_result: Dict[str, Any]) -> Dict[str, Any]:
+        """Process hip abduction exercise logic"""
+        landmarks = pose_result.get("landmarks")
+        if not landmarks:
+            self.state.exercise_active = False
+            return {"feedback": "No landmarks detected"}
+
+        # Check if pose is stable
+        pose_stable = pose_result.get("pose_stable", True)
+        if not pose_stable:
+            feedback = f"Hip: {self.state.smoothed_angle or 'N/A'}° | Reps: {self.state.reps}/{params['target_reps']}" if hasattr(self, 'params') else "Keep still..."
+            return {
+                "feedback": feedback,
+                "angles": {"hip": self.state.smoothed_angle},
+                "rep_completed": False
+            }
+
+        # Get landmarks for hip abduction tracking
+        min_visibility = 0.3
+        hip = self.detector.get_landmark_point(landmarks, self.LANDMARKS["RIGHT_HIP"], min_visibility)
+        knee = self.detector.get_landmark_point(landmarks, self.LANDMARKS["RIGHT_KNEE"], min_visibility)
+        ankle = self.detector.get_landmark_point(landmarks, self.LANDMARKS["RIGHT_ANKLE"], min_visibility)
+
+        use_left_leg = False
+        if not all([hip, knee, ankle]):
+            # Try left leg if right leg not visible
+            hip = self.detector.get_landmark_point(landmarks, self.LANDMARKS["LEFT_HIP"], min_visibility)
+            knee = self.detector.get_landmark_point(landmarks, self.LANDMARKS["LEFT_KNEE"], min_visibility)
+            ankle = self.detector.get_landmark_point(landmarks, self.LANDMARKS["LEFT_ANKLE"], min_visibility)
+            use_left_leg = True
+
+        if not all([hip, knee, ankle]):
+            self.state.exercise_active = False
+            self.state.current_angle = None
+            leg_type = "left" if use_left_leg else "right"
+            return {"feedback": f"Required {leg_type} leg landmarks not visible", "angles": {}}
+
+        # Calculate hip abduction angle
+        # This is the angle between vertical line through hip and line from hip to ankle
+        # For simplicity, we'll use the horizontal displacement
+        hip_x, hip_y = hip
+        ankle_x, ankle_y = ankle
+
+        # Calculate abduction angle
+        horizontal_distance = abs(ankle_x - hip_x)
+        vertical_distance = abs(hip_y - ankle_y) if hip_y > ankle_y else 0.1
+
+        # Calculate angle in degrees (arctan of horizontal/vertical)
+        abduction_angle = math.degrees(math.atan(horizontal_distance / (vertical_distance + 0.1)))
+
+        # Scale to more reasonable values (0-90 degrees)
+        abduction_angle = min(abduction_angle, 90)
+
+        # Validate angle
+        if abduction_angle < 0 or abduction_angle > 90:
+            logger.warning(f"Invalid abduction angle detected: {abduction_angle:.1f}°")
+            return {
+                "feedback": f"Invalid position detected. Adjust form.",
+                "angles": {"hip": self.state.smoothed_angle}
+            }
+
+        # Apply smoothing to angle
+        smoothed_angle = self.state.smooth_angle(abduction_angle, 0.7)
+        self.state.current_angle = round(smoothed_angle, 1)
+        self.state.exercise_active = True
+
+        # Exercise logic
+        params = self.exercise_params
+        rep_completed = False
+        feedback = ""
+
+        # Check if leg is lifted enough
+        if abduction_angle >= params["hip_abduct_threshold"] and self.state.ready_for_next:
+            if not self.state.timer_started:
+                self.state.timer_started = True
+                self.state.start_time = time.time()
+                feedback = "Hold position..."
+            else:
+                self.state.hold_time = time.time() - (self.state.start_time or time.time())
+                feedback = f"Hold: {self.state.hold_time:.1f}s"
+
+                # Count rep if held long enough
+                if self.state.hold_time >= params["hold_time_required"]:
+                    self.state.reps += 1
+                    self.state.timer_started = False
+                    self.state.start_time = None
+                    self.state.ready_for_next = False
+                    self.state.hold_time = 0
+                    rep_completed = True
+                    feedback = f"Rep {self.state.reps} completed!"
+        else:
+            # Stop timer if angle drops
+            if self.state.timer_started:
+                self.state.timer_started = False
+                self.state.start_time = None
+                self.state.hold_time = 0
+
+            # Reset condition (leg returned to center)
+            if abduction_angle <= params["hip_reset_threshold"]:
+                self.state.ready_for_next = True
+
+        if not feedback:
+            feedback = f"Hip: {self.state.current_angle}° | Reps: {self.state.reps}/{params['target_reps']}"
+
+        return {
+            "feedback": feedback,
+            "angles": {
+                "hip": self.state.current_angle
             },
             "rep_completed": rep_completed
         }

@@ -27,6 +27,7 @@ export const env = createEnv({
     NEXT_PUBLIC_APP_URL: z.string().url(),
     NEXT_PUBLIC_VERCEL_ENV: z.enum(['development', 'preview', 'production']).optional(),
     NEXT_PUBLIC_LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug', 'trace']).default('info'),
+    NEXT_PUBLIC_BACKEND_URL: z.string().url().default('http://localhost:8000'),
   },
 
   /**
@@ -46,6 +47,7 @@ export const env = createEnv({
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_VERCEL_ENV: process.env.NEXT_PUBLIC_VERCEL_ENV,
     NEXT_PUBLIC_LOG_LEVEL: process.env.NEXT_PUBLIC_LOG_LEVEL,
+    NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
   },
   emptyStringAsUndefined: true,
 });
