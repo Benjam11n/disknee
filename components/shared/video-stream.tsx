@@ -16,6 +16,7 @@ interface VideoStreamProps {
   isCallActive: boolean;
   flipped?: boolean; // mirror video
   exerciseId?: string; // For backend communication
+  onPoseUpdate?: (data: any) => void;
 }
 
 export function VideoStream({
@@ -23,6 +24,7 @@ export function VideoStream({
   isCallActive,
   flipped = true,
   exerciseId,
+  onPoseUpdate,
 }: VideoStreamProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -214,7 +216,10 @@ export function VideoStream({
             if (result.landmarks && result.landmarks.length > 0) {
               lastLandmarks.current = result.landmarks;
             }
-            // The parent component handles WebSocket updates separately
+            // Call parent component callback with pose data
+            if (onPoseUpdate) {
+              onPoseUpdate(result);
+            }
           },
           onConnectionChange: (connected) => {
             logger.info(connected, 'Backend connection status:');

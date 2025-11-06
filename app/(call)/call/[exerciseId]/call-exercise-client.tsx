@@ -19,8 +19,8 @@ import {
 } from '@/lib/actions/exercise-sessions';
 import { updateExerciseDoneAction } from '@/lib/actions/exercises';
 import { ROUTES } from '@/lib/constants/routes';
-import { formatTime } from '@/lib/utils/session-utils';
 import { createReflectionAction } from '@/lib/actions/reflections';
+import { formatTime } from '@/lib/utils/date-utils';
 
 interface Ex4State {
   reps: number;
@@ -49,7 +49,6 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
   });
 
   const sessionStartTime = useRef<number | null>(null);
-  const wsRef = useRef<WebSocket | null>(null);
 
   // Session timer
   useEffect(() => {
@@ -60,34 +59,6 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
       }, 1000);
       return () => clearInterval(interval);
     }
-  }, [isCallActive]);
-
-  // WebSocket connection
-  useEffect(() => {
-    if (!isCallActive) {
-      return;
-    }
-
-    wsRef.current = new WebSocket(`ws://localhost:8000/ws/${exercise.id}`);
-    wsRef.current.onopen = () => logger.info('WebSocket connected');
-    wsRef.current.onclose = () => logger.info('WebSocket closed');
-    wsRef.current.onerror = (e) => logger.error(e, 'WebSocket error');
-
-    wsRef.current.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      logger.info(data, 'Received message:');
-
-      // Update rep/angle/hold timer
-      setEx4State({
-        reps: data.reps || 0,
-        currentAngle: data.kneeAngle || data.angles?.knee || null,
-        holdTime: data.holdTime || 0,
-      });
-    };
-
-    return () => {
-      wsRef.current?.close();
-    };
   }, [isCallActive]);
 
   const startCall = async () => {
@@ -156,7 +127,18 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 p-6">
         {/* User Video */}
         <Card className="relative bg-black overflow-hidden">
-          <VideoStream isVideoOn={isVideoOn} isCallActive={isCallActive} exerciseId={exercise.id} />
+          <VideoStream
+            isVideoOn={isVideoOn}
+            isCallActive={isCallActive}
+            exerciseId={exercise.type || 'knee-extension'}
+            onPoseUpdate={(result) => {
+              setEx4State({
+                reps: result.exercise_state?.reps || 0,
+                currentAngle: result.angles?.knee || result.exercise_state?.current_angle || null,
+                holdTime: result.exercise_state?.hold_time || 0,
+              });
+            }}
+          />
 
           {/* Overlay for reps, angle, and hold timer */}
           <div className="absolute top-4 left-4 text-white text-lg font-bold bg-black/40 px-3 py-2 rounded-md space-y-1">
@@ -183,7 +165,7 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
 
         {/* Model Video */}
         <Card className="relative bg-black overflow-hidden">
-          <ModelVideo isPlaying={isModelPlaying} exerciseType="knee-extension" />
+          <ModelVideo isPlaying={isModelPlaying} exerciseType={exercise.type || 'knee-extension'} />
           <div className="absolute top-4 right-4">
             <Badge variant="secondary" className="bg-black/50 text-white">
               Perfect Form
@@ -199,7 +181,7 @@ export function CallExerciseClient({ exercise }: CallExerciseClientProps) {
             <h2 className="text-2xl font-bold mb-2">{exercise.title}</h2>
             <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
               <Activity className="h-4 w-4" /> {exercise.difficulty.toLowerCase()} |{' '}
-              {exercise.estimatedMins} min | {formatTime(sessionTime)}
+              {exercise.estimatedMins} min | {formatTime['duration'](sessionTime)}
             </div>
           </div>
 

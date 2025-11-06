@@ -47,6 +47,7 @@ model User {
 model Exercise {
   id            String             @id @default(cuid())
   title         String
+  type          String?            // Exercise type for backend (e.g., "knee-extension", "calf-raises")
   estimatedMins Int
   difficulty    ExerciseDifficulty
   done          Boolean            @default(false)

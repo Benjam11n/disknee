@@ -21,7 +21,8 @@ class PoseDetector:
         min_tracking_confidence: float = 0.5,
         enable_segmentation: bool = False,
         smooth_landmarks: bool = True,
-        static_image_mode: bool = False
+        static_image_mode: bool = False,
+        smoothing_factor: float = 0.7  # Exponential smoothing factor
     ):
         """
         Initialize the MediaPipe pose detector with optimized settings
@@ -33,6 +34,7 @@ class PoseDetector:
             enable_segmentation: Whether to enable segmentation mask
             smooth_landmarks: Whether to smooth landmarks across frames
             static_image_mode: Whether to treat input as static images
+            smoothing_factor: Exponential smoothing factor (0-1, higher = more smoothing)
         """
         self.model_complexity = model_complexity
         self.min_detection_confidence = min_detection_confidence
@@ -40,6 +42,11 @@ class PoseDetector:
         self.enable_segmentation = enable_segmentation
         self.smooth_landmarks = smooth_landmarks
         self.static_image_mode = static_image_mode
+        self.smoothing_factor = smoothing_factor
+
+        # For temporal smoothing
+        self.previous_landmarks = None
+        self.smoothed_landmarks = None
 
         # MediaPipe pose solution
         self.mp_pose = mp.solutions.pose
@@ -177,10 +184,22 @@ class PoseDetector:
                     ]:
                         visibility_scores[idx] = float(landmark.visibility)
 
+                # Check if pose is stable and apply smoothing
+                is_stable = self._is_pose_stable(landmarks)
+
+                # Only update if pose is stable or this is the first detection
+                if is_stable or self.smoothed_landmarks is None:
+                    # Apply temporal smoothing
+                    smoothed_landmarks = self._smooth_landmarks(landmarks)
+                else:
+                    # Use previous smoothed landmarks if pose is too unstable
+                    smoothed_landmarks = self.smoothed_landmarks or landmarks
+
                 response.update({
-                    "landmarks": landmarks,
+                    "landmarks": smoothed_landmarks,
                     "pose_detected": True,
-                    "visibility_scores": visibility_scores
+                    "visibility_scores": visibility_scores,
+                    "pose_stable": is_stable
                 })
 
                 logger.debug(
@@ -206,6 +225,78 @@ class PoseDetector:
             self.current_fps = self.fps_counter / (timestamp - self.fps_start_time)
             self.fps_counter = 0
             self.fps_start_time = timestamp
+
+    def _smooth_landmarks(self, landmarks: List[Dict]) -> List[Dict]:
+        """
+        Apply exponential smoothing to landmarks to reduce jitter
+
+        Args:
+            landmarks: Current frame landmarks
+
+        Returns:
+            Smoothed landmarks
+        """
+        if self.smoothed_landmarks is None:
+            # First frame, use as is
+            self.smoothed_landmarks = landmarks.copy()
+            return self.smoothed_landmarks
+
+        # Apply exponential smoothing
+        alpha = 1.0 - self.smoothing_factor  # Invert so higher smoothing_factor = more smoothing
+
+        smoothed = []
+        for i, landmark in enumerate(landmarks):
+            if i < len(self.smoothed_landmarks):
+                prev_landmark = self.smoothed_landmarks[i]
+                smoothed_landmark = {
+                    "x": alpha * landmark["x"] + (1 - alpha) * prev_landmark["x"],
+                    "y": alpha * landmark["y"] + (1 - alpha) * prev_landmark["y"],
+                    "z": alpha * landmark["z"] + (1 - alpha) * prev_landmark["z"],
+                    "visibility": landmark["visibility"]  # Don't smooth visibility
+                }
+            else:
+                smoothed_landmark = landmark.copy()
+            smoothed.append(smoothed_landmark)
+
+        self.smoothed_landmarks = smoothed
+        return smoothed
+
+    def _is_pose_stable(self, landmarks: List[Dict], threshold: float = 0.1) -> bool:
+        """
+        Check if pose is stable (not too much movement from previous frame)
+
+        Args:
+            landmarks: Current landmarks
+            threshold: Movement threshold
+
+        Returns:
+            True if pose is stable
+        """
+        if self.previous_landmarks is None:
+            self.previous_landmarks = landmarks.copy()
+            return True
+
+        # Calculate average movement
+        total_movement = 0
+        count = 0
+        for i, landmark in enumerate(landmarks):
+            if i < len(self.previous_landmarks):
+                prev = self.previous_landmarks[i]
+                # Check if both landmarks are visible
+                if landmark["visibility"] > 0.5 and prev["visibility"] > 0.5:
+                    dx = landmark["x"] - prev["x"]
+                    dy = landmark["y"] - prev["y"]
+                    movement = (dx ** 2 + dy ** 2) ** 0.5
+                    total_movement += movement
+                    count += 1
+
+        self.previous_landmarks = landmarks.copy()
+
+        if count == 0:
+            return False
+
+        avg_movement = total_movement / count
+        return avg_movement < threshold
 
     def calculate_angle(self, a: Tuple[float, float], b: Tuple[float, float], c: Tuple[float, float]) -> float:
         """
@@ -239,21 +330,31 @@ class PoseDetector:
             logger.error("Error calculating angle", error=str(e))
             return 0.0
 
-    def get_landmark_point(self, landmarks: List[Dict], landmark_index: int) -> Optional[Tuple[float, float]]:
+    def get_landmark_point(self, landmarks: List[Dict], landmark_index: int, min_visibility: float = 0.3) -> Optional[Tuple[float, float]]:
         """
         Extract (x, y) coordinates for a specific landmark
 
         Args:
             landmarks: List of landmark dictionaries
             landmark_index: MediaPipe landmark index
+            min_visibility: Minimum visibility threshold for landmark
 
         Returns:
-            (x, y) coordinates or None if not found
+            (x, y) coordinates or None if not found or not visible enough
         """
         try:
             if landmarks and landmark_index < len(landmarks):
                 landmark = landmarks[landmark_index]
-                return (landmark["x"], landmark["y"])
+                # Check visibility threshold
+                if landmark.get("visibility", 0) >= min_visibility:
+                    return (landmark["x"], landmark["y"])
+                else:
+                    logger.debug(
+                        "Landmark not visible enough",
+                        landmark_index=landmark_index,
+                        visibility=landmark.get("visibility", 0),
+                        min_visibility=min_visibility
+                    )
             return None
         except Exception as e:
             logger.error("Error extracting landmark", landmark_index=landmark_index, error=str(e))
