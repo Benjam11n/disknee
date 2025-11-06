@@ -50,81 +50,80 @@ async function main() {
   }
 
   // Create shop items
-  const createdShopItems = await Promise.all(
-    shopItems.map((item) =>
-      prisma.shopItem.create({
-        data: {
-          id: item.id,
-          name: item.name,
-          description: item.description,
-          icon: item.icon,
-          type: item.type,
-          price: item.price,
-          isActive: item.active,
-        },
-      })
-    )
-  );
+  const createdShopItems = [];
+  for (const item of shopItems) {
+    const shopItem = await prisma.shopItem.create({
+      data: {
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        icon: item.icon,
+        type: item.type,
+        price: item.price,
+        isActive: item.active,
+      },
+    });
+    createdShopItems.push(shopItem);
+  }
   logger.info(`✅ Created ${createdShopItems.length} shop items`);
 
   // Create plans
-  const plans = await Promise.all(
-    seedData.plans.map((plan) =>
-      prisma.plan.create({
-        data: {
-          id: plan.id,
-          date: new Date(plan.date),
-          title: plan.title,
-          when: plan.when,
-        },
-      })
-    )
-  );
+  const plans = [];
+  for (const plan of seedData.plans) {
+    const createdPlan = await prisma.plan.create({
+      data: {
+        id: plan.id,
+        date: new Date(plan.date),
+        title: plan.title,
+        when: plan.when,
+      },
+    });
+    plans.push(createdPlan);
+  }
   logger.info(`✅ Created ${plans.length} plans`);
 
   // Create exercises
-  const exercises = await Promise.all(
-    seedData.exercises.map((ex, index) => {
-      const planIndex = index % plans.length;
-      // Calculate sequence number (1-based) within each plan
-      const exercisesInThisPlan = Math.ceil((index + 1) / plans.length);
-      return prisma.exercise.create({
-        data: {
-          id: ex.id,
-          title: ex.title,
-          estimatedMins: ex.estimatedMins,
-          difficulty:
-            ex.difficulty === 'easy'
-              ? ExerciseDifficulty.EASY
-              : ex.difficulty === 'moderate'
-                ? ExerciseDifficulty.MODERATE
-                : ExerciseDifficulty.HARD,
-          done: ex.done,
-          sequence: exercisesInThisPlan,
-          planId: plans[planIndex].id,
-          videoUrl: ex.videoUrl || null,
-        },
-      });
-    })
-  );
+  const exercises = [];
+  for (const [index, ex] of seedData.exercises.entries()) {
+    const planIndex = index % plans.length;
+    // Calculate sequence number (1-based) within each plan
+    const exercisesInThisPlan = Math.ceil((index + 1) / plans.length);
+    const exercise = await prisma.exercise.create({
+      data: {
+        id: ex.id,
+        title: ex.title,
+        estimatedMins: ex.estimatedMins,
+        type: ex.type || null, // Add the type field
+        difficulty:
+          ex.difficulty === 'easy'
+            ? ExerciseDifficulty.EASY
+            : ex.difficulty === 'moderate'
+              ? ExerciseDifficulty.MODERATE
+              : ExerciseDifficulty.HARD,
+        done: ex.done,
+        sequence: exercisesInThisPlan,
+        planId: plans[planIndex].id,
+        videoUrl: ex.videoUrl || null,
+      },
+    });
+    exercises.push(exercise);
+  }
   logger.info(`✅ Created ${exercises.length} exercises`);
 
   // Create appointments
   if (seedData.appointments) {
-    await Promise.all(
-      seedData.appointments.map((appt) =>
-        prisma.appointment.create({
-          data: {
-            id: appt.id,
-            start: new Date(appt.start),
-            doctorName: appt.doctorName,
-            doctorSpecialty: appt.doctorSpecialty,
-            locationName: appt.locationName,
-            locationAddr: appt.locationAddr,
-          },
-        })
-      )
-    );
+    for (const appt of seedData.appointments) {
+      await prisma.appointment.create({
+        data: {
+          id: appt.id,
+          start: new Date(appt.start),
+          doctorName: appt.doctorName,
+          doctorSpecialty: appt.doctorSpecialty,
+          locationName: appt.locationName,
+          locationAddr: appt.locationAddr,
+        },
+      });
+    }
     logger.info(`✅ Created ${seedData.appointments.length} appointments`);
   }
 
