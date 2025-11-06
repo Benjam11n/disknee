@@ -226,15 +226,7 @@ async function main() {
   logger.info(`✅ Given ${donaldDuck.name} starter items`);
 
   // --- NEW: create WeekReport rows for past weeks (based on exercise sessions) ---
-  const startOfWeekMonday = (d: Date) => {
-    const dt = new Date(d);
-    const day = dt.getDay(); // 0 (Sun) - 6 (Sat)
-    const diff = (day + 6) % 7; // Monday = 0
-    dt.setDate(dt.getDate() - diff);
-    dt.setHours(0, 0, 0, 0);
-    dt.setMinutes(0, 0, 0);
-    return dt;
-  };
+  const { startOfWeekMonday } = await import("../lib/utils/date-utils");
 
   // Build week reports for Donald (users[0]) from their sessions
   const donSessions = await prisma.exerciseSession.findMany({

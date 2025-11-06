@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Appointment, Plan, leaderboardByScore } from "@prisma/client";
-import { buildMonthMatrix, formatYMD, formatTime } from "@/lib/date-utils";
+import { buildMonthMatrix, formatYMD, formatTime24Hour } from "@/lib/utils/date-utils";
 import { PlanWithExercises } from "@/lib/types/plans";
 
 interface UseDashboardDataProps {
@@ -65,7 +65,7 @@ export function useDashboardData({
       .map((a) => ({
         ...a,
         date: formatYMD(new Date(a.start)),
-        time: formatTime(
+        time: formatTime24Hour(
           a.start instanceof Date ? a.start.toISOString() : a.start
         ),
       }));

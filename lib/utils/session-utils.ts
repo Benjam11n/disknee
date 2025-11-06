@@ -1,5 +1,6 @@
 /**
  * Format duration in seconds to MM:SS format
+ * @deprecated Use formatDuration from @/lib/utils/date-utils instead
  */
 export const formatTime = (seconds: number): string => {
   const mins = Math.floor(seconds / 60);

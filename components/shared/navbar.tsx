@@ -17,7 +17,7 @@ import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ROUTES } from "@/lib/constants/routes";
-import { formatDateTime } from "@/lib/date-utils";
+import { formatDateTime } from "@/lib/utils/date-utils";
 
 interface NavbarProps {
   nextAppt?: Appointment | null;

@@ -1,13 +1,14 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Target, Calendar, Sparkles } from "lucide-react";
+import { ShopItem } from "@prisma/client";
 
 interface HeroSectionProps {
   patientName: string;
   streakCount?: number;
   userPoints?: number;
   completionRate?: number;
-  equippedItems?: any[];
+  equippedItems?: ShopItem[];
 }
 
 // todo: move to utils

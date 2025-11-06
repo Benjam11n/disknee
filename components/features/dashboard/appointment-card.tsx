@@ -1,6 +1,6 @@
 import { Calendar, Clock, MapPin } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { formatDateTime, formatTime } from "@/lib/date-utils";
+import { formatDateTime, formatTime } from "@/lib/utils/date-utils";
 import { Appointment } from "@prisma/client";
 
 interface AppointmentCardProps {
@@ -34,7 +34,7 @@ export function AppointmentCard({
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Clock className="h-3 w-3" />
             <span>
-              {formatTime(
+              {formatTime["24hour"](
                 appointment.start instanceof Date
                   ? appointment.start.toISOString()
                   : appointment.start

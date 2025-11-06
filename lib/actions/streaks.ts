@@ -9,6 +9,7 @@ import { action } from "../handlers/action";
 import { GetStreakSchema } from "../validations/streaks-validations";
 import { GetStreakParams, StreakData } from "../types/streaks";
 import { handleError } from "../handlers/error";
+import { startOfDay, addDays } from "@/lib/utils/date-utils";
 
 interface CheckInActionParams {
   userId: string;
@@ -22,10 +23,8 @@ export async function checkInAction({
   points,
 }: CheckInActionParams) {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    const today = startOfDay();
+    const tomorrow = addDays(today, 1);
 
     // Get or create user streak
     let userStreak = await prisma.userStreak.findUnique({
@@ -210,10 +209,8 @@ export async function getUserStreakAction(
     }
 
     // Get today's check-in
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    const today = startOfDay();
+    const tomorrow = addDays(today, 1);
 
     const todayCheckIn = await prisma.dailyCheckIn.findFirst({
       where: {

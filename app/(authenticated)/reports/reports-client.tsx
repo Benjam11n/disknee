@@ -1,5 +1,6 @@
 "use client";
 import React, { useMemo, useState } from "react";
+import { formatShortDate, formatDayHeader, formatTimestamp } from "@/lib/utils/date-utils";
 
 type Item = {
   title: string;
@@ -36,20 +37,16 @@ export default function ReportsClient({ initialWeeks }: { initialWeeks: Week[] }
     });
   }, [initialWeeks, statusFilter, dateFilter]);
 
-  const formatShort = (iso: string) =>
-    new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-
-  const formatDayHeader = (iso: string) =>
-    new Date(iso).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-
-  const formatTimestamp = (iso?: string | null) =>
-    iso ? new Date(iso).toLocaleString("en-GB", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "-";
-
+  
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <label className="text-sm text-muted-foreground">Filter status</label>
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as any)} className="px-2 py-1 border rounded">
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as "All" | "REVIEWED" | "NOT_SENT" | "PENDING")}
+          className="px-2 py-1 border rounded"
+        >
           <option value="All">All</option>
           <option value="REVIEWED">Reviewed</option>
           <option value="PENDING">Pending</option>
@@ -73,7 +70,7 @@ export default function ReportsClient({ initialWeeks }: { initialWeeks: Week[] }
               <summary className="flex items-center justify-between cursor-pointer list-none">
                 <div>
                   <div className="text-lg font-semibold">
-                    Week {formatShort(week.weekStart)} — {formatShort(weekEnd.toISOString())}
+                    Week {formatShortDate(week.weekStart)} — {formatShortDate(weekEnd.toISOString())}
                   </div>
                   <div className="text-sm text-muted-foreground flex flex-wrap items-center gap-4">
                     <span>{week.days.length} day{week.days.length > 1 ? "s" : ""}</span>

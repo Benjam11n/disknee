@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { CalendarDay } from "./calendar-day";
-import { sameDay, formatYMD } from "@/lib/date-utils";
+import { sameDay, formatYMD } from "@/lib/utils/date-utils";
 
 interface CalendarProps {
   monthMatrix: (Date | null)[][];
