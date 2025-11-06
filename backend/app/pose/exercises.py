@@ -104,6 +104,14 @@ class ExerciseProcessor:
                 "min_visibility": 0.5,
                 "target_reps": 5
             },
+            "knee-extension": {
+                "name": "Knee Extension",
+                "hold_time_required": 2.0,
+                "knee_extend_threshold": 160,  # Nearly straight
+                "knee_reset_threshold": 100,   # Bent position
+                "min_visibility": 0.5,
+                "target_reps": 5
+            }
         }
         return params.get(exercise_id, params["ex5"])
 
