@@ -16,14 +16,10 @@ export function useDashboardData({
   leaderboard,
   patientName,
 }: UseDashboardDataProps) {
-  const [showAllLeaderboard, setShowAllLeaderboard] = useState(false);
-
-  // Calendar
   const today = useMemo(() => new Date(), []);
   const { monthMatrix, monthLabel } = useMemo(() => buildMonthMatrix(today), [today]);
   const [selectedDate, setSelectedDate] = useState<Date>(today);
 
-  // Highlight sets
   const apptDays = useMemo<Set<string>>(
     () =>
       new Set(
@@ -73,8 +69,6 @@ export function useDashboardData({
   }, [leaderboard, patientName]);
 
   return {
-    showAllLeaderboard,
-    setShowAllLeaderboard,
     today,
     monthMatrix,
     monthLabel,

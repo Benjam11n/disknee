@@ -2,14 +2,12 @@
 
 import { JSX } from 'react';
 
-import { Leaderboard } from '@/components/features/dashboard/leaderboard';
 import { CalendarAndPlans } from '@/components/features/dashboard/calendar-and-plans';
 import { ExerciseProgress } from '@/components/features/dashboard/exercise-progress';
 import { UpcomingAppointments } from '@/components/features/dashboard/upcoming-appointments';
 import { ProgressJourney } from '@/components/features/dashboard/progress-journey';
 import { HeroSection } from '@/components/features/dashboard/hero-section';
 import { DashboardLayout } from '@/components/features/dashboard/dashboard-layout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useDashboardCalculations } from '@/lib/hooks/use-dashboard-calculations';
 import { useDashboardData } from '@/lib/hooks/use-dashboard-data';
 import { StreakDisplay } from '@/components/features/streak/streak-display';
@@ -77,8 +75,6 @@ export function DashboardClient({ initialData, userId }: DashboardClientProps): 
   });
 
   const {
-    showAllLeaderboard,
-    setShowAllLeaderboard,
     monthMatrix,
     monthLabel,
     today,
@@ -150,29 +146,6 @@ export function DashboardClient({ initialData, userId }: DashboardClientProps): 
         selectedPlans={selectedPlans}
         ringProgress={overallTarget}
       />
-
-      {/* Leaderboard - Smaller version */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Leaderboard</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Leaderboard
-            leaderboard={Array.isArray(leaderboard) ? leaderboard : []}
-            patientName={patientName}
-            showAll={false}
-            maxItems={3}
-          />
-          {leaderboard.length > 3 && (
-            <button
-              onClick={() => setShowAllLeaderboard(!showAllLeaderboard)}
-              className="mt-2 text-sm text-muted-foreground hover:text-primary transition-colors w-full"
-            >
-              View Full Leaderboard →
-            </button>
-          )}
-        </CardContent>
-      </Card>
     </>
   );
 
