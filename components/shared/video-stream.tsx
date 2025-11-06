@@ -278,7 +278,7 @@ export function VideoStream({
     }
 
     animationRef.current = requestAnimationFrame(drawFrame);
-  }, [flipped, exerciseId, drawSkeleton, onCameraDistanceWarning]);
+  }, [flipped, exerciseId, drawSkeleton, onCameraDistanceWarning, onPoseUpdate]);
 
   useEffect(() => {
     if (isCallActive && isVideoOn) {
@@ -327,16 +327,21 @@ export function VideoStream({
       if (poseClientRef.current) {
         poseClientRef.current.disconnect();
         poseClientRef.current = null;
+        // Clear landmarks when disconnecting
+        lastLandmarks.current = null;
       }
     }
+
+    // Cleanup function
     return () => {
       stopCamera();
       if (poseClientRef.current) {
         poseClientRef.current.disconnect();
         poseClientRef.current = null;
+        lastLandmarks.current = null;
       }
     };
-  }, [isCallActive, isVideoOn, startCamera, exerciseId]);
+  }, [isCallActive, isVideoOn, startCamera, exerciseId, onPoseUpdate]);
 
   return (
     <div className="relative w-full h-full">

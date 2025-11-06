@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -100,13 +100,27 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
 
   // Session timer
   useEffect(() => {
-    if (isCallActive && !sessionStartTime.current) {
-      sessionStartTime.current = Date.now();
-      const interval = setInterval(() => {
+    let interval: NodeJS.Timeout | null = null;
+
+    if (isCallActive) {
+      // Start timer if not already started
+      if (!sessionStartTime.current) {
+        sessionStartTime.current = Date.now();
+      }
+      interval = setInterval(() => {
         setSessionTime(Math.floor((Date.now() - sessionStartTime.current!) / 1000));
       }, 1000);
-      return () => clearInterval(interval);
+    } else {
+      // Reset start time when call ends
+      sessionStartTime.current = null;
+      setSessionTime(0);
     }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
   }, [isCallActive]);
 
   // Handle rep completion feedback auto-hide
@@ -186,6 +200,45 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
     }
   };
 
+  const handleCameraDistanceWarning = useCallback((tooClose: boolean) => {
+    setCameraWarning(tooClose);
+  }, []);
+
+  const handlePoseUpdate = useCallback(
+    (result: any) => {
+      const newReps = result.exercise_state?.reps || 0;
+      const currentAngle =
+        result.angles?.hip ||
+        result.angles?.knee ||
+        result.angles?.ankle ||
+        result.exercise_state?.current_angle ||
+        null;
+      const holdTime = result.exercise_state?.hold_time || 0;
+
+      // Check if a new rep was completed
+      if (newReps > prevRepsRef.current) {
+        setRepFeedback({
+          show: true,
+          text: `Rep ${newReps}! 🎉`,
+        });
+
+        // Check if exercise is complete
+        if (newReps >= targetReps && !exerciseComplete) {
+          setExerciseComplete(true);
+        }
+      }
+
+      setEx4State({
+        reps: newReps,
+        currentAngle,
+        holdTime,
+      });
+
+      prevRepsRef.current = newReps;
+    },
+    [targetReps, exerciseComplete]
+  );
+
   const handleReflectionSubmit = async (reflection: {
     rating: number;
     fatigue: number;
@@ -226,40 +279,8 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
               size: equippedGlasses ? 100 : 100, // Can be customized per item in future
               yOffset: equippedGlasses ? 10 : 10, // Slightly lower on face
             }}
-            onCameraDistanceWarning={(tooClose) => {
-              setCameraWarning(tooClose);
-            }}
-            onPoseUpdate={(result) => {
-              const newReps = result.exercise_state?.reps || 0;
-              const currentAngle =
-                result.angles?.hip ||
-                result.angles?.knee ||
-                result.angles?.ankle ||
-                result.exercise_state?.current_angle ||
-                null;
-              const holdTime = result.exercise_state?.hold_time || 0;
-
-              // Check if a new rep was completed
-              if (newReps > prevRepsRef.current) {
-                setRepFeedback({
-                  show: true,
-                  text: `Rep ${newReps}! 🎉`,
-                });
-
-                // Check if exercise is complete
-                if (newReps >= targetReps && !exerciseComplete) {
-                  setExerciseComplete(true);
-                }
-              }
-
-              setEx4State({
-                reps: newReps,
-                currentAngle,
-                holdTime,
-              });
-
-              prevRepsRef.current = newReps;
-            }}
+            onCameraDistanceWarning={handleCameraDistanceWarning}
+            onPoseUpdate={handlePoseUpdate}
           />
 
           {/* Rep completion feedback overlay */}
