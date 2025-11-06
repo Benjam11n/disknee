@@ -1,7 +1,7 @@
 import { getExercisesAction } from '@/lib/actions/exercises';
 import { getPlansAction } from '@/lib/actions/plans';
 import { auth } from '@/lib/auth';
-import { ExerciseList } from '@/components/features/dashboard/exercise-list';
+import { ExerciseProgressClient } from './exercise-progress-client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -18,62 +18,56 @@ export default async function ExercisePage() {
     return notFound();
   }
 
-  // Calculate the start and end of the current week (Monday to Sunday)
+  // Get plans for current month (same as dashboard)
   const today = new Date();
-  const currentDay = today.getDay();
-  const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay; // Sunday = 0, Monday = 1
-
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() + mondayOffset);
-  startOfWeek.setHours(0, 0, 0, 0);
-
-  const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(startOfWeek.getDate() + 6);
-  endOfWeek.setHours(23, 59, 59, 999);
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
   const plansResponse = await getPlansAction({
-    startDate: startOfWeek.toISOString(),
-    endDate: endOfWeek.toISOString(),
     limit: 100,
     offset: 0,
+    include: { exercises: true },
   });
 
   if (!plansResponse.success || !plansResponse.data) {
     throw new Error(plansResponse.error?.message ?? `Failed to fetch plans`);
   }
 
-  const weeklyPlanIds = plansResponse.data.map((plan) => plan.id);
-  const weeklyPlanIdSet = new Set(weeklyPlanIds);
+  // Filter plans for current month (same as dashboard)
+  const plans = plansResponse.data.filter((plan) => {
+    const planDate = new Date(plan.date);
+    return planDate >= startOfMonth && planDate <= endOfMonth;
+  });
 
-  const exercisesResponse = await getExercisesAction({ page: 1, limit: 50 });
-
-  if (!exercisesResponse.success) {
-    throw new Error(exercisesResponse.error?.message ?? `Failed to fetch exercises`);
-  }
-
-  if (!exercisesResponse.data) {
-    return notFound();
-  }
-
-  const weeklyExercises = exercisesResponse.data.filter((exercise) =>
-    weeklyPlanIdSet.has(exercise.planId)
+  // Fetch exercises for the filtered plans (same as dashboard)
+  const exercisesPromises = plans.map((plan) =>
+    getExercisesAction({ planId: plan.id, page: 1, limit: 100 })
   );
 
-  const completedCount = weeklyExercises.filter((ex) => ex.done).length;
-  const totalCount = weeklyExercises.length;
-  const pillPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  const exercisesResponses = await Promise.all(exercisesPromises);
+
+  // Combine all exercises from all plans (same as dashboard)
+  const weeklyExercises = exercisesResponses
+    .flatMap((response) => (response.success ? response.data || [] : []))
+    .sort((a, b) => a.sequence - b.sequence);
 
   const weeklyTotalMins = weeklyExercises.reduce((total, exercise) => {
     return total + (exercise.estimatedMins || 0);
   }, 0);
+
+  // Calculate weeklyTarget the same way as dashboard (from useDashboardCalculations hook)
+  const list = Array.isArray(weeklyExercises) ? weeklyExercises : [];
+  const total = list.length || 1;
+  const done = list.filter((e) => e && e.done).length;
+  const weeklyTarget = done / total;
 
   return (
     <div className="px-4 sm:px-6 py-6 max-w-[1400px] mx-auto">
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Weekly Exercises</h1>
-            <p className="text-muted-foreground">Your exercises for this week</p>
+            <h1 className="text-3xl font-bold">Monthly Exercises</h1>
+            <p className="text-muted-foreground">Your exercises for this month</p>
           </div>
           <Link href={ROUTES.EXERCISES_ALL}>
             <Button variant="outline">
@@ -82,9 +76,9 @@ export default async function ExercisePage() {
             </Button>
           </Link>
         </div>
-        <ExerciseList
+        <ExerciseProgressClient
           exercises={weeklyExercises}
-          pillPercent={pillPercent}
+          weeklyTarget={weeklyTarget}
           weeklyTotalMins={weeklyTotalMins}
         />
       </div>

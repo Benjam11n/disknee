@@ -22,7 +22,6 @@ export default async function RehabDashboardPage() {
 
   const userId = session.user.id;
 
-  // Get plans for current month first
   const today = new Date();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
@@ -42,7 +41,6 @@ export default async function RehabDashboardPage() {
       getUserStreakAction({ userId }),
     ]);
 
-  // Handle plans data - filter for current month
   let plans: Plan[] = [];
 
   if (plansResponse.success && plansResponse.data) {
@@ -52,19 +50,16 @@ export default async function RehabDashboardPage() {
     });
   }
 
-  // Now fetch exercises for the filtered plans
   const exercisesPromises = plans.map((plan) =>
     getExercisesAction({ planId: plan.id, page: 1, limit: 100 })
   );
 
   const exercisesResponses = await Promise.all(exercisesPromises);
 
-  // Combine all exercises from all plans
   const exercises = exercisesResponses
     .flatMap((response) => (response.success ? response.data || [] : []))
-    .sort((a, b) => a.sequence - b.sequence); // Sort by sequence across all plans
+    .sort((a, b) => a.sequence - b.sequence);
 
-  // Handle appointments data
   const appointments = appointmentsResponse.success ? appointmentsResponse.data || [] : [];
 
   const leaderboard = leaderboardResponse.success ? leaderboardResponse.data || [] : [];
