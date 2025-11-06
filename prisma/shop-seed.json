@@ -18,15 +18,6 @@
     "active": true
   },
   {
-    "id": "hat-wizard",
-    "name": "Wizard Hat",
-    "description": "Magical hat for the wise and mysterious",
-    "icon": "🎩",
-    "type": "HAT",
-    "price": 300,
-    "active": true
-  },
-  {
     "id": "hat-santa",
     "name": "Santa Hat",
     "description": "Festive hat for holiday cheer",

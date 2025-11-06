@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ShopItem } from '@prisma/client';
-import { Coins, Check, ShoppingBag, Sparkles, Lock, Star } from 'lucide-react';
+import { Coins, Check, ShoppingBag, Sparkles, Lock, Star, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/lib/constants/routes';
 
 interface ShopItemCardProps {
   item: ShopItem;
@@ -17,6 +19,8 @@ interface ShopItemCardProps {
   onEquip: () => void;
 }
 
+// todo: move these utilities to another file
+// todo: move them to do fields, just colour on frontend
 function getRarity(price: number) {
   if (price >= 500) {
     return {
@@ -59,9 +63,17 @@ export function ShopItemCard({
   onPurchase,
   onEquip,
 }: ShopItemCardProps) {
+  const router = useRouter();
   const canAfford = userPoints >= item.price;
   const rarity = getRarity(item.price);
   const isNew = Date.now() - new Date(item.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000; // New if less than 7 days old
+  const canTryOn = (item.type === 'HAT' || item.type === 'ACCESSORY') && !isOwned;
+
+  const handleTryOn = () => {
+    router.push(
+      `${ROUTES.TRY_ON}?item_name=${item.name}&item_icon=${item.icon}&item_type=${item.type}`
+    );
+  };
 
   return (
     <Card
@@ -217,6 +229,13 @@ export function ShopItemCard({
             </Button>
           )}
         </div>
+
+        {canTryOn && (
+          <Button onClick={handleTryOn} variant="outline" size="sm" className="w-full">
+            <Eye className="h-4 w-4 mr-2" />
+            Try On
+          </Button>
+        )}
 
         {/* Owned indicator */}
         {isOwned && (

@@ -15,6 +15,7 @@ export const ROUTES = {
   REPORTS: '/reports',
   LEADERBOARD: '/leaderboard',
   SHOP: '/shop',
+  TRY_ON: '/try-on',
 
   // not implemented yet
   SETTINGS: '/settings',
