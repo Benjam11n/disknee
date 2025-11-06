@@ -6,35 +6,12 @@ import {
   formatDayHeader,
   formatTimestamp,
 } from "@/lib/utils/date-utils";
-
-type Item = {
-  title: string;
-  status: string;
-  endedOn: string | null;
-  satisfaction: number | null;
-  fatigue: number | null;
-  comments?: string | null;
-  points?: number;
-};
-// todo: consolidate the types here and the types in reports.ts types folder
-
-type Day = { date: string; items: Item[] };
-
-type Week = {
-  weekStart: string;
-  days: Day[];
-  totalExercises?: number;
-  avgSatisfaction?: number | null;
-  avgFatigue?: number | null;
-  totalPoints?: number;
-  reviewed?: "REVIEWED" | "NOT_SENT" | "PENDING" | string | null;
-  feedback?: string | null;
-};
+import { ReportWeek } from "@/lib/types/reports";
 
 export default function ReportsClient({
   initialWeeks,
 }: {
-  initialWeeks: Week[];
+  initialWeeks: ReportWeek[];
 }) {
   const [statusFilter, setStatusFilter] = useState<
     "All" | "REVIEWED" | "NOT_SENT" | "PENDING"
