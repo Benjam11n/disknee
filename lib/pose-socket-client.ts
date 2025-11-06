@@ -2,6 +2,8 @@
  * WebSocket client for pose detection backend communication
  */
 
+import { logger } from './logger';
+
 export interface PoseResult {
   pose_detected: boolean;
   landmarks?: Array<{
@@ -92,7 +94,7 @@ export class PoseSocketClient {
         };
 
         this.ws.onerror = (error) => {
-          console.error('WebSocket error:', error);
+          logger.error(error, 'WebSocket error:');
           this.isConnecting = false;
           this.options.onError?.(new Error('WebSocket connection error'));
           reject(error);
@@ -107,7 +109,7 @@ export class PoseSocketClient {
               this.options.onError?.(new Error(message.message));
             }
           } catch (error) {
-            console.error('Error parsing WebSocket message:', error);
+            logger.error(error, 'Error parsing WebSocket message:');
           }
         };
       } catch (error) {
@@ -142,7 +144,9 @@ export class PoseSocketClient {
       // Create canvas to capture frame
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+      if (!ctx) {
+        return;
+      }
 
       // Set canvas size (smaller for performance)
       const targetWidth = 640;
@@ -165,14 +169,16 @@ export class PoseSocketClient {
 
       // Check if WebSocket is still open before sending
       if (this.ws.readyState === WebSocket.OPEN) {
-        this.ws.send(JSON.stringify({
-          type: 'frame',
-          data: base64Data,
-          timestamp: performance.now()
-        }));
+        this.ws.send(
+          JSON.stringify({
+            type: 'frame',
+            data: base64Data,
+            timestamp: performance.now(),
+          })
+        );
       }
     } catch (error) {
-      console.error('Error sending frame:', error);
+      logger.error(error, 'Error sending frame:');
     }
   }
 
@@ -181,10 +187,12 @@ export class PoseSocketClient {
    */
   resetExercise(): void {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify({
-        type: 'reset',
-        timestamp: performance.now()
-      }));
+      this.ws.send(
+        JSON.stringify({
+          type: 'reset',
+          timestamp: performance.now(),
+        })
+      );
     }
   }
 
