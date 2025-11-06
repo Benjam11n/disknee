@@ -1,16 +1,21 @@
 import { getExercisesAction } from "@/lib/actions/exercises";
 import { auth } from "@/lib/auth";
-import { ExerciseItem } from "@/components/features/dashboard/exercise-item";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Video, Play, Clock, Target } from "lucide-react";
+import { Search, Video, Play, Clock } from "lucide-react";
 import { ExerciseDifficulty } from "@prisma/client";
 import { headers } from "next/headers";
 import { Suspense } from "react";
 import { ROUTES } from "@/lib/constants/routes";
-import { getDifficultyBadgeVariant, getDifficultyColor } from "@/lib/utils";
+import { getDifficultyBadgeVariant } from "@/lib/utils";
 
 async function getAllExercises(searchParams?: {
   search?: string;
@@ -42,7 +47,7 @@ async function getAllExercises(searchParams?: {
   let exercises = response.data;
   if (searchParams?.search) {
     const searchTerm = searchParams.search.toLowerCase();
-    exercises = exercises.filter(exercise =>
+    exercises = exercises.filter((exercise) =>
       exercise.title.toLowerCase().includes(searchTerm)
     );
   }
@@ -61,8 +66,7 @@ export default async function AllExercisesPage({
 }) {
   const exercises = await getAllExercises(searchParams);
 
-  // Count exercises with videos
-  const exercisesWithVideo = exercises.filter(ex => ex.videoUrl).length;
+  const exercisesWithVideo = exercises.filter((ex) => ex.videoUrl).length;
 
   return (
     <div className="px-4 sm:px-6 py-6 max-w-[1400px] mx-auto">
@@ -71,7 +75,8 @@ export default async function AllExercisesPage({
         <div>
           <h1 className="text-3xl font-bold">All Exercises</h1>
           <p className="text-muted-foreground mt-2">
-            Browse through all available exercises. {exercisesWithVideo} of {exercises.length} exercises have demonstration videos.
+            Browse through all available exercises. {exercisesWithVideo} of{" "}
+            {exercises.length} exercises have demonstration videos.
           </p>
         </div>
 
@@ -93,7 +98,9 @@ export default async function AllExercisesPage({
             <SelectContent>
               <SelectItem value="all">All Difficulties</SelectItem>
               <SelectItem value={ExerciseDifficulty.EASY}>Easy</SelectItem>
-              <SelectItem value={ExerciseDifficulty.MODERATE}>Moderate</SelectItem>
+              <SelectItem value={ExerciseDifficulty.MODERATE}>
+                Moderate
+              </SelectItem>
               <SelectItem value={ExerciseDifficulty.HARD}>Hard</SelectItem>
             </SelectContent>
           </Select>
@@ -103,12 +110,17 @@ export default async function AllExercisesPage({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Suspense fallback={<div>Loading exercises...</div>}>
             {exercises.map((exercise) => (
-              <Card key={exercise.id} className="group hover:shadow-lg transition-shadow">
+              <Card
+                key={exercise.id}
+                className="group hover:shadow-lg transition-shadow"
+              >
                 <CardContent className="p-6">
-                  <div className="space-y-4">
+                  <div className="flex flex-col space-y-4">
                     {/* Header */}
                     <div className="space-y-2">
-                      <h3 className="font-semibold text-lg">{exercise.title}</h3>
+                      <h3 className="font-semibold text-lg">
+                        {exercise.title}
+                      </h3>
                       <div className="flex items-center gap-2">
                         <Clock className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm text-muted-foreground">
@@ -122,7 +134,9 @@ export default async function AllExercisesPage({
                       <div className="bg-blue-50 p-4 rounded-lg">
                         <div className="flex items-center gap-2 text-blue-700">
                           <Video className="h-5 w-5" />
-                          <span className="text-sm font-medium">Demo Video Available</span>
+                          <span className="text-sm font-medium">
+                            Demo Video Available
+                          </span>
                         </div>
                       </div>
                     )}
@@ -136,7 +150,10 @@ export default async function AllExercisesPage({
                         {exercise.difficulty.toLowerCase()}
                       </Badge>
                       {exercise.done && (
-                        <Badge variant="outline" className="text-green-600 border-green-600">
+                        <Badge
+                          variant="outline"
+                          className="text-green-600 border-green-600"
+                        >
                           Completed
                         </Badge>
                       )}

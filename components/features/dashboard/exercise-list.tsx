@@ -17,9 +17,6 @@ export function ExerciseList({
   pillPercent,
   weeklyTotalMins,
 }: ExerciseListProps) {
-  // The exercises should already be sorted by sequence from the query
-  const nextExerciseIndex = exercises.findIndex((ex) => !ex.done);
-
   return (
     <div className="space-y-4">
       {/* Header */}
