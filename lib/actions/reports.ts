@@ -1,57 +1,42 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { ExerciseSession, Reflection } from "@prisma/client";
+import { ReviewStatus } from "@prisma/client";
 import { startOfWeekMonday } from "@/lib/utils/date-utils";
 import { logger } from "@/lib/logger";
+import { action } from "@/lib/handlers/action";
+import z from "zod";
+import { handleError } from "@/lib/handlers/error";
+import { UnauthorizedError } from "@/lib/http-errors";
+import { ReportsData } from "@/lib/types/reports";
+import { ExerciseSessionWithReflection } from "../types/exercise-sessions";
 
-type ExerciseSessionWithReflection = ExerciseSession & {
-  reflection: Reflection | null;
-};
+export async function getReportsDataAction(): Promise<
+  ActionResponse<ReportsData>
+> {
+  const validationResult = await action({
+    params: {},
+    authorize: true,
+    schema: z.object({}),
+  });
 
-interface ReportsData {
-  weeksWithMeta: Array<{
-    weekStart: string;
-    days: Array<{
-      date: string;
-      items: Array<{
-        title: string;
-        status: string;
-        endedOn: string | null;
-        satisfaction: number | null;
-        fatigue: number | null;
-        comments: string | null;
-        points: number;
-      }>;
-    }>;
-    totalExercises: number;
-    avgSatisfaction: number | null;
-    avgFatigue: number | null;
-    totalPoints: number;
-    reviewed: string;
-    feedback: string | null;
-  }>;
-}
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
 
-export async function getReportsDataAction(): Promise<ReportsData> {
+  const session = validationResult.session;
+
+  if (!session?.user?.id) {
+    throw new UnauthorizedError("Unauthorized");
+  }
+
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!session?.user?.id) {
-      throw new Error("Unauthorized");
-    }
-
-    const sessions = (await prisma.exerciseSession.findMany({
+    const sessions = await prisma.exerciseSession.findMany({
       where: { userId: session.user.id },
       include: { reflection: true },
       orderBy: { startedAt: "desc" },
-    })) as ExerciseSessionWithReflection[];
+    });
 
-    // Group sessions into weeks -> days -> items
     const weeksMap = new Map<
       string,
       { weekStart: Date; daysMap: Map<string, ExerciseSessionWithReflection[]> }
@@ -121,7 +106,6 @@ export async function getReportsDataAction(): Promise<ReportsData> {
       })
       .sort((a, b) => +new Date(b.weekStart) - +new Date(a.weekStart));
 
-    // Attach WeekReport metadata if present
     const weekStarts = weeks.map((w) => new Date(w.weekStart));
     const weekReports = await prisma.weekReport.findMany({
       where: { userId: session.user.id, weekStart: { in: weekStarts } },
@@ -135,12 +119,12 @@ export async function getReportsDataAction(): Promise<ReportsData> {
       const wr = weekReportByKey.get(key);
       return {
         ...w,
-        reviewed: wr?.status ?? "NOT_SENT",
+        reviewed: wr?.status ?? ReviewStatus.NOT_SENT,
         feedback: wr?.feedback ?? null,
       };
     });
 
-    return { weeksWithMeta };
+    return { success: true, data: { weeksWithMeta } };
   } catch (error) {
     logger.error(error, "Failed to get reports data");
     throw error;

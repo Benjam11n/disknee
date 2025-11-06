@@ -1,8 +1,13 @@
+import { notFound } from "next/navigation";
 import ReportsClient from "./reports-client";
 import { getReportsDataAction } from "@/lib/actions/reports";
 
 export default async function ReportsPage() {
-  const { weeksWithMeta } = await getReportsDataAction();
+  const reportResponse = await getReportsDataAction();
+
+  if (!reportResponse.success || !reportResponse.data) {
+    return notFound();
+  }
 
   return (
     <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -14,7 +19,7 @@ export default async function ReportsPage() {
       </div>
 
       <div className="space-y-4">
-        <ReportsClient initialWeeks={weeksWithMeta} />
+        <ReportsClient initialWeeks={reportResponse.data.weeksWithMeta} />
       </div>
     </main>
   );

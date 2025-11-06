@@ -91,7 +91,7 @@ export default async function AllExercisesPage({
               <SelectValue placeholder="All Difficulties" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Difficulties</SelectItem>
+              <SelectItem value="all">All Difficulties</SelectItem>
               <SelectItem value={ExerciseDifficulty.EASY}>Easy</SelectItem>
               <SelectItem value={ExerciseDifficulty.MODERATE}>Moderate</SelectItem>
               <SelectItem value={ExerciseDifficulty.HARD}>Hard</SelectItem>
@@ -128,7 +128,7 @@ export default async function AllExercisesPage({
                     )}
 
                     {/* Difficulty and Status */}
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
                       <Badge
                         variant={getDifficultyBadgeVariant(exercise.difficulty)}
                         className="uppercase"
