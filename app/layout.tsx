@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 
-import Chatbox from "@/components/chatbox/chatbox";
 import { ThemeProvider } from "@/components/shared/theme/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -50,7 +49,6 @@ export default function RootLayout({
           richColors
           closeButton
         />
-        <Chatbox />
       </body>
     </html>
   );
