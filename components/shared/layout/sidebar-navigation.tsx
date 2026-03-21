@@ -1,16 +1,20 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
+
+import { SidebarHeader } from "@/components/features/layout/sidebar-header";
+import { SidebarNavigationMenu } from "@/components/features/layout/sidebar-navigation-menu";
+import { Separator } from "@/components/ui/separator";
 import {
   Sidebar,
   SidebarContent,
   SidebarHeader as UISidebarHeader,
   SidebarProvider,
-} from '@/components/ui/sidebar';
-import { Separator } from '@/components/ui/separator';
-import { SidebarHeader } from '@/components/features/layout/sidebar-header';
-import { SidebarNavigationMenu } from '@/components/features/layout/sidebar-navigation-menu';
-import { navigation, secondaryNavigation } from '@/lib/constants/sidebar-navigation';
+} from "@/components/ui/sidebar";
+import {
+  navigation,
+  secondaryNavigation,
+} from "@/lib/constants/sidebar-navigation";
 
 export function SidebarNavigation({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(true);
@@ -28,7 +32,10 @@ export function SidebarNavigation({ children }: { children: React.ReactNode }) {
             <SidebarNavigationMenu items={navigation} title="Main" />
             <Separator className="bg-border/40" />
             {/* Secondary Navigation */}
-            <SidebarNavigationMenu items={secondaryNavigation} title="Support" />
+            <SidebarNavigationMenu
+              items={secondaryNavigation}
+              title="Support"
+            />
           </div>
         </SidebarContent>
       </Sidebar>

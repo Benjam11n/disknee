@@ -1,10 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { logger } from '@/lib/logger';
-import { PoseSocketClient } from '@/lib/pose-socket-client';
-import { env } from '@/env';
-import { PoseResult } from '@/lib/types/exercise';
+import { useEffect, useRef, useState, useCallback } from "react";
+
+import { env } from "@/env";
+import { logger } from "@/lib/logger";
+import { PoseSocketClient } from "@/lib/pose-socket-client";
+import type { PoseResult } from "@/lib/types/exercise";
 
 interface Landmark {
   x: number;
@@ -44,14 +45,14 @@ export function VideoStream({
 }: VideoStreamProps) {
   // Set default crown settings
   const crownConfig = {
-    emoji: crownSettings?.emoji || '👑',
+    emoji: crownSettings?.emoji || "👑",
     size: crownSettings?.size || 60,
     yOffset: crownSettings?.yOffset || -60,
   };
 
   // Set default glasses settings
   const glassesConfig = {
-    emoji: glassesSettings?.emoji || '🕶️',
+    emoji: glassesSettings?.emoji || "🕶️",
     size: glassesSettings?.size || 80,
     yOffset: glassesSettings?.yOffset || 0,
   };
@@ -66,13 +67,17 @@ export function VideoStream({
 
   // Draw skeleton from landmarks
   const drawSkeleton = useCallback(
-    (ctx: CanvasRenderingContext2D, landmarks: Landmark[], flipped: boolean) => {
+    (
+      ctx: CanvasRenderingContext2D,
+      landmarks: Landmark[],
+      flipped: boolean
+    ) => {
       if (!landmarks || landmarks.length === 0) {
         return;
       }
 
-      const width = ctx.canvas.width;
-      const height = ctx.canvas.height;
+      const { width } = ctx.canvas;
+      const { height } = ctx.canvas;
 
       // Draw skeleton connections
       const connections = [
@@ -89,10 +94,10 @@ export function VideoStream({
         [26, 28], // Left leg
       ];
 
-      ctx.strokeStyle = '#00ff00'; // Green color
+      ctx.strokeStyle = "#00ff00"; // Green color
       ctx.lineWidth = 3;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
 
       // Draw connections
       connections.forEach(([startIdx, endIdx]) => {
@@ -111,7 +116,7 @@ export function VideoStream({
       });
 
       // Draw joints (excluding face landmarks)
-      ctx.fillStyle = '#ff0000'; // Red color
+      ctx.fillStyle = "#ff0000"; // Red color
       landmarks.forEach((lm, index) => {
         // Skip drawing dots on face landmarks (0-10 are face/upper body landmarks)
         const isFaceLandmark = index <= 10 || index === 23 || index === 24; // Also skip hips
@@ -131,8 +136,8 @@ export function VideoStream({
         const noseY = nose.y * height;
 
         ctx.font = `${crownConfig.size}px Arial`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'bottom';
+        ctx.textAlign = "center";
+        ctx.textBaseline = "bottom";
 
         ctx.fillText(crownConfig.emoji, noseX, noseY + crownConfig.yOffset);
       }
@@ -141,10 +146,19 @@ export function VideoStream({
       const leftEye = landmarks[2]; // Left eye landmark
       const rightEye = landmarks[5]; // Right eye landmark
 
-      if (leftEye && leftEye.visibility > 0.5 && rightEye && rightEye.visibility > 0.5) {
-        const leftEyeX = flipped ? width - leftEye.x * width : leftEye.x * width;
+      if (
+        leftEye &&
+        leftEye.visibility > 0.5 &&
+        rightEye &&
+        rightEye.visibility > 0.5
+      ) {
+        const leftEyeX = flipped
+          ? width - leftEye.x * width
+          : leftEye.x * width;
         const leftEyeY = leftEye.y * height;
-        const rightEyeX = flipped ? width - rightEye.x * width : rightEye.x * width;
+        const rightEyeX = flipped
+          ? width - rightEye.x * width
+          : rightEye.x * width;
         const rightEyeY = rightEye.y * height;
 
         // Calculate center position between eyes
@@ -156,11 +170,11 @@ export function VideoStream({
         const scaleFactor = (eyeDistance / 60) * 1.5; // Base distance for scaling, 1.5x multiplier for better visibility
 
         ctx.font = `${glassesConfig.size * scaleFactor}px Arial`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
 
         // Add shadow for better visibility
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
         ctx.shadowBlur = 4;
         ctx.shadowOffsetX = 2;
         ctx.shadowOffsetY = 2;
@@ -168,7 +182,7 @@ export function VideoStream({
         ctx.fillText(glassesConfig.emoji, glassesX, glassesY);
 
         // Reset shadow
-        ctx.shadowColor = 'transparent';
+        ctx.shadowColor = "transparent";
         ctx.shadowBlur = 0;
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 0;
@@ -184,8 +198,8 @@ export function VideoStream({
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 640, height: 480, facingMode: 'user' },
         audio: false,
+        video: { facingMode: "user", height: 480, width: 640 },
       });
       streamRef.current = stream;
       videoRef.current.srcObject = stream;
@@ -206,9 +220,9 @@ export function VideoStream({
       if (!animationRef.current) {
         animationRef.current = requestAnimationFrame(drawFrame);
       }
-    } catch (err) {
-      logger.error(err);
-      setError('Failed to access camera. Grant permissions and reload.');
+    } catch (error) {
+      logger.error(error);
+      setError("Failed to access camera. Grant permissions and reload.");
     }
   }, []);
 
@@ -233,11 +247,14 @@ export function VideoStream({
     if (videoRef.current && canvasRef.current) {
       const video = videoRef.current;
       const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext("2d");
 
       if (ctx && video.readyState === 4) {
         // Set canvas dimensions
-        if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+        if (
+          canvas.width !== video.videoWidth ||
+          canvas.height !== video.videoHeight
+        ) {
           canvas.width = video.videoWidth;
           canvas.height = video.videoHeight;
         }
@@ -251,17 +268,22 @@ export function VideoStream({
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
         // Check camera distance (person too close if they fill most of the frame)
-        if (onCameraDistanceWarning && video.videoHeight > 0) {
-          if (lastLandmarks.current && lastLandmarks.current.length > 0) {
-            const minY = Math.min(...lastLandmarks.current.map((l) => l.y)) * canvas.height;
-            const maxY = Math.max(...lastLandmarks.current.map((l) => l.y)) * canvas.height;
-            const bodyHeight = maxY - minY;
-            const frameHeight = canvas.height;
+        if (
+          onCameraDistanceWarning &&
+          video.videoHeight > 0 &&
+          lastLandmarks.current &&
+          lastLandmarks.current.length > 0
+        ) {
+          const minY =
+            Math.min(...lastLandmarks.current.map((l) => l.y)) * canvas.height;
+          const maxY =
+            Math.max(...lastLandmarks.current.map((l) => l.y)) * canvas.height;
+          const bodyHeight = maxY - minY;
+          const frameHeight = canvas.height;
 
-            // If body occupies more than 80% of frame height, person is too close
-            const tooClose = bodyHeight > frameHeight * 0.8;
-            onCameraDistanceWarning(tooClose);
-          }
+          // If body occupies more than 80% of frame height, person is too close
+          const tooClose = bodyHeight > frameHeight * 0.8;
+          onCameraDistanceWarning(tooClose);
         }
 
         // Draw skeleton if we have landmarks
@@ -272,14 +294,24 @@ export function VideoStream({
         ctx.restore();
 
         // Send frame to backend if connected
-        if (poseClientRef.current && exerciseId && poseClientRef.current.connected()) {
+        if (
+          poseClientRef.current &&
+          exerciseId &&
+          poseClientRef.current.connected()
+        ) {
           poseClientRef.current.sendFrame(video);
         }
       }
     }
 
     animationRef.current = requestAnimationFrame(drawFrame);
-  }, [flipped, exerciseId, drawSkeleton, onCameraDistanceWarning, onPoseUpdate]);
+  }, [
+    flipped,
+    exerciseId,
+    drawSkeleton,
+    onCameraDistanceWarning,
+    onPoseUpdate,
+  ]);
 
   useEffect(() => {
     if (isCallActive && isVideoOn) {
@@ -292,7 +324,7 @@ export function VideoStream({
           exerciseId: exerciseId,
           onPoseResult: (result: PoseResult) => {
             // Handle pose results from backend
-            logger.info(result, 'Pose result from backend:');
+            logger.info(result, "Pose result from backend:");
             // Store landmarks for skeleton drawing
             if (result.landmarks && result.landmarks.length > 0) {
               lastLandmarks.current = result.landmarks;
@@ -303,10 +335,10 @@ export function VideoStream({
             }
           },
           onConnectionChange: (connected) => {
-            logger.info(connected, 'Backend connection status:');
+            logger.info(connected, "Backend connection status:");
           },
           onError: (error) => {
-            logger.error(error, 'PoseSocketClient error:');
+            logger.error(error, "PoseSocketClient error:");
           },
           frameSkip: 2, // Send every 2nd frame (15fps)
           quality: 0.7, // JPEG quality
@@ -318,8 +350,8 @@ export function VideoStream({
             // Reset exercise state after connecting to ensure fresh start
             poseClientRef.current?.resetExercise();
           })
-          .catch((err) => {
-            logger.error(err, 'Failed to connect to pose backend:');
+          .catch((error) => {
+            logger.error(error, "Failed to connect to pose backend:");
           });
       }
     } else {
@@ -352,7 +384,7 @@ export function VideoStream({
         playsInline
         muted
         autoPlay
-        style={{ transform: flipped ? 'scaleX(-1)' : 'none' }}
+        style={{ transform: flipped ? "scaleX(-1)" : "none" }}
       />
       <canvas ref={canvasRef} className="w-full h-full object-cover" />
 

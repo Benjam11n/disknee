@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import type { Exercise } from '@prisma/client';
+import type { Exercise } from "@prisma/client";
+import { useMemo } from "react";
 
 interface UseDashboardCalculationsProps {
   exercises: Exercise[];
@@ -34,15 +34,15 @@ export function useDashboardCalculations({
   }, [programWeeks, weeksCompleted, weeklyTarget]);
 
   const overallTarget = useMemo<number>(() => {
-    if (typeof overallPercent === 'number' && !Number.isNaN(overallPercent)) {
+    if (typeof overallPercent === "number" && !Number.isNaN(overallPercent)) {
       return Math.max(0, Math.min(1, overallPercent / 100));
     }
     return computedOverall;
   }, [overallPercent, computedOverall]);
 
   return {
+    overallTarget,
     weeklyTarget,
     weeklyTotalMins,
-    overallTarget,
   };
 }

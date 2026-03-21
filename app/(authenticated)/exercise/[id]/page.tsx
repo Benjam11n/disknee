@@ -1,7 +1,12 @@
-import { notFound } from 'next/navigation';
-import { Suspense } from 'react';
-import { getExerciseByIdAction, getExercisesAction } from '@/lib/actions/exercises';
-import { ExerciseDetailClient } from './exercise-detail-client';
+import { notFound } from "next/navigation";
+import { Suspense } from "react";
+
+import {
+  getExerciseByIdAction,
+  getExercisesAction,
+} from "@/lib/actions/exercises";
+
+import { ExerciseDetailClient } from "./exercise-detail-client";
 
 export default async function ExerciseDetailPage({ params }: RouteParams) {
   const { id } = await params;
@@ -11,12 +16,12 @@ export default async function ExerciseDetailPage({ params }: RouteParams) {
     getExerciseByIdAction({ id }).then((exerciseResult) => {
       if (exerciseResult.success && exerciseResult.data) {
         return getExercisesAction({
-          planId: exerciseResult.data.planId,
-          page: 1,
           limit: 100,
+          page: 1,
+          planId: exerciseResult.data.planId,
         });
       }
-      return { success: false, data: [] };
+      return { data: [], success: false };
     }),
   ]);
 
@@ -25,7 +30,9 @@ export default async function ExerciseDetailPage({ params }: RouteParams) {
   }
 
   const exercise = result.data;
-  const planExercises = exercisesResult.success ? exercisesResult.data || [] : [];
+  const planExercises = exercisesResult.success
+    ? exercisesResult.data || []
+    : [];
 
   return (
     <Suspense fallback={<div>Loading exercise details...</div>}>

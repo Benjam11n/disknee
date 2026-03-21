@@ -1,14 +1,15 @@
-import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
-import { getRankDisplay } from '@/lib/utils';
-import { leaderboardByScore } from '@prisma/client';
+import type { leaderboardByScore } from "@prisma/client";
+
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { getRankDisplay } from "@/lib/utils";
 
 interface LeaderboardItemProps {
   row: leaderboardByScore;
   isCurrentUser?: boolean;
   showRank?: boolean;
   compact?: boolean;
-  displayValue?: 'score' | 'accuracy';
+  displayValue?: "score" | "accuracy";
 }
 
 export function LeaderboardItem({
@@ -16,19 +17,23 @@ export function LeaderboardItem({
   isCurrentUser = false,
   showRank = true,
   compact = false,
-  displayValue = 'score',
+  displayValue = "score",
 }: LeaderboardItemProps) {
   const rankDisplay = getRankDisplay(row.rank);
   const getRankEmoji = (rank: number) => {
     switch (rank) {
-      case 1:
-        return '🥇';
-      case 2:
-        return '🥈';
-      case 3:
-        return '🥉';
-      default:
-        return '';
+      case 1: {
+        return "🥇";
+      }
+      case 2: {
+        return "🥈";
+      }
+      case 3: {
+        return "🥉";
+      }
+      default: {
+        return "";
+      }
     }
   };
 
@@ -38,10 +43,10 @@ export function LeaderboardItem({
         flex items-center justify-between p-3 transition-all
         ${
           isCurrentUser
-            ? 'border-2 border-primary bg-primary/5 shadow-md'
-            : 'border bg-card hover:shadow-sm'
+            ? "border-2 border-primary bg-primary/5 shadow-md"
+            : "border bg-card hover:shadow-sm"
         }
-        ${compact ? 'px-2 py-2' : ''}
+        ${compact ? "px-2 py-2" : ""}
       `}
     >
       <div className="flex items-center gap-3">
@@ -51,8 +56,8 @@ export function LeaderboardItem({
               <span className="text-lg">{getRankEmoji(row.rank)}</span>
             ) : (
               <Badge
-                variant={isCurrentUser ? 'default' : 'secondary'}
-                className={compact ? 'text-xs' : ''}
+                variant={isCurrentUser ? "default" : "secondary"}
+                className={compact ? "text-xs" : ""}
               >
                 {rankDisplay}
               </Badge>
@@ -62,7 +67,7 @@ export function LeaderboardItem({
         <span
           className={`
             font-medium truncate
-            ${isCurrentUser ? 'text-primary' : 'text-foreground'}
+            ${isCurrentUser ? "text-primary" : "text-foreground"}
           `}
         >
           {row.name}
@@ -77,10 +82,12 @@ export function LeaderboardItem({
         <span
           className={`
             font-bold
-            ${isCurrentUser ? 'text-primary' : 'text-muted-foreground'}
+            ${isCurrentUser ? "text-primary" : "text-muted-foreground"}
           `}
         >
-          {displayValue === 'accuracy' ? `${row.accuracypercentage}%` : row.score}
+          {displayValue === "accuracy"
+            ? `${row.accuracypercentage}%`
+            : row.score}
         </span>
       </div>
     </Card>

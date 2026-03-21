@@ -1,6 +1,6 @@
 // Global types for the physiotherapy application
 
-type ActionResponse<T = null> = {
+interface ActionResponse<T = null> {
   success: boolean;
   data?: T;
   error?: {
@@ -8,7 +8,7 @@ type ActionResponse<T = null> = {
     details?: Record<string, string[]>;
   };
   status?: number;
-};
+}
 
 type SuccessResponse<T = null> = ActionResponse<T> & { success: true };
 type ErrorResponse = ActionResponse<undefined> & { success: false };

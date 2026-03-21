@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
-import { ZodError } from 'zod';
+import { NextResponse } from "next/server";
+import { ZodError } from "zod";
 
-import { RequestError, ValidationError } from '@/lib/http-errors';
-import { logger } from '@/lib/logger';
+import { RequestError, ValidationError } from "@/lib/http-errors";
+import { logger } from "@/lib/logger";
 
-type ResponseType = 'api' | 'server';
+type ResponseType = "api" | "server";
 
 const formatResponse = (
   responseType: ResponseType,
@@ -13,31 +13,39 @@ const formatResponse = (
   errors?: Record<string, string[]> | undefined
 ) => {
   const responseContent = {
-    success: false,
     error: {
-      message,
       details: errors,
+      message,
     },
+    success: false,
   };
 
-  return responseType === 'api'
+  return responseType === "api"
     ? NextResponse.json(responseContent, { status })
     : { status, ...responseContent };
 };
 
-export const handleError = (error: unknown, responseType: ResponseType = 'server') => {
+export const handleError = (
+  error: unknown,
+  responseType: ResponseType = "server"
+) => {
   if (error instanceof RequestError) {
     logger.error(
       {
-        type: 'RequestError',
-        statusCode: error.statusCode,
         errors: error.errors,
         stack: error.stack,
+        statusCode: error.statusCode,
+        type: "RequestError",
       },
       `${responseType.toUpperCase()} Error: ${error.message}`
     );
 
-    return formatResponse(responseType, error.statusCode, error.message, error.errors);
+    return formatResponse(
+      responseType,
+      error.statusCode,
+      error.message,
+      error.errors
+    );
   }
 
   if (error instanceof ZodError) {
@@ -47,9 +55,9 @@ export const handleError = (error: unknown, responseType: ResponseType = 'server
 
     logger.error(
       {
-        type: 'ValidationError',
         fieldErrors: validationError.errors,
         issues: error.issues,
+        type: "ValidationError",
       },
       `Validation Error: ${validationError.message}`
     );
@@ -65,8 +73,8 @@ export const handleError = (error: unknown, responseType: ResponseType = 'server
   if (error instanceof Error) {
     logger.error(
       {
-        type: 'Error',
         stack: error.stack,
+        type: "Error",
       },
       error.message
     );
@@ -76,11 +84,11 @@ export const handleError = (error: unknown, responseType: ResponseType = 'server
 
   logger.error(
     {
-      type: 'UnknownError',
       error: String(error),
+      type: "UnknownError",
     },
-    'An unexpected error occurred'
+    "An unexpected error occurred"
   );
 
-  return formatResponse(responseType, 500, 'An unexpected error occurred');
+  return formatResponse(responseType, 500, "An unexpected error occurred");
 };

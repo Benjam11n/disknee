@@ -1,29 +1,30 @@
-'use server';
+"use server";
 
-import { prisma } from '@/lib/prisma';
-import { action } from '@/lib/handlers/action';
-import { handleError } from '@/lib/handlers/error';
+import type { ShopItem, UserInventory } from "@prisma/client";
+
+import { action } from "@/lib/handlers/action";
+import { handleError } from "@/lib/handlers/error";
+import { prisma } from "@/lib/prisma";
+import type {
+  GetShopItemsParams,
+  PurchaseItemParams,
+  EquipItemParams,
+  GetUserInventoryParams,
+} from "@/lib/types/shop";
 import {
   GetShopItemsSchema,
   PurchaseItemSchema,
   EquipItemSchema,
   GetUserInventorySchema,
-} from '@/lib/validations/shop-validations';
-import {
-  GetShopItemsParams,
-  PurchaseItemParams,
-  EquipItemParams,
-  GetUserInventoryParams,
-} from '@/lib/types/shop';
-import { ShopItem, UserInventory } from '@prisma/client';
+} from "@/lib/validations/shop-validations";
 
 export async function getShopItemsAction(
   params: GetShopItemsParams
 ): Promise<ActionResponse<ShopItem[]>> {
   const validationResult = await action({
+    authorize: true,
     params: params,
     schema: GetShopItemsSchema,
-    authorize: true,
   });
 
   if (validationResult instanceof Error) {
@@ -34,13 +35,13 @@ export async function getShopItemsAction(
 
   try {
     const items = await prisma.shopItem.findMany({
+      orderBy: { price: "asc" },
       where: {
         isActive: activeOnly !== false,
       },
-      orderBy: { price: 'asc' },
     });
 
-    return { success: true, data: items };
+    return { data: items, success: true };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
@@ -50,9 +51,9 @@ export async function getUserInventoryAction(
   params: GetUserInventoryParams
 ): Promise<ActionResponse<UserInventory[]>> {
   const validationResult = await action({
+    authorize: true,
     params: params,
     schema: GetUserInventorySchema,
-    authorize: true,
   });
 
   if (validationResult instanceof Error) {
@@ -63,14 +64,14 @@ export async function getUserInventoryAction(
 
   try {
     const inventory = await prisma.userInventory.findMany({
-      where: { userId },
       include: {
         item: true,
       },
-      orderBy: { purchasedAt: 'desc' },
+      orderBy: { purchasedAt: "desc" },
+      where: { userId },
     });
 
-    return { success: true, data: inventory };
+    return { data: inventory, success: true };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
@@ -80,9 +81,9 @@ export async function purchaseItemAction(
   params: PurchaseItemParams
 ): Promise<ActionResponse<UserInventory>> {
   const validationResult = await action({
+    authorize: true,
     params: params,
     schema: PurchaseItemSchema,
-    authorize: true,
   });
 
   if (validationResult instanceof Error) {
@@ -101,50 +102,50 @@ export async function purchaseItemAction(
       ]);
 
       if (!user || !item) {
-        throw new Error('User or item not found');
+        throw new Error("User or item not found");
       }
 
       if (user.points < item.price) {
-        throw new Error('Insufficient points');
+        throw new Error("Insufficient points");
       }
 
       // Check if already owned
       const existing = await tx.userInventory.findUnique({
         where: {
           userId_itemId: {
-            userId,
             itemId,
+            userId,
           },
         },
       });
 
       if (existing) {
-        throw new Error('Item already owned');
+        throw new Error("Item already owned");
       }
 
       // Deduct points
       await tx.user.update({
-        where: { id: userId },
         data: {
           points: user.points - item.price,
         },
+        where: { id: userId },
       });
 
       // Add to inventory
       const inventoryItem = await tx.userInventory.create({
         data: {
-          userId,
           itemId,
+          userId,
         },
         include: {
           item: true,
         },
       });
 
-      return { user, item, inventoryItem };
+      return { inventoryItem, item, user };
     });
 
-    return { success: true, data: result.inventoryItem };
+    return { data: result.inventoryItem, success: true };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
@@ -152,9 +153,9 @@ export async function purchaseItemAction(
 
 export async function equipItemAction(params: EquipItemParams) {
   const validationResult = await action({
+    authorize: true,
     params: params,
     schema: EquipItemSchema,
-    authorize: true,
   });
 
   if (validationResult instanceof Error) {
@@ -166,48 +167,48 @@ export async function equipItemAction(params: EquipItemParams) {
   try {
     // Get the inventory item
     const inventoryItem = await prisma.userInventory.findUnique({
-      where: {
-        userId_itemId: {
-          userId,
-          itemId,
-        },
-      },
       include: {
         item: true,
+      },
+      where: {
+        userId_itemId: {
+          itemId,
+          userId,
+        },
       },
     });
 
     if (!inventoryItem) {
-      throw new Error('Item not found in inventory');
+      throw new Error("Item not found in inventory");
     }
 
     // If equipping, unequip all other items of the same type
     if (equip) {
       await prisma.userInventory.updateMany({
+        data: {
+          isEquipped: false,
+        },
         where: {
-          userId,
           item: {
             type: inventoryItem.item.type,
           },
-        },
-        data: {
-          isEquipped: false,
+          userId,
         },
       });
     }
 
     // Update the item
     const updated = await prisma.userInventory.update({
-      where: { id: inventoryItem.id },
       data: {
         isEquipped: equip,
       },
       include: {
         item: true,
       },
+      where: { id: inventoryItem.id },
     });
 
-    return { success: true, data: updated };
+    return { data: updated, success: true };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }

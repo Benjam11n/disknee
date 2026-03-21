@@ -1,11 +1,12 @@
-'use client';
-import React from 'react';
-import styles from './chatbox.module.css';
+"use client";
+import React from "react";
 
-type Props = {
+import styles from "./chatbox.module.css";
+
+interface Props {
   onClick?: () => void;
   isOpen?: boolean;
-};
+}
 
 const ChatBubble: React.FC<Props> = ({ onClick, isOpen = false }) => {
   // do not render the bubble when chat is open

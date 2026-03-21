@@ -1,13 +1,23 @@
-import { ThemeProvider } from '@/components/shared/theme/theme-provider';
-import { TooltipProvider } from '@/components/ui/tooltip';
-import { Button } from '@/components/ui/button';
-import { Home } from 'lucide-react';
-import Link from 'next/link';
-import { ROUTES } from '@/lib/constants/routes';
+import { Home } from "lucide-react";
+import Link from "next/link";
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+import { ThemeProvider } from "@/components/shared/theme/theme-provider";
+import { Button } from "@/components/ui/button";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { ROUTES } from "@/lib/constants/routes";
+
+export default function AuthLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
       <TooltipProvider>
         <div className="min-h-screen bg-linear-to-br from-pink-100 to-orange-200 dark:from-pink-300 dark:to-orange-800 relative">
           {children}

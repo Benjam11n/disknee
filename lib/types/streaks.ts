@@ -1,6 +1,7 @@
-import { UserStreak } from '@prisma/client';
-import { GetStreakSchema } from '../validations/streaks-validations';
-import z from 'zod';
+import type { UserStreak } from "@prisma/client";
+import type z from "zod";
+
+import type { GetStreakSchema } from "../validations/streaks-validations";
 
 export type StreakData = UserStreak & {
   hasCheckedInToday: boolean;

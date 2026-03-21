@@ -1,6 +1,13 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { MessageCircle, Phone, Video, Mail } from 'lucide-react';
+import { MessageCircle, Phone, Video, Mail } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export function ContactSupportSection() {
   return (
@@ -10,7 +17,9 @@ export function ContactSupportSection() {
           <MessageCircle className="h-5 w-5" />
           Need More Help?
         </CardTitle>
-        <CardDescription>Our support team is here for you (coming soon)</CardDescription>
+        <CardDescription>
+          Our support team is here for you (coming soon)
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

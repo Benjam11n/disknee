@@ -1,8 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import { PlanWithExercises } from '@/lib/types/plans';
-import { PlanCard } from './plan-card';
+import { Plus } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { PlanWithExercises } from "@/lib/types/plans";
+
+import { PlanCard } from "./plan-card";
 
 interface PlanningListProps {
   plans: PlanWithExercises[];
@@ -17,7 +19,7 @@ export function PlanningList({
   maxItems = 3,
   showAddButton = true,
 }: PlanningListProps) {
-  const sortedPlans = [...plans].sort(
+  const sortedPlans = [...plans].toSorted(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
@@ -28,7 +30,12 @@ export function PlanningList({
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg">Upcoming Plans</CardTitle>
         {showAddButton && (
-          <Button variant="outline" size="sm" onClick={onAddPlan} className="h-8 gap-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onAddPlan}
+            className="h-8 gap-1"
+          >
             <Plus className="h-3 w-3" />
             Add
           </Button>
@@ -39,7 +46,12 @@ export function PlanningList({
           <div className="text-center py-8 text-muted-foreground">
             <p className="text-sm">No upcoming plans</p>
             {showAddButton && (
-              <Button variant="ghost" size="sm" onClick={onAddPlan} className="mt-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onAddPlan}
+                className="mt-2"
+              >
                 Create your first plan
               </Button>
             )}

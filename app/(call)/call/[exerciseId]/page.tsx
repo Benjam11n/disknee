@@ -1,11 +1,13 @@
-import { notFound } from 'next/navigation';
-import { CallExerciseClient } from './call-exercise-client';
-import { getExerciseByIdAction } from '@/lib/actions/exercises';
-import { getUserInventoryAction } from '@/lib/actions/shop';
-import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
-import { ShopItem } from '@prisma/client';
-import { InventoryWithItem } from '@/lib/types/exercise';
+import type { ShopItem } from "@prisma/client";
+import { headers } from "next/headers";
+import { notFound } from "next/navigation";
+
+import { getExerciseByIdAction } from "@/lib/actions/exercises";
+import { getUserInventoryAction } from "@/lib/actions/shop";
+import { auth } from "@/lib/auth";
+import type { InventoryWithItem } from "@/lib/types/exercise";
+
+import { CallExerciseClient } from "./call-exercise-client";
 
 export default async function CallExercisePage({ params }: RouteParams) {
   const { exerciseId } = await params;
@@ -24,7 +26,9 @@ export default async function CallExercisePage({ params }: RouteParams) {
   let equippedItems: ShopItem[] = [];
 
   if (session?.user) {
-    const inventoryResponse = await getUserInventoryAction({ userId: session.user.id });
+    const inventoryResponse = await getUserInventoryAction({
+      userId: session.user.id,
+    });
     const inventoryData = inventoryResponse.data as InventoryWithItem[];
     if (inventoryResponse.success && inventoryData) {
       equippedItems = inventoryData
@@ -33,5 +37,10 @@ export default async function CallExercisePage({ params }: RouteParams) {
     }
   }
 
-  return <CallExerciseClient exercise={exerciseResponse.data} equippedItems={equippedItems} />;
+  return (
+    <CallExerciseClient
+      exercise={exerciseResponse.data}
+      equippedItems={equippedItems}
+    />
+  );
 }

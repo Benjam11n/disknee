@@ -1,9 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import type { Session } from '@/lib/auth';
-import { updateSession } from '@/utils/supabase/middleware';
-import { ROUTES } from './lib/constants/routes';
-import { logger } from './lib/logger';
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+
+import { auth } from "@/lib/auth";
+import type { Session } from "@/lib/auth";
+import { updateSession } from "@/utils/supabase/middleware";
+
+import { ROUTES } from "./lib/constants/routes";
+import { logger } from "./lib/logger";
 
 const PUBLIC_ROUTES = [ROUTES.HOME, ROUTES.LOGIN];
 
@@ -14,7 +17,7 @@ async function getSession(request: NextRequest): Promise<Session | null> {
     });
     return session ?? null;
   } catch (error) {
-    logger.error(error, 'Failed to fetch session:');
+    logger.error(error, "Failed to fetch session:");
     return null;
   }
 }
@@ -25,7 +28,7 @@ function copyCookies(source: NextResponse, target: NextResponse) {
   });
 }
 
-async function handleAuth(
+function handleAuth(
   request: NextRequest,
   session: Session | null,
   response: NextResponse
@@ -36,7 +39,9 @@ async function handleAuth(
   }
 
   if (!session) {
-    const redirectResponse = NextResponse.redirect(new URL(ROUTES.HOME, request.url));
+    const redirectResponse = NextResponse.redirect(
+      new URL(ROUTES.HOME, request.url)
+    );
     copyCookies(response, redirectResponse);
     return redirectResponse;
   }
@@ -49,14 +54,14 @@ export async function proxy(request: NextRequest) {
 
   // Exclude static assets and auth API routes
   if (
-    pathName.startsWith('/images/') ||
-    pathName.startsWith('/icon/') ||
-    pathName.startsWith('/logo/') ||
-    pathName.startsWith('/api/auth/') || // Exclude Better Auth API routes
-    pathName.endsWith('.mp4') ||
-    pathName.endsWith('.webm') ||
-    pathName.endsWith('.mov') ||
-    pathName.endsWith('.avi')
+    pathName.startsWith("/images/") ||
+    pathName.startsWith("/icon/") ||
+    pathName.startsWith("/logo/") ||
+    pathName.startsWith("/api/auth/") || // Exclude Better Auth API routes
+    pathName.endsWith(".mp4") ||
+    pathName.endsWith(".webm") ||
+    pathName.endsWith(".mov") ||
+    pathName.endsWith(".avi")
   ) {
     return NextResponse.next();
   }
@@ -67,5 +72,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)', '/api/:path*'],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)", "/api/:path*"],
 };

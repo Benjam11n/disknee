@@ -1,18 +1,24 @@
-'use server';
+"use server";
 
-import { prisma } from '@/lib/prisma';
-import { action } from '@/lib/handlers/action';
-import { handleError } from '@/lib/handlers/error';
-import { GetPlansSchema, GetPlanByIdSchema } from '@/lib/validations/plan-validations';
-import { GetPlanByIdParams, GetPlansParams } from '@/lib/types/plans';
-import { Plan } from '@prisma/client';
-import { NotFoundError } from '@/lib/http-errors';
+import type { Plan } from "@prisma/client";
 
-export async function getPlansAction(params: GetPlansParams): Promise<ActionResponse<Plan[]>> {
+import { action } from "@/lib/handlers/action";
+import { handleError } from "@/lib/handlers/error";
+import { NotFoundError } from "@/lib/http-errors";
+import { prisma } from "@/lib/prisma";
+import type { GetPlanByIdParams, GetPlansParams } from "@/lib/types/plans";
+import {
+  GetPlansSchema,
+  GetPlanByIdSchema,
+} from "@/lib/validations/plan-validations";
+
+export async function getPlansAction(
+  params: GetPlansParams
+): Promise<ActionResponse<Plan[]>> {
   const validationResult = await action({
+    authorize: true,
     params: params,
     schema: GetPlansSchema,
-    authorize: true,
   });
 
   if (validationResult instanceof Error) {
@@ -23,28 +29,30 @@ export async function getPlansAction(params: GetPlansParams): Promise<ActionResp
 
   try {
     const plans = await prisma.plan.findMany({
+      orderBy: { date: "asc" },
+      skip: offset,
+      take: limit,
       where: {
         date: {
           gte: startDate ? new Date(startDate) : undefined,
           lte: endDate ? new Date(endDate) : undefined,
         },
       },
-      orderBy: { date: 'asc' },
-      take: limit,
-      skip: offset,
     });
 
-    return { success: true, data: plans };
+    return { data: plans, success: true };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
 }
 
-export async function getPlanByIdAction(params: GetPlanByIdParams): Promise<ActionResponse<Plan>> {
+export async function getPlanByIdAction(
+  params: GetPlanByIdParams
+): Promise<ActionResponse<Plan>> {
   const validationResult = await action({
+    authorize: true,
     params: params,
     schema: GetPlanByIdSchema,
-    authorize: true,
   });
 
   if (validationResult instanceof Error) {
@@ -59,10 +67,10 @@ export async function getPlanByIdAction(params: GetPlanByIdParams): Promise<Acti
     });
 
     if (!plan) {
-      throw new NotFoundError('Plan not found');
+      throw new NotFoundError("Plan not found");
     }
 
-    return { success: true, data: plan };
+    return { data: plan, success: true };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }

@@ -1,7 +1,14 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Shield, Database } from 'lucide-react';
+import { Shield, Database } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 export function PrivacySecuritySection() {
   return (
@@ -11,7 +18,9 @@ export function PrivacySecuritySection() {
           <Shield className="h-5 w-5" />
           Privacy & Security
         </CardTitle>
-        <CardDescription>Manage your privacy and security settings.</CardDescription>
+        <CardDescription>
+          Manage your privacy and security settings.
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* 2FA Section */}
@@ -31,7 +40,9 @@ export function PrivacySecuritySection() {
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h3 className="font-medium">Data Export</h3>
-            <p className="text-sm text-muted-foreground">Download a copy of your personal data.</p>
+            <p className="text-sm text-muted-foreground">
+              Download a copy of your personal data.
+            </p>
           </div>
           <Button variant="outline" size="sm" disabled>
             <Database className="h-4 w-4 mr-2" />
@@ -42,7 +53,9 @@ export function PrivacySecuritySection() {
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h3 className="font-medium">Privacy Policy</h3>
-            <p className="text-sm text-muted-foreground">Learn how we protect your data.</p>
+            <p className="text-sm text-muted-foreground">
+              Learn how we protect your data.
+            </p>
           </div>
           <Button variant="outline" size="sm" disabled>
             View Policy

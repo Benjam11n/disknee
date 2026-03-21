@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 interface ProgressRingProps {
   progress: number; // 0-1
@@ -22,7 +22,9 @@ export function ProgressRing({
   const strokeDashoffset = circumference - circumference * progress;
 
   return (
-    <div className={`relative inline-flex items-center justify-center ${className}`}>
+    <div
+      className={`relative inline-flex items-center justify-center ${className}`}
+    >
       <svg width={size} height={size} className="transform -rotate-90">
         {/* Background circle */}
         <circle

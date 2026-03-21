@@ -1,4 +1,4 @@
-import { Activity, Camera, CheckCircle2 } from 'lucide-react';
+import { Activity, Camera, CheckCircle2 } from "lucide-react";
 
 export function HeroMedia() {
   return (
@@ -19,13 +19,15 @@ export function HeroMedia() {
           <div className="p-6 grid gap-6">
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="font-medium text-sm text-zinc-500">Session Status</h3>
+                <h3 className="font-medium text-sm text-zinc-500">
+                  Session Status
+                </h3>
                 <p className="text-xl font-semibold mt-1">Active Monitoring</p>
               </div>
               <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-100/50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-medium border border-emerald-200 dark:border-emerald-800">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                 </span>
                 Live
               </div>

@@ -1,10 +1,11 @@
-import { z } from 'zod';
-import {
+import type { z } from "zod";
+
+import type {
   GetShopItemsSchema,
   GetUserInventorySchema,
   PurchaseItemSchema,
   EquipItemSchema,
-} from '@/lib/validations/shop-validations';
+} from "@/lib/validations/shop-validations";
 
 export type GetShopItemsParams = z.infer<typeof GetShopItemsSchema>;
 export type GetUserInventoryParams = z.infer<typeof GetUserInventorySchema>;

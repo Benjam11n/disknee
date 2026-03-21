@@ -1,3 +1,4 @@
+import type { LucideIcon } from "lucide-react";
 import {
   Home,
   Trophy,
@@ -5,54 +6,54 @@ import {
   ShoppingBag,
   Settings,
   HelpCircle,
-  LucideIcon,
   NotebookText,
-} from 'lucide-react';
-import { ROUTES } from '@/lib/constants/routes';
+} from "lucide-react";
 
-export type NavigationItem = {
+import { ROUTES } from "@/lib/constants/routes";
+
+export interface NavigationItem {
   name: string;
   href: string;
   icon: LucideIcon;
-};
+}
 
 export const navigation: NavigationItem[] = [
   {
-    name: 'Dashboard',
     href: ROUTES.DASHBOARD,
     icon: Home,
+    name: "Dashboard",
   },
   {
-    name: 'Exercises',
     href: ROUTES.EXERCISE.BASE,
     icon: Activity,
+    name: "Exercises",
   },
   {
-    name: 'Reports',
     href: ROUTES.REPORTS,
     icon: NotebookText,
+    name: "Reports",
   },
   {
-    name: 'Shop',
     href: ROUTES.SHOP,
     icon: ShoppingBag,
+    name: "Shop",
   },
   {
-    name: 'Leaderboard',
     href: ROUTES.LEADERBOARD,
     icon: Trophy,
+    name: "Leaderboard",
   },
 ];
 
 export const secondaryNavigation: NavigationItem[] = [
   {
-    name: 'Settings',
     href: ROUTES.SETTINGS,
     icon: Settings,
+    name: "Settings",
   },
   {
-    name: 'Help & Support',
     href: ROUTES.HELP,
     icon: HelpCircle,
+    name: "Help & Support",
   },
 ];

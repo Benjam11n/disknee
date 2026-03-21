@@ -1,6 +1,8 @@
-import { notFound } from 'next/navigation';
-import ReportsClient from './reports-client';
-import { getReportsDataAction } from '@/lib/actions/reports';
+import { notFound } from "next/navigation";
+
+import { getReportsDataAction } from "@/lib/actions/reports";
+
+import ReportsClient from "./reports-client";
 
 export default async function ReportsPage() {
   const reportResponse = await getReportsDataAction();

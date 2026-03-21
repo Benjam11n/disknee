@@ -1,12 +1,13 @@
-import { createServerClient } from '@supabase/ssr';
-import { type NextRequest, NextResponse } from 'next/server';
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 function getSupabaseConfig() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Missing Supabase middleware environment variables.');
+    throw new Error("Missing Supabase middleware environment variables.");
   }
 
   return { supabaseKey, supabaseUrl };
@@ -27,7 +28,9 @@ export const createClient = (request: NextRequest) => {
         return request.cookies.getAll();
       },
       setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+        cookiesToSet.forEach(({ name, value }) =>
+          request.cookies.set(name, value)
+        );
 
         response = NextResponse.next({
           request: {

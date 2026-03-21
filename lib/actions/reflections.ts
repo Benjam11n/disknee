@@ -1,38 +1,40 @@
-'use server';
+"use server";
 
-import { Reflection } from '@prisma/client';
-import { CreateReflectionParams } from '@/lib/types/exercise-sessions';
-import { action } from '@/lib/handlers/action';
-import { CreateReflectionSchema } from '@/lib/validations/exercise-session-validations';
-import { handleError } from '@/lib/handlers/error';
-import { prisma } from '@/lib/prisma';
+import type { Reflection } from "@prisma/client";
+
+import { action } from "@/lib/handlers/action";
+import { handleError } from "@/lib/handlers/error";
+import { prisma } from "@/lib/prisma";
+import type { CreateReflectionParams } from "@/lib/types/exercise-sessions";
+import { CreateReflectionSchema } from "@/lib/validations/exercise-session-validations";
 
 export async function createReflectionAction(
   params: CreateReflectionParams
 ): Promise<ActionResponse<Reflection>> {
   const validationResult = await action({
+    authorize: true,
     params: params,
     schema: CreateReflectionSchema,
-    authorize: true,
   });
 
   if (validationResult instanceof Error) {
     return handleError(validationResult) as ErrorResponse;
   }
 
-  const { exerciseSessionId, rating, fatigue, feedback } = validationResult.params!;
+  const { exerciseSessionId, rating, fatigue, feedback } =
+    validationResult.params!;
 
   try {
     const reflection = await prisma.reflection.create({
       data: {
         exerciseSessionId,
-        rating,
         fatigue,
         feedback,
+        rating,
       },
     });
 
-    return { success: true, data: reflection };
+    return { data: reflection, success: true };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }

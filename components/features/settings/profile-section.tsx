@@ -1,8 +1,15 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { BoringAvatarWrapper } from '@/components/shared/boring-avatar';
-import { Separator } from '@/components/ui/separator';
-import { User, Mail } from 'lucide-react';
+import { User, Mail } from "lucide-react";
+
+import { BoringAvatarWrapper } from "@/components/shared/boring-avatar";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 interface ProfileSectionProps {
   user: {
@@ -21,7 +28,9 @@ export function ProfileSection({ user }: ProfileSectionProps) {
           <User className="h-5 w-5" />
           Profile Information
         </CardTitle>
-        <CardDescription>View and manage your basic profile information.</CardDescription>
+        <CardDescription>
+          View and manage your basic profile information.
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex items-center gap-4">
@@ -30,7 +39,7 @@ export function ProfileSection({ user }: ProfileSectionProps) {
             email={user.email}
             userId={user.id}
             image={user.image}
-            alt={user.name || 'User avatar'}
+            alt={user.name || "User avatar"}
             size="xl"
           />
           <div className="space-y-1">

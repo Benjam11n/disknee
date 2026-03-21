@@ -1,7 +1,12 @@
-import { useMemo, useState } from 'react';
-import type { Appointment, Plan, leaderboardByScore } from '@prisma/client';
-import { buildMonthMatrix, formatYMD, formatTime24Hour } from '@/lib/utils/date-utils';
-import { PlanWithExercises } from '@/lib/types/plans';
+import type { Appointment, Plan, leaderboardByScore } from "@prisma/client";
+import { useMemo, useState } from "react";
+
+import type { PlanWithExercises } from "@/lib/types/plans";
+import {
+  buildMonthMatrix,
+  formatYMD,
+  formatTime24Hour,
+} from "@/lib/utils/date-utils";
 
 interface UseDashboardDataProps {
   appointments: Appointment[];
@@ -17,7 +22,10 @@ export function useDashboardData({
   patientName,
 }: UseDashboardDataProps) {
   const today = useMemo(() => new Date(), []);
-  const { monthMatrix, monthLabel } = useMemo(() => buildMonthMatrix(today), [today]);
+  const { monthMatrix, monthLabel } = useMemo(
+    () => buildMonthMatrix(today),
+    [today]
+  );
   const [selectedDate, setSelectedDate] = useState<Date>(today);
 
   const apptDays = useMemo<Set<string>>(
@@ -32,7 +40,9 @@ export function useDashboardData({
   const planDays = useMemo<Set<string>>(
     () =>
       new Set(
-        (Array.isArray(plans) ? plans : []).filter(Boolean).map((p) => formatYMD(new Date(p.date)))
+        (Array.isArray(plans) ? plans : [])
+          .filter(Boolean)
+          .map((p) => formatYMD(new Date(p.date)))
       ),
     [plans]
   );
@@ -58,26 +68,30 @@ export function useDashboardData({
       .map((a) => ({
         ...a,
         date: formatYMD(new Date(a.start)),
-        time: formatTime24Hour(a.start instanceof Date ? a.start.toISOString() : a.start),
+        time: formatTime24Hour(
+          a.start instanceof Date ? a.start.toISOString() : a.start
+        ),
       }));
   }, [appointments]);
 
   // Find patient rank from leaderboard
   const patientRank = useMemo(() => {
-    const patientEntry = leaderboard.find((entry) => entry.name === patientName);
+    const patientEntry = leaderboard.find(
+      (entry) => entry.name === patientName
+    );
     return patientEntry?.rank || leaderboard.length + 1;
   }, [leaderboard, patientName]);
 
   return {
-    today,
-    monthMatrix,
-    monthLabel,
-    selectedDate,
-    setSelectedDate,
     apptDays,
-    planDays,
-    selectedPlans,
-    upcomingAppointments,
+    monthLabel,
+    monthMatrix,
     patientRank,
+    planDays,
+    selectedDate,
+    selectedPlans,
+    setSelectedDate,
+    today,
+    upcomingAppointments,
   };
 }

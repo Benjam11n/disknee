@@ -1,8 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Trophy, Target, Calendar, TrendingUp, Star } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Trophy, Target, Calendar, TrendingUp, Star } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
 
 interface ProgressJourneyProps {
   overallTarget: number;
@@ -24,11 +25,11 @@ export function ProgressJourney({
 
   // Calculate milestones
   const milestones = [
-    { week: 1, label: 'Started', icon: '🌱' },
-    { week: Math.floor(programWeeks * 0.25), label: 'Gaining', icon: '📈' },
-    { week: Math.floor(programWeeks * 0.5), label: 'Halfway', icon: '⚡' },
-    { week: Math.floor(programWeeks * 0.75), label: 'Almost', icon: '🔥' },
-    { week: programWeeks, label: 'Complete', icon: '🏆' },
+    { icon: "🌱", label: "Started", week: 1 },
+    { icon: "📈", label: "Gaining", week: Math.floor(programWeeks * 0.25) },
+    { icon: "⚡", label: "Halfway", week: Math.floor(programWeeks * 0.5) },
+    { icon: "🔥", label: "Almost", week: Math.floor(programWeeks * 0.75) },
+    { icon: "🏆", label: "Complete", week: programWeeks },
   ];
 
   const getProgressMessage = () => {
@@ -36,61 +37,61 @@ export function ProgressJourney({
       return "🎉 Program Complete! You're a champion!";
     }
     if (weeksProgressPercentage >= 75) {
-      return '🔥 Almost there! Final stretch!';
+      return "🔥 Almost there! Final stretch!";
     }
     if (weeksProgressPercentage >= 50) {
-      return '💪 Halfway through! Amazing progress!';
+      return "💪 Halfway through! Amazing progress!";
     }
     if (weeksProgressPercentage >= 25) {
-      return '📈 Building momentum! Keep going!';
+      return "📈 Building momentum! Keep going!";
     }
     if (weeksCompleted >= 1) {
       return "🌱 Great start! You're on your way!";
     }
-    return '🚀 Ready to begin your journey?';
+    return "🚀 Ready to begin your journey?";
   };
 
   const getRankColor = (rank: number) => {
     if (rank <= 3) {
-      return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+      return "text-yellow-600 bg-yellow-50 border-yellow-200";
     }
     if (rank <= 10) {
-      return 'text-primary bg-primary/10 border-primary/30';
+      return "text-primary bg-primary/10 border-primary/30";
     }
     if (rank <= 25) {
-      return 'text-secondary bg-secondary/10 border-secondary/30';
+      return "text-secondary bg-secondary/10 border-secondary/30";
     }
-    return 'text-muted-foreground bg-muted/30 border-muted-foreground/30';
+    return "text-muted-foreground bg-muted/30 border-muted-foreground/30";
   };
 
   const getPointsTier = (points: number) => {
     if (points >= 5000) {
       return {
-        tier: 'Platinum',
-        color: 'bg-purple-100 text-purple-800 border-purple-200',
+        color: "bg-purple-100 text-purple-800 border-purple-200",
+        tier: "Platinum",
       };
     }
     if (points >= 2500) {
       return {
-        tier: 'Gold',
-        color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+        color: "bg-yellow-100 text-yellow-800 border-yellow-200",
+        tier: "Gold",
       };
     }
     if (points >= 1000) {
       return {
-        tier: 'Silver',
-        color: 'bg-gray-100 text-gray-800 border-gray-200',
+        color: "bg-gray-100 text-gray-800 border-gray-200",
+        tier: "Silver",
       };
     }
     if (points >= 500) {
       return {
-        tier: 'Bronze',
-        color: 'bg-orange-100 text-orange-800 border-orange-200',
+        color: "bg-orange-100 text-orange-800 border-orange-200",
+        tier: "Bronze",
       };
     }
     return {
-      tier: 'Rising',
-      color: 'bg-blue-100 text-blue-800 border-blue-200',
+      color: "bg-blue-100 text-blue-800 border-blue-200",
+      tier: "Rising",
     };
   };
 
@@ -130,25 +131,28 @@ export function ProgressJourney({
               {milestones.map((milestone, index) => {
                 const isCompleted = weeksCompleted >= milestone.week;
                 const isCurrent =
-                  weeksCompleted >= milestone.week - 1 && weeksCompleted < milestone.week;
+                  weeksCompleted >= milestone.week - 1 &&
+                  weeksCompleted < milestone.week;
 
                 return (
                   <div key={index} className="flex flex-col items-center">
                     <div
                       className={cn(
-                        'w-10 h-10 rounded-full flex items-center justify-center text-sm transition-all duration-300',
+                        "w-10 h-10 rounded-full flex items-center justify-center text-sm transition-all duration-300",
                         isCompleted
-                          ? 'bg-primary text-white shadow-md'
+                          ? "bg-primary text-white shadow-md"
                           : isCurrent
-                            ? 'bg-secondary text-secondary-foreground shadow-md animate-pulse'
-                            : 'bg-muted text-muted-foreground'
+                            ? "bg-secondary text-secondary-foreground shadow-md animate-pulse"
+                            : "bg-muted text-muted-foreground"
                       )}
                     >
-                      {isCompleted ? '✓' : milestone.icon}
+                      {isCompleted ? "✓" : milestone.icon}
                     </div>
                     <span className="text-xs mt-2 text-center">
                       <div className="font-medium">{milestone.label}</div>
-                      <div className="text-muted-foreground">W{milestone.week}</div>
+                      <div className="text-muted-foreground">
+                        W{milestone.week}
+                      </div>
                     </span>
                   </div>
                 );
@@ -165,7 +169,9 @@ export function ProgressJourney({
               <Target className="h-4 w-4 text-primary" />
               <span className="text-sm font-medium">Completion</span>
             </div>
-            <div className="text-2xl font-bold text-primary">{Math.round(progressPercentage)}%</div>
+            <div className="text-2xl font-bold text-primary">
+              {Math.round(progressPercentage)}%
+            </div>
             <Progress value={progressPercentage} className="h-2 mt-2" />
             <p className="text-xs text-muted-foreground">Overall progress</p>
           </div>
@@ -178,10 +184,19 @@ export function ProgressJourney({
             </div>
             <div className="flex items-center gap-2">
               <span className="text-2xl font-bold">#{patientRank}</span>
-              {patientRank <= 10 && <Star className="h-5 w-5 text-yellow-500" />}
+              {patientRank <= 10 && (
+                <Star className="h-5 w-5 text-yellow-500" />
+              )}
             </div>
-            <Badge variant="outline" className={cn('mt-1', getRankColor(patientRank))}>
-              {patientRank <= 3 ? 'Top 3' : patientRank <= 10 ? 'Top 10' : 'Keep Climbing'}
+            <Badge
+              variant="outline"
+              className={cn("mt-1", getRankColor(patientRank))}
+            >
+              {patientRank <= 3
+                ? "Top 3"
+                : patientRank <= 10
+                  ? "Top 10"
+                  : "Keep Climbing"}
             </Badge>
           </div>
         </div>
@@ -191,17 +206,25 @@ export function ProgressJourney({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-primary">Points Earned</p>
-              <p className="text-2xl font-bold text-primary">{userPoints.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-primary">
+                {userPoints.toLocaleString()}
+              </p>
             </div>
             <Badge className={pointsTier.color}>{pointsTier.tier} Tier</Badge>
           </div>
           <div className="mt-2">
             <div className="text-xs text-muted-foreground">
               {userPoints < 500 && `${500 - userPoints} points to Bronze`}
-              {userPoints >= 500 && userPoints < 1000 && `${1000 - userPoints} points to Silver`}
-              {userPoints >= 1000 && userPoints < 2500 && `${2500 - userPoints} points to Gold`}
-              {userPoints >= 2500 && userPoints < 5000 && `${5000 - userPoints} points to Platinum`}
-              {userPoints >= 5000 && 'Maximum tier achieved!'}
+              {userPoints >= 500 &&
+                userPoints < 1000 &&
+                `${1000 - userPoints} points to Silver`}
+              {userPoints >= 1000 &&
+                userPoints < 2500 &&
+                `${2500 - userPoints} points to Gold`}
+              {userPoints >= 2500 &&
+                userPoints < 5000 &&
+                `${5000 - userPoints} points to Platinum`}
+              {userPoints >= 5000 && "Maximum tier achieved!"}
             </div>
           </div>
         </div>
@@ -213,9 +236,11 @@ export function ProgressJourney({
             <div className="flex-1">
               <p className="text-sm font-medium">
                 {programWeeks - weeksCompleted} week
-                {programWeeks - weeksCompleted !== 1 ? 's' : ''} remaining
+                {programWeeks - weeksCompleted !== 1 ? "s" : ""} remaining
               </p>
-              <p className="text-xs text-muted-foreground">Keep up the great work!</p>
+              <p className="text-xs text-muted-foreground">
+                Keep up the great work!
+              </p>
             </div>
           </div>
         )}

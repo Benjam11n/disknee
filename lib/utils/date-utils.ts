@@ -16,8 +16,8 @@ export function sameDay(a: Date, b: Date): boolean {
  */
 export function formatYMD(d: Date): string {
   const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
 }
 
@@ -92,12 +92,12 @@ export function buildMonthMatrix(anchor: Date): {
   }
 
   // Format month label
-  const label = new Intl.DateTimeFormat('en-AU', {
-    month: 'long',
-    year: 'numeric',
+  const label = new Intl.DateTimeFormat("en-AU", {
+    month: "long",
+    year: "numeric",
   }).format(first);
 
-  return { monthMatrix: matrix, monthLabel: label };
+  return { monthLabel: label, monthMatrix: matrix };
 }
 
 /**
@@ -108,31 +108,30 @@ export function formatDateTime(
   options: {
     includeTime?: boolean;
     locale?: string;
-    timeFormat?: '12' | '24';
+    timeFormat?: "12" | "24";
   } = {}
 ): string {
-  const { includeTime = true, locale = 'en-AU', timeFormat = '24' } = options;
+  const { includeTime = true, locale = "en-AU", timeFormat = "24" } = options;
 
   const date = new Date(dateStr);
 
   if (includeTime) {
     const formatOptions: Intl.DateTimeFormatOptions = {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: timeFormat === '12',
-    };
-    return new Intl.DateTimeFormat(locale, formatOptions).format(date);
-  } else {
-    const formatOptions: Intl.DateTimeFormatOptions = {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
+      day: "numeric",
+      hour: "numeric",
+      hour12: timeFormat === "12",
+      minute: "2-digit",
+      month: "short",
+      weekday: "short",
     };
     return new Intl.DateTimeFormat(locale, formatOptions).format(date);
   }
+  const formatOptions: Intl.DateTimeFormatOptions = {
+    day: "numeric",
+    month: "short",
+    weekday: "short",
+  };
+  return new Intl.DateTimeFormat(locale, formatOptions).format(date);
 }
 
 /**
@@ -144,9 +143,9 @@ function formatTime12Hour(
     locale?: string;
   } = {}
 ): string {
-  const [hours, minutes] = timeStr.split(':');
-  const hour = parseInt(hours, 10);
-  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const [hours, minutes] = timeStr.split(":");
+  const hour = Number.parseInt(hours, 10);
+  const ampm = hour >= 12 ? "PM" : "AM";
   const displayHour = hour % 12 || 12;
 
   return `${displayHour}:${minutes} ${ampm}`;
@@ -158,13 +157,13 @@ function formatTime12Hour(
 export function formatTime24Hour(
   timeStr: string,
   options: {
-    format?: '12' | '24';
+    format?: "12" | "24";
     locale?: string;
   } = {}
 ): string {
-  const { format = '12' } = options;
+  const { format = "12" } = options;
 
-  if (format === '24') {
+  if (format === "24") {
     return timeStr;
   }
 
@@ -177,18 +176,18 @@ export function formatTime24Hour(
 export function formatDuration(seconds: number): string {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
 /**
  * Format date in short format (e.g., "5 Jan 2024")
  */
 export function formatShortDate(date: string | Date): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  return d.toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
+  const d = typeof date === "string" ? new Date(date) : date;
+  return d.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
   });
 }
 
@@ -196,12 +195,12 @@ export function formatShortDate(date: string | Date): string {
  * Format day header (e.g., "Monday, 1 January 2024")
  */
 export function formatDayHeader(date: string | Date): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  return d.toLocaleDateString('en-GB', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+  const d = typeof date === "string" ? new Date(date) : date;
+  return d.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    weekday: "long",
+    year: "numeric",
   });
 }
 
@@ -210,19 +209,19 @@ export function formatDayHeader(date: string | Date): string {
  */
 export function formatTimestamp(dateStr?: string | null): string {
   if (!dateStr) {
-    return '-';
+    return "-";
   }
-  return new Date(dateStr).toLocaleString('en-GB', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+  return new Date(dateStr).toLocaleString("en-GB", {
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    month: "short",
+    year: "numeric",
   });
 }
 
 // Legacy exports for backward compatibility
 export const formatTime = {
-  '24hour': formatTime24Hour,
+  "24hour": formatTime24Hour,
   duration: formatDuration,
 };

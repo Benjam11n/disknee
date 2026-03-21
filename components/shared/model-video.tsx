@@ -1,8 +1,9 @@
-'use client';
+"use client";
 
-import { logger } from '@/lib/logger';
-import { useEffect, useRef } from 'react';
-import { getExerciseVideo } from '@/lib/config/exercise-videos';
+import { useEffect, useRef } from "react";
+
+import { getExerciseVideo } from "@/lib/config/exercise-videos";
+import { logger } from "@/lib/logger";
 
 interface ModelVideoProps {
   isPlaying: boolean;
@@ -12,7 +13,12 @@ interface ModelVideoProps {
   onTogglePlay?: () => void;
 }
 
-export function ModelVideo({ isPlaying, exerciseType, videoUrl, onTogglePlay }: ModelVideoProps) {
+export function ModelVideo({
+  isPlaying,
+  exerciseType,
+  videoUrl,
+  onTogglePlay,
+}: ModelVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const videoSource = videoUrl || getExerciseVideo(exerciseType);
@@ -24,7 +30,7 @@ export function ModelVideo({ isPlaying, exerciseType, videoUrl, onTogglePlay }: 
     }
 
     if (isPlaying) {
-      video.play().catch(() => logger.error('Error playing video'));
+      video.play().catch(() => logger.error("Error playing video"));
     } else {
       video.pause();
     }
@@ -53,7 +59,9 @@ export function ModelVideo({ isPlaying, exerciseType, videoUrl, onTogglePlay }: 
       {/* Exercise type label */}
       <div className="absolute top-4 right-4">
         <div className="bg-black/70 px-3 py-1 rounded-full">
-          <span className="text-white text-sm capitalize">{exerciseType} Demo</span>
+          <span className="text-white text-sm capitalize">
+            {exerciseType} Demo
+          </span>
         </div>
       </div>
 
@@ -64,7 +72,11 @@ export function ModelVideo({ isPlaying, exerciseType, videoUrl, onTogglePlay }: 
           onClick={handleVideoClick}
         >
           <div className="text-center text-white">
-            <svg className="h-20 w-20 mx-auto mb-2" fill="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="h-20 w-20 mx-auto mb-2"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path d="M8 5v14l11-7z" /> {/* Play icon */}
             </svg>
             <p className="text-lg">Click to play</p>

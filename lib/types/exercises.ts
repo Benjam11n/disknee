@@ -1,10 +1,11 @@
-import z from 'zod';
-import {
+import type z from "zod";
+
+import type {
   CreateExerciseSchema,
   GetExerciseByIdSchema,
   GetExercisesSchema,
   UpdateExerciseDoneSchema,
-} from '@/lib/validations/exercise-validations';
+} from "@/lib/validations/exercise-validations";
 
 export type GetExercisesParams = z.infer<typeof GetExercisesSchema>;
 export type GetExerciseByIdParams = z.infer<typeof GetExerciseByIdSchema>;

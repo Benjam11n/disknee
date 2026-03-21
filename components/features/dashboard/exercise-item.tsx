@@ -1,21 +1,29 @@
-'use client';
+"use client";
 
-import { Play, Video } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import type { Exercise } from '@prisma/client';
-import { useRouter } from 'next/navigation';
-import { ROUTES } from '@/lib/constants/routes';
-import { getDifficultyBadgeVariant, getDifficultyStyles } from '@/lib/utils';
+import type { Exercise } from "@prisma/client";
+import { Play, Video } from "lucide-react";
+import { useRouter } from "next/navigation";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { ROUTES } from "@/lib/constants/routes";
+import { getDifficultyBadgeVariant, getDifficultyStyles } from "@/lib/utils";
 
 interface ExerciseItemProps {
   exercise: Exercise;
   isDisabled?: boolean;
 }
 
-export function ExerciseItem({ exercise, isDisabled = false }: ExerciseItemProps) {
+export function ExerciseItem({
+  exercise,
+  isDisabled = false,
+}: ExerciseItemProps) {
   const router = useRouter();
   const styles = getDifficultyStyles(exercise.difficulty);
 
@@ -35,15 +43,19 @@ export function ExerciseItem({ exercise, isDisabled = false }: ExerciseItemProps
         <div className="flex flex-col leading-tight flex-1">
           <span
             className={`font-medium transition-colors cursor-pointer hover:text-primary ${
-              exercise.done ? 'text-muted-foreground line-through' : 'text-foreground'
+              exercise.done
+                ? "text-muted-foreground line-through"
+                : "text-foreground"
             }`}
             onClick={() => router.push(ROUTES.EXERCISE.detail(exercise.id))}
           >
             {exercise.title}
           </span>
           <div className="flex items-center gap-2 mt-1">
-            {typeof exercise.estimatedMins === 'number' && (
-              <span className="text-xs text-muted-foreground">{exercise.estimatedMins} min</span>
+            {typeof exercise.estimatedMins === "number" && (
+              <span className="text-xs text-muted-foreground">
+                {exercise.estimatedMins} min
+              </span>
             )}
             {exercise.videoUrl && (
               <div className="flex items-center gap-1 text-xs text-blue-600">

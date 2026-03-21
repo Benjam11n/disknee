@@ -1,5 +1,5 @@
-import z from 'zod';
+import type z from "zod";
 
-import { GetUserByIdSchema } from '@/lib/validations/users-validations';
+import type { GetUserByIdSchema } from "@/lib/validations/users-validations";
 
 export type GetUserByIdParams = z.infer<typeof GetUserByIdSchema>;

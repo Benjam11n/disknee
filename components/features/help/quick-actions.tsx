@@ -1,6 +1,7 @@
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { BookOpen, PlayCircle, MessageCircle } from 'lucide-react';
+import { BookOpen, PlayCircle, MessageCircle } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 export function QuickActions() {
   return (
@@ -23,7 +24,9 @@ export function QuickActions() {
           <PlayCircle className="h-8 w-8 text-secondary-foreground" />
           <div>
             <h3 className="font-semibold">Video Tutorials</h3>
-            <p className="text-sm text-muted-foreground">Watch demonstrations</p>
+            <p className="text-sm text-muted-foreground">
+              Watch demonstrations
+            </p>
           </div>
           <Button variant="ghost" size="sm" disabled>
             Watch

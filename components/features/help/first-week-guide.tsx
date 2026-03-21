@@ -1,5 +1,12 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Target } from 'lucide-react';
+import { Target } from "lucide-react";
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export function FirstWeekGuide() {
   return (
@@ -9,7 +16,9 @@ export function FirstWeekGuide() {
           <Target className="h-5 w-5" />
           Your First Week
         </CardTitle>
-        <CardDescription>Start your recovery journey with these simple steps</CardDescription>
+        <CardDescription>
+          Start your recovery journey with these simple steps
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -21,8 +30,9 @@ export function FirstWeekGuide() {
               <div>
                 <h4 className="font-semibold">Set Your Schedule</h4>
                 <p className="text-sm text-muted-foreground">
-                  Schedule your exercise sessions according to your doctor's plan. Mark them in your
-                  calendar like important appointments with yourself.
+                  Schedule your exercise sessions according to your doctor's
+                  plan. Mark them in your calendar like important appointments
+                  with yourself.
                 </p>
               </div>
             </div>
@@ -34,8 +44,8 @@ export function FirstWeekGuide() {
               <div>
                 <h4 className="font-semibold">Create Your Space</h4>
                 <p className="text-sm text-muted-foreground">
-                  Find a comfortable spot with enough room to move. Keep your phone or tablet nearby
-                  for guidance.
+                  Find a comfortable spot with enough room to move. Keep your
+                  phone or tablet nearby for guidance.
                 </p>
               </div>
             </div>
@@ -47,8 +57,8 @@ export function FirstWeekGuide() {
               <div>
                 <h4 className="font-semibold">Start Gentle</h4>
                 <p className="text-sm text-muted-foreground">
-                  Begin with shorter sessions (10-15 minutes). It's okay to start slow - you're
-                  building a habit!
+                  Begin with shorter sessions (10-15 minutes). It's okay to
+                  start slow - you're building a habit!
                 </p>
               </div>
             </div>
@@ -62,8 +72,8 @@ export function FirstWeekGuide() {
               <div>
                 <h4 className="font-semibold">Track Everything</h4>
                 <p className="text-sm text-muted-foreground">
-                  Note how you feel after each session. Even small observations help you see
-                  progress.
+                  Note how you feel after each session. Even small observations
+                  help you see progress.
                 </p>
               </div>
             </div>
@@ -75,8 +85,8 @@ export function FirstWeekGuide() {
               <div>
                 <h4 className="font-semibold">Stay Hydrated</h4>
                 <p className="text-sm text-muted-foreground">
-                  Drink water before and after exercises. Your muscles work better when you're
-                  hydrated!
+                  Drink water before and after exercises. Your muscles work
+                  better when you're hydrated!
                 </p>
               </div>
             </div>
@@ -88,7 +98,8 @@ export function FirstWeekGuide() {
               <div>
                 <h4 className="font-semibold">Celebrate!</h4>
                 <p className="text-sm text-muted-foreground">
-                  You did it! Acknowledge your effort. Every completed session is a victory.
+                  You did it! Acknowledge your effort. Every completed session
+                  is a victory.
                 </p>
               </div>
             </div>

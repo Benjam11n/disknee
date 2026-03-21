@@ -1,14 +1,15 @@
-'use client';
+"use client";
 
-import { useState, useMemo } from 'react';
-import type { ShopItem, UserInventory } from '@prisma/client';
-import { toast } from 'sonner';
-import { purchaseItemAction, equipItemAction } from '@/lib/actions/shop';
-import { ShopHeader } from '@/components/features/shop/shop-header';
-import { FeaturedItemsSection } from '@/components/features/shop/featured-items-section';
-import { ShopFilters } from '@/components/features/shop/shop-filters';
-import { ShopItemsGrid } from '@/components/features/shop/shop-items-grid';
-import { ShopInfoCard } from '@/components/features/shop/shop-info-card';
+import type { ShopItem, UserInventory } from "@prisma/client";
+import { useState, useMemo } from "react";
+import { toast } from "sonner";
+
+import { FeaturedItemsSection } from "@/components/features/shop/featured-items-section";
+import { ShopFilters } from "@/components/features/shop/shop-filters";
+import { ShopHeader } from "@/components/features/shop/shop-header";
+import { ShopInfoCard } from "@/components/features/shop/shop-info-card";
+import { ShopItemsGrid } from "@/components/features/shop/shop-items-grid";
+import { purchaseItemAction, equipItemAction } from "@/lib/actions/shop";
 
 interface ShopClientProps {
   shopItems: ShopItem[];
@@ -27,14 +28,16 @@ export function ShopClient({
     useState<(UserInventory & { item: ShopItem })[]>(initialInventory);
   const [points, setPoints] = useState(userPoints);
   const [isPurchasing, setIsPurchasing] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<'name' | 'price-asc' | 'price-desc'>('name');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"name" | "price-asc" | "price-desc">(
+    "name"
+  );
 
   // Get unique categories
   const categories = useMemo(() => {
-    const cats = Array.from(new Set(shopItems.map((item) => item.type)));
-    return ['all', ...cats];
+    const cats = [...new Set(shopItems.map((item) => item.type))];
+    return ["all", ...cats];
   }, [shopItems]);
 
   // Filter and sort items
@@ -43,19 +46,20 @@ export function ShopClient({
       const matchesSearch =
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.description?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === 'all' || item.type === selectedCategory;
+      const matchesCategory =
+        selectedCategory === "all" || item.type === selectedCategory;
       return matchesSearch && matchesCategory;
     });
 
     // Sort items
     filtered.sort((a, b) => {
-      if (sortBy === 'name') {
+      if (sortBy === "name") {
         return a.name.localeCompare(b.name);
       }
-      if (sortBy === 'price-asc') {
+      if (sortBy === "price-asc") {
         return a.price - b.price;
       }
-      if (sortBy === 'price-desc') {
+      if (sortBy === "price-desc") {
         return b.price - a.price;
       }
       return 0;
@@ -65,16 +69,18 @@ export function ShopClient({
   }, [shopItems, searchTerm, selectedCategory, sortBy]);
 
   // Featured items (most expensive ones)
-  const featuredItems = useMemo(() => {
-    return shopItems
-      .filter((item) => item.price >= 300) // Epic and Legendary items
-      .sort((a, b) => b.price - a.price)
-      .slice(0, 3);
-  }, [shopItems]);
+  const featuredItems = useMemo(
+    () =>
+      shopItems
+        .filter((item) => item.price >= 300) // Epic and Legendary items
+        .toSorted((a, b) => b.price - a.price)
+        .slice(0, 3),
+    [shopItems]
+  );
 
   const handlePurchase = async (itemId: string, price: number) => {
     if (points < price) {
-      toast.error('Insufficient points!');
+      toast.error("Insufficient points!");
       return;
     }
 
@@ -82,17 +88,20 @@ export function ShopClient({
 
     try {
       const result = await purchaseItemAction({
-        userId,
         itemId,
+        userId,
       });
 
       if (result.success && result.data) {
         setPoints((prev) => prev - price);
-        setUserInventory((prev) => [...prev, result.data as UserInventory & { item: ShopItem }]);
-        toast.success('Item purchased successfully!');
+        setUserInventory((prev) => [
+          ...prev,
+          result.data as UserInventory & { item: ShopItem },
+        ]);
+        toast.success("Item purchased successfully!");
       }
     } catch (error: unknown) {
-      toast.error((error as Error).message || 'Failed to purchase item');
+      toast.error((error as Error).message || "Failed to purchase item");
     } finally {
       setIsPurchasing(null);
     }
@@ -101,9 +110,9 @@ export function ShopClient({
   const handleEquip = async (itemId: string, equip: boolean) => {
     try {
       const result = await equipItemAction({
-        userId,
-        itemId,
         equip,
+        itemId,
+        userId,
       });
 
       if (result.success && result.data) {
@@ -117,16 +126,15 @@ export function ShopClient({
                 : item
           )
         );
-        toast.success(equip ? 'Item equipped!' : 'Item unequipped!');
+        toast.success(equip ? "Item equipped!" : "Item unequipped!");
       }
     } catch (error: unknown) {
-      toast.error((error as Error).message || 'Failed to update item');
+      toast.error((error as Error).message || "Failed to update item");
     }
   };
 
-  const getEquippedItems = () => {
-    return userInventory.filter((inv) => inv.isEquipped).map((inv) => inv.item);
-  };
+  const getEquippedItems = () =>
+    userInventory.filter((inv) => inv.isEquipped).map((inv) => inv.item);
 
   return (
     <div className="container mx-auto p-6 max-w-7xl">
@@ -160,7 +168,7 @@ export function ShopClient({
           isPurchasing={isPurchasing}
           onPurchase={handlePurchase}
           onEquip={handleEquip}
-          hasFilters={Boolean(searchTerm) || selectedCategory !== 'all'}
+          hasFilters={Boolean(searchTerm) || selectedCategory !== "all"}
         />
 
         {shopItems.length === 0 && (

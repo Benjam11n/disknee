@@ -1,6 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ExerciseList } from './exercise-list';
-import { Exercise } from '@prisma/client';
+import type { Exercise } from "@prisma/client";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+import { ExerciseList } from "./exercise-list";
 
 interface ExerciseProgressCardProps {
   exercises: Exercise[];

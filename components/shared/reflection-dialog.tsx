@@ -1,16 +1,18 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'sonner';
-import { ROUTES } from '@/lib/constants/routes';
-import { logger } from '@/lib/logger';
-import { FormDialog } from '@/components/ui/form-dialog';
-import { ReflectionFormFields } from '@/components/features/reflection/reflection-form-fields';
-import { reflectionSchema, ReflectionFormData } from '@/lib/validations/reflection-validations';
-import { SessionSummary } from '@/components/features/dashboard/session-summary';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+
+import { SessionSummary } from "@/components/features/dashboard/session-summary";
+import { ReflectionFormFields } from "@/components/features/reflection/reflection-form-fields";
+import { FormDialog } from "@/components/ui/form-dialog";
+import { ROUTES } from "@/lib/constants/routes";
+import { logger } from "@/lib/logger";
+import type { ReflectionFormData } from "@/lib/validations/reflection-validations";
+import { reflectionSchema } from "@/lib/validations/reflection-validations";
 
 interface SessionData {
   duration: number;
@@ -21,30 +23,39 @@ interface SessionData {
 interface ReflectionDialogProps {
   isOpen: boolean;
   sessionData: SessionData;
-  onSubmit: (data: { rating: number; fatigue: number; feedback?: string }) => void;
+  onSubmit: (data: {
+    rating: number;
+    fatigue: number;
+    feedback?: string;
+  }) => void;
   onSkip: () => void;
 }
 
-export function ReflectionDialog({ isOpen, sessionData, onSubmit, onSkip }: ReflectionDialogProps) {
+export function ReflectionDialog({
+  isOpen,
+  sessionData,
+  onSubmit,
+  onSkip,
+}: ReflectionDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
   const form = useForm<ReflectionFormData>({
-    resolver: zodResolver(reflectionSchema),
     defaultValues: {
-      rating: [3],
       fatigue: [3],
-      feedback: '',
+      feedback: "",
+      rating: [3],
     },
+    resolver: zodResolver(reflectionSchema),
   });
 
   const handleFormSubmit = async (data: ReflectionFormData) => {
     setIsSubmitting(true);
 
     const reflectionData = {
-      rating: data.rating[0],
       fatigue: data.fatigue[0],
       feedback: data.feedback,
+      rating: data.rating[0],
     };
 
     // Log reflection data (for future database integration)
@@ -54,20 +65,20 @@ export function ReflectionDialog({ isOpen, sessionData, onSubmit, onSkip }: Refl
         sessionData,
         timestamp: new Date().toISOString(),
       },
-      'Session Reflection:'
+      "Session Reflection:"
     );
 
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    toast.success('Thank you for your feedback! Session completed.');
+    toast.success("Thank you for your feedback! Session completed.");
     onSubmit(reflectionData);
     router.push(ROUTES.DASHBOARD);
   };
 
   const handleSkip = () => {
-    logger.info('User skipped reflection');
-    toast.success('Session completed! Keep up the great work!');
+    logger.info("User skipped reflection");
+    toast.success("Session completed! Keep up the great work!");
     onSkip();
     router.push(ROUTES.DASHBOARD);
   };

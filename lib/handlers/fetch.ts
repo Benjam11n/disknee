@@ -1,6 +1,7 @@
-import { RequestError } from '@/lib/http-errors';
-import { handleError } from './error';
-import { logger } from '@/lib/logger';
+import { RequestError } from "@/lib/http-errors";
+import { logger } from "@/lib/logger";
+
+import { handleError } from "./error";
 
 interface FetchOptions extends RequestInit {
   timeout?: number;
@@ -15,30 +16,35 @@ export async function fetchHandler<T>(
   url: string,
   options: FetchOptions = {}
 ): Promise<ActionResponse<T>> {
-  const { timeout = 5000, headers: customHeaders = {}, authorize = true, ...restOptions } = options;
+  const {
+    timeout = 5000,
+    headers: customHeaders = {},
+    authorize = true,
+    ...restOptions
+  } = options;
 
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
 
   const defaultHeaders: HeadersInit = {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
+    Accept: "application/json",
+    "Content-Type": "application/json",
   };
 
   const headers: HeadersInit = { ...defaultHeaders, ...customHeaders };
 
   const config: RequestInit = {
     ...restOptions,
+    credentials: authorize ? "include" : restOptions.credentials,
     headers,
     signal: controller.signal,
-    credentials: authorize ? 'include' : restOptions.credentials,
   };
 
   logger.debug(
     {
-      method: config.method || 'GET',
-      timeout,
       authorize,
+      method: config.method || "GET",
+      timeout,
     },
     `Making request to ${url}`
   );
@@ -60,10 +66,12 @@ export async function fetchHandler<T>(
     );
 
     return await response.json();
-  } catch (err) {
-    const error = isError(err) ? err : new Error('Unknown error');
+  } catch (caughtError) {
+    const error = isError(caughtError)
+      ? caughtError
+      : new Error("Unknown error");
 
-    if (error.name === 'AbortError') {
+    if (error.name === "AbortError") {
       logger.warn(
         {
           timeout,
@@ -74,10 +82,10 @@ export async function fetchHandler<T>(
     } else {
       logger.error(
         {
-          url,
-          method: config.method || 'GET',
           error: error.name,
+          method: config.method || "GET",
           stack: error.stack,
+          url,
         },
         `Error fetching ${url}: ${error.message}`
       );

@@ -1,4 +1,4 @@
-import { Exercise } from '@prisma/client';
+import type { Exercise } from "@prisma/client";
 
 /**
  * Get the next exercise that should be completed in a sequence
@@ -27,7 +27,10 @@ function isNextExercise(exercises: Exercise[], exerciseId: string): boolean {
  * @param exerciseId - ID of the exercise to check
  * @returns true if exercise can be started
  */
-export function canStartExercise(exercises: Exercise[], exerciseId: string): boolean {
+export function canStartExercise(
+  exercises: Exercise[],
+  exerciseId: string
+): boolean {
   const exercise = exercises.find((ex) => ex.id === exerciseId);
 
   // Can't start if exercise doesn't exist

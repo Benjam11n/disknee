@@ -1,23 +1,24 @@
-'use client';
+"use client";
 
-import type { Appointment } from '@prisma/client';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import type { Appointment } from "@prisma/client";
+import { CalendarDays, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
+import { BoringAvatarWrapper } from "@/components/shared/boring-avatar";
+import { ThemeToggle } from "@/components/shared/theme/theme-toggle";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { CalendarDays, LogOut } from 'lucide-react';
-import { ThemeToggle } from '@/components/shared/theme/theme-toggle';
-import { BoringAvatarWrapper } from '@/components/shared/boring-avatar';
-import { authClient } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
-import { ROUTES } from '@/lib/constants/routes';
-import { formatDateTime } from '@/lib/utils/date-utils';
+} from "@/components/ui/dropdown-menu";
+import { authClient } from "@/lib/auth-client";
+import { ROUTES } from "@/lib/constants/routes";
+import { formatDateTime } from "@/lib/utils/date-utils";
 
 interface NavbarProps {
   nextAppt?: Appointment | null;
@@ -31,7 +32,7 @@ export function Navbar({ nextAppt }: NavbarProps) {
 
   const handleSignOut = async () => {
     await authClient.signOut();
-    toast.success('Signed out successfully');
+    toast.success("Signed out successfully");
     router.push(ROUTES.LOGIN);
   };
 
@@ -39,7 +40,7 @@ export function Navbar({ nextAppt }: NavbarProps) {
     <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/60 border-b">
       <div className="mx-auto flex items-center justify-between px-6 py-3 max-w-7xl">
         {/* Left spacer - sidebar handles branding */}
-        <div></div>
+        <div />
 
         {/* Right: appointment, theme toggle, and user info grouped */}
         <div className="flex items-center gap-3 sm:gap-4">
@@ -66,9 +67,13 @@ export function Navbar({ nextAppt }: NavbarProps) {
               suppressHydrationWarning
             >
               <span className="hidden sm:inline">
-                {nextAppt?.start ? formatDateTime(nextAppt.start.toISOString()) : 'No appointment'}
+                {nextAppt?.start
+                  ? formatDateTime(nextAppt.start.toISOString())
+                  : "No appointment"}
               </span>
-              <span className="sm:hidden">{nextAppt?.start ? '—' : 'No appointment'}</span>
+              <span className="sm:hidden">
+                {nextAppt?.start ? "—" : "No appointment"}
+              </span>
             </Badge>
 
             {/* Hover card */}
@@ -83,16 +88,22 @@ export function Navbar({ nextAppt }: NavbarProps) {
                     <span className="font-semibold">Next Appointment</span>
                   </div>
                   <div className="text-sm">
-                    <div className="font-medium">{nextAppt.doctorName || 'Doctor TBD'}</div>
+                    <div className="font-medium">
+                      {nextAppt.doctorName || "Doctor TBD"}
+                    </div>
                     {nextAppt.doctorSpecialty && (
-                      <div className="text-muted-foreground">{nextAppt.doctorSpecialty}</div>
+                      <div className="text-muted-foreground">
+                        {nextAppt.doctorSpecialty}
+                      </div>
                     )}
                     {(nextAppt.locationName || nextAppt.locationAddr) && (
                       <div className="mt-2 space-y-1">
                         {nextAppt.locationName && (
                           <div className="flex items-start gap-1">
                             <span className="text-xs">📍</span>
-                            <span className="text-xs">{nextAppt.locationName}</span>
+                            <span className="text-xs">
+                              {nextAppt.locationName}
+                            </span>
                           </div>
                         )}
                         {nextAppt.locationAddr && (
@@ -115,7 +126,10 @@ export function Navbar({ nextAppt }: NavbarProps) {
                 {patientName}
               </div>
               {nextAppt?.doctorName && (
-                <div className="text-xs text-muted-foreground" title={nextAppt.doctorName}>
+                <div
+                  className="text-xs text-muted-foreground"
+                  title={nextAppt.doctorName}
+                >
                   Dr. {nextAppt.doctorName}
                 </div>
               )}
@@ -133,7 +147,9 @@ export function Navbar({ nextAppt }: NavbarProps) {
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <div className="px-2 py-1.5 text-sm font-medium">{patientName}</div>
+                <div className="px-2 py-1.5 text-sm font-medium">
+                  {patientName}
+                </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="mr-2 h-4 w-4" />

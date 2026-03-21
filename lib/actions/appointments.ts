@@ -1,29 +1,30 @@
-'use server';
+"use server";
 
-import { prisma } from '@/lib/prisma';
-import { action } from '@/lib/handlers/action';
-import { handleError } from '@/lib/handlers/error';
+import type { Appointment } from "@prisma/client";
+
+import { action } from "@/lib/handlers/action";
+import { handleError } from "@/lib/handlers/error";
+import { prisma } from "@/lib/prisma";
+import type {
+  CreateAppointmentParams,
+  GetAppointmentByIdParams,
+  GetAppointmentsParams,
+  GetUpcomingAppointmentsParams,
+} from "@/lib/types/appointments";
 import {
   CreateAppointmentSchema,
   GetAppointmentsSchema,
   GetUpcomingAppointmentsSchema,
   GetAppointmentByIdSchema,
-} from '@/lib/validations/appointment-validations';
-import {
-  CreateAppointmentParams,
-  GetAppointmentByIdParams,
-  GetAppointmentsParams,
-  GetUpcomingAppointmentsParams,
-} from '@/lib/types/appointments';
-import { Appointment } from '@prisma/client';
+} from "@/lib/validations/appointment-validations";
 
 export async function createAppointmentAction(
   params: CreateAppointmentParams
 ): Promise<ActionResponse<Appointment>> {
   const validationResult = await action({
+    authorize: true,
     params: params,
     schema: CreateAppointmentSchema,
-    authorize: true,
   });
 
   if (validationResult instanceof Error) {
@@ -36,15 +37,15 @@ export async function createAppointmentAction(
   try {
     const appointment = await prisma.appointment.create({
       data: {
-        start: new Date(start),
         doctorName,
         doctorSpecialty,
-        locationName,
         locationAddr,
+        locationName,
+        start: new Date(start),
       },
     });
 
-    return { success: true, data: appointment };
+    return { data: appointment, success: true };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
@@ -54,9 +55,9 @@ export async function getAppointmentsAction(
   params: GetAppointmentsParams
 ): Promise<ActionResponse<Appointment[]>> {
   const validationResult = await action({
+    authorize: true,
     params: params,
     schema: GetAppointmentsSchema,
-    authorize: true,
   });
 
   if (validationResult instanceof Error) {
@@ -67,18 +68,18 @@ export async function getAppointmentsAction(
 
   try {
     const appointments = await prisma.appointment.findMany({
+      orderBy: { start: "asc" },
+      skip: offset,
+      take: limit,
       where: {
         start: {
           gte: startDate ? new Date(startDate) : undefined,
           lte: endDate ? new Date(endDate) : undefined,
         },
       },
-      orderBy: { start: 'asc' },
-      take: limit,
-      skip: offset,
     });
 
-    return { success: true, data: appointments };
+    return { data: appointments, success: true };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
@@ -88,9 +89,9 @@ export async function getUpcomingAppointmentsAction(
   params: GetUpcomingAppointmentsParams
 ): Promise<ActionResponse<Appointment[]>> {
   const validationResult = await action({
+    authorize: true,
     params: params,
     schema: GetUpcomingAppointmentsSchema,
-    authorize: true,
   });
 
   if (validationResult instanceof Error) {
@@ -103,17 +104,17 @@ export async function getUpcomingAppointmentsAction(
 
   try {
     const appointments = await prisma.appointment.findMany({
+      orderBy: { start: "asc" },
+      take: limit,
       where: {
         start: {
           gte: now,
           lte: futureDate,
         },
       },
-      orderBy: { start: 'asc' },
-      take: limit,
     });
 
-    return { success: true, data: appointments };
+    return { data: appointments, success: true };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
@@ -123,9 +124,9 @@ export async function getAppointmentByIdAction(
   params: GetAppointmentByIdParams
 ): Promise<ActionResponse<Appointment>> {
   const validationResult = await action({
+    authorize: true,
     params: params,
     schema: GetAppointmentByIdSchema,
-    authorize: true,
   });
 
   if (validationResult instanceof Error) {
@@ -140,10 +141,10 @@ export async function getAppointmentByIdAction(
     });
 
     if (!appointment) {
-      return handleError(new Error('Appointment not found')) as ErrorResponse;
+      return handleError(new Error("Appointment not found")) as ErrorResponse;
     }
 
-    return { success: true, data: appointment };
+    return { data: appointment, success: true };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }

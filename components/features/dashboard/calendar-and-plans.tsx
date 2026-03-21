@@ -1,9 +1,10 @@
-import { Card } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Calendar } from './calendar';
-import { ProgressRing } from './progress-ring';
-import { PlanningList } from './planning-list';
-import { PlanWithExercises } from '@/lib/types/plans';
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import type { PlanWithExercises } from "@/lib/types/plans";
+
+import { Calendar } from "./calendar";
+import { PlanningList } from "./planning-list";
+import { ProgressRing } from "./progress-ring";
 
 interface CalendarAndPlansProps {
   monthMatrix: (Date | null)[][];
@@ -31,7 +32,12 @@ export function CalendarAndPlans({
   return (
     <Card className="p-6">
       <div className="relative flex justify-center mb-6">
-        <ProgressRing progress={ringProgress} size={250} strokeWidth={16} showPercentage={true} />
+        <ProgressRing
+          progress={ringProgress}
+          size={250}
+          strokeWidth={16}
+          showPercentage={true}
+        />
       </div>
 
       {/* Calendar */}

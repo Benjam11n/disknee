@@ -1,35 +1,36 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { VideoStream } from '@/components/shared/video-stream';
-import type { ShopItem } from '@prisma/client';
-import { Video, VideoOff } from 'lucide-react';
+import type { ShopItem } from "@prisma/client";
+import { Video, VideoOff } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { useState } from "react";
+
+import { VideoStream } from "@/components/shared/video-stream";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 export function TryOnClient() {
   const searchParams = useSearchParams();
-  const itemName = searchParams.get('item_name') || 'Item';
-  const itemIcon = searchParams.get('item_icon') || '👑';
-  const itemType = searchParams.get('item_type') || 'HAT';
+  const itemName = searchParams.get("item_name") || "Item";
+  const itemIcon = searchParams.get("item_icon") || "👑";
+  const itemType = searchParams.get("item_type") || "HAT";
 
   const mockItem: ShopItem = {
-    id: 'try-on-item',
-    name: itemName,
-    description: 'Trying on this item',
-    icon: itemIcon,
-    type: itemType,
-    price: 0,
-    isActive: true,
     createdAt: new Date(),
+    description: "Trying on this item",
+    icon: itemIcon,
+    id: "try-on-item",
+    isActive: true,
+    name: itemName,
+    price: 0,
+    type: itemType,
     updatedAt: new Date(),
   };
 
   const [isVideoOn, setIsVideoOn] = useState(true);
 
-  const equippedHat = mockItem.type === 'HAT' ? mockItem : undefined;
-  const equippedGlasses = mockItem.type === 'ACCESSORY' ? mockItem : undefined;
+  const equippedHat = mockItem.type === "HAT" ? mockItem : undefined;
+  const equippedGlasses = mockItem.type === "ACCESSORY" ? mockItem : undefined;
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)]">
@@ -38,14 +39,14 @@ export function TryOnClient() {
           <VideoStream
             isVideoOn={isVideoOn}
             isCallActive={true}
-            exerciseId={'simple-squat'}
+            exerciseId="simple-squat"
             crownSettings={{
-              emoji: equippedHat?.icon || '👑',
+              emoji: equippedHat?.icon || "👑",
               size: 60,
               yOffset: -60,
             }}
             glassesSettings={{
-              emoji: equippedGlasses?.icon || '🕶️',
+              emoji: equippedGlasses?.icon || "🕶️",
               size: 100,
               yOffset: 10,
             }}
@@ -55,10 +56,14 @@ export function TryOnClient() {
       <div className="border-t bg-background p-6 flex justify-center">
         <Button
           onClick={() => setIsVideoOn((prev) => !prev)}
-          variant={isVideoOn ? 'default' : 'secondary'}
+          variant={isVideoOn ? "default" : "secondary"}
           size="lg"
         >
-          {isVideoOn ? <VideoOff className="h-5 w-5" /> : <Video className="h-5 w-5" />}
+          {isVideoOn ? (
+            <VideoOff className="h-5 w-5" />
+          ) : (
+            <Video className="h-5 w-5" />
+          )}
         </Button>
       </div>
     </div>

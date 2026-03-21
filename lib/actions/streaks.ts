@@ -1,15 +1,17 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { prisma } from '@/lib/prisma';
-import { Mood } from '@prisma/client';
-import { logger } from '@/lib/logger';
-import { ROUTES } from '@/lib/constants/routes';
-import { action } from '../handlers/action';
-import { GetStreakSchema } from '../validations/streaks-validations';
-import { GetStreakParams, StreakData } from '../types/streaks';
-import { handleError } from '../handlers/error';
-import { startOfDay, addDays } from '@/lib/utils/date-utils';
+import type { Mood } from "@prisma/client";
+import { revalidatePath } from "next/cache";
+
+import { ROUTES } from "@/lib/constants/routes";
+import { logger } from "@/lib/logger";
+import { prisma } from "@/lib/prisma";
+import { startOfDay, addDays } from "@/lib/utils/date-utils";
+
+import { action } from "../handlers/action";
+import { handleError } from "../handlers/error";
+import type { GetStreakParams, StreakData } from "../types/streaks";
+import { GetStreakSchema } from "../validations/streaks-validations";
 
 interface CheckInActionParams {
   userId: string;
@@ -17,7 +19,11 @@ interface CheckInActionParams {
   points: number;
 }
 
-export async function checkInAction({ userId, mood, points }: CheckInActionParams) {
+export async function checkInAction({
+  userId,
+  mood,
+  points,
+}: CheckInActionParams) {
   try {
     const today = startOfDay();
     const tomorrow = addDays(today, 1);
@@ -30,10 +36,10 @@ export async function checkInAction({ userId, mood, points }: CheckInActionParam
     if (!userStreak) {
       userStreak = await prisma.userStreak.create({
         data: {
-          userId,
           currentStreak: 0,
-          longestStreak: 0,
           lastCheckInDate: today,
+          longestStreak: 0,
+          userId,
         },
       });
     }
@@ -41,26 +47,27 @@ export async function checkInAction({ userId, mood, points }: CheckInActionParam
     // Check if already checked in today
     const existingCheckIn = await prisma.dailyCheckIn.findFirst({
       where: {
-        userId,
         date: {
           gte: today,
           lt: tomorrow,
         },
+        userId,
       },
     });
 
     if (existingCheckIn) {
       return {
-        success: false,
-        error: 'Already checked in today',
         data: null,
+        error: "Already checked in today",
+        success: false,
       };
     }
 
     // Check if streak should continue or reset
-    const lastCheckInDate = userStreak.lastCheckInDate;
+    const { lastCheckInDate } = userStreak;
     const daysDiff = Math.floor(
-      (today.getTime() - (lastCheckInDate?.getTime() || 0)) / (1000 * 60 * 60 * 24)
+      (today.getTime() - (lastCheckInDate?.getTime() || 0)) /
+        (1000 * 60 * 60 * 24)
     );
 
     // Check if streak is frozen
@@ -77,8 +84,8 @@ export async function checkInAction({ userId, mood, points }: CheckInActionParam
     } else if (daysDiff > 1 && !isFrozen) {
       // Streak about to break - check for available freezes
       const freezeResult = await checkAndApplyFreezeAction({
-        userId,
         missedDays: daysDiff - 1,
+        userId,
       });
 
       if (freezeResult.success) {
@@ -88,12 +95,12 @@ export async function checkInAction({ userId, mood, points }: CheckInActionParam
         freezeApplied = true;
         logger.info(
           {
-            userId,
             daysMissed: daysDiff - 1,
             freezesUsed: freezeResult.data?.freezesUsed,
             frozenUntil: freezeResult.data?.frozenUntil,
+            userId,
           },
-          'Auto-applied freeze to save streak'
+          "Auto-applied freeze to save streak"
         );
       } else {
         // No freeze available - streak broken
@@ -108,27 +115,26 @@ export async function checkInAction({ userId, mood, points }: CheckInActionParam
     // Create daily check-in record
     await prisma.dailyCheckIn.create({
       data: {
-        userId,
         date: today,
         mood,
         points,
+        userId,
       },
     });
 
     // Update user streak
     await prisma.userStreak.update({
-      where: { userId },
       data: {
         currentStreak: newStreak,
-        longestStreak: newLongestStreak,
         lastCheckInDate: today,
+        longestStreak: newLongestStreak,
       },
+      where: { userId },
     });
 
     // Update user points
     const totalPoints = points + streakBonus;
     await prisma.user.update({
-      where: { id: userId },
       data: {
         points: {
           increment: totalPoints,
@@ -137,42 +143,43 @@ export async function checkInAction({ userId, mood, points }: CheckInActionParam
           increment: streakBonus,
         },
       },
+      where: { id: userId },
     });
 
     // Log the check-in
     logger.info(
       {
-        userId,
         mood,
+        newStreak,
         points,
         streakBonus,
-        totalPoints,
-        newStreak,
         timestamp: new Date().toISOString(),
+        totalPoints,
+        userId,
       },
-      'Daily check-in completed'
+      "Daily check-in completed"
     );
 
     // Revalidate dashboard to show updated data
     revalidatePath(ROUTES.DASHBOARD);
 
     return {
-      success: true,
       data: {
-        streak: newStreak,
-        pointsEarned: totalPoints,
-        streakBonus,
-        mood,
         freezeApplied,
         frozenUntil: userStreak.frozenUntil,
+        mood,
+        pointsEarned: totalPoints,
+        streak: newStreak,
+        streakBonus,
       },
+      success: true,
     };
   } catch (error) {
-    logger.error(error, 'Check-in action failed');
+    logger.error(error, "Check-in action failed");
     return {
-      success: false,
-      error: 'Failed to check in',
       data: null,
+      error: "Failed to check in",
+      success: false,
     };
   }
 }
@@ -181,9 +188,9 @@ export async function getUserStreakAction(
   params: GetStreakParams
 ): Promise<ActionResponse<StreakData>> {
   const validationResult = await action({
+    authorize: true,
     params: params,
     schema: GetStreakSchema,
-    authorize: true,
   });
 
   if (validationResult instanceof Error) {
@@ -209,23 +216,23 @@ export async function getUserStreakAction(
 
     const todayCheckIn = await prisma.dailyCheckIn.findFirst({
       where: {
-        userId,
         date: {
           gte: today,
           lt: tomorrow,
         },
+        userId,
       },
     });
 
     return {
-      success: true,
       data: {
         ...userStreak,
         hasCheckedInToday: !!todayCheckIn,
       },
+      success: true,
     };
   } catch (error) {
-    logger.error(error, 'Get user streak action failed');
+    logger.error(error, "Get user streak action failed");
 
     return handleError(error) as ErrorResponse;
   }
@@ -240,59 +247,65 @@ export async function getCheckInHistoryAction({
 }) {
   try {
     const checkIns = await prisma.dailyCheckIn.findMany({
-      where: { userId },
-      orderBy: { date: 'desc' },
+      orderBy: { date: "desc" },
       take: limit,
+      where: { userId },
     });
 
     return {
-      success: true,
       data: checkIns,
+      success: true,
     };
   } catch (error) {
-    logger.error(error, 'Get check-in history action failed');
+    logger.error(error, "Get check-in history action failed");
     return {
-      success: false,
-      error: 'Failed to get check-in history',
       data: null,
+      error: "Failed to get check-in history",
+      success: false,
     };
   }
 }
 
 function calculateStreakBonus(streak: number): number {
   const bonuses = [
-    { days: 1, bonus: 10 },
-    { days: 3, bonus: 30 },
-    { days: 7, bonus: 100 },
-    { days: 14, bonus: 250 },
-    { days: 21, bonus: 500 },
-    { days: 30, bonus: 1000 },
-    { days: 60, bonus: 2500 },
-    { days: 90, bonus: 5000 },
-    { days: 180, bonus: 10000 },
-    { days: 365, bonus: 25000 },
+    { bonus: 10, days: 1 },
+    { bonus: 30, days: 3 },
+    { bonus: 100, days: 7 },
+    { bonus: 250, days: 14 },
+    { bonus: 500, days: 21 },
+    { bonus: 1000, days: 30 },
+    { bonus: 2500, days: 60 },
+    { bonus: 5000, days: 90 },
+    { bonus: 10_000, days: 180 },
+    { bonus: 25_000, days: 365 },
   ];
 
-  const bonus = bonuses.filter((b) => streak >= b.days).sort((a, b) => b.days - a.days)[0];
+  const bonus = bonuses
+    .filter((b) => streak >= b.days)
+    .toSorted((a, b) => b.days - a.days)[0];
 
   return bonus ? bonus.bonus : 0;
 }
 
 // Freeze-related functions
-export async function getAvailableFreezesAction({ userId }: { userId: string }) {
+export async function getAvailableFreezesAction({
+  userId,
+}: {
+  userId: string;
+}) {
   try {
     const inventory = await prisma.userInventory.findMany({
-      where: {
-        userId,
-        item: {
-          type: {
-            contains: 'freeze',
-            mode: 'insensitive',
-          },
-        },
-      },
       include: {
         item: true,
+      },
+      where: {
+        item: {
+          type: {
+            contains: "freeze",
+            mode: "insensitive",
+          },
+        },
+        userId,
       },
     });
 
@@ -300,23 +313,23 @@ export async function getAvailableFreezesAction({ userId }: { userId: string }) 
     const freezes = inventory.map((inv) => {
       const match = inv.item.name.match(/(\d+)-day/);
       return {
+        duration: match ? Number.parseInt(match[1]) : 1,
         id: inv.id,
         itemId: inv.item.id,
         name: inv.item.name,
-        duration: match ? parseInt(match[1]) : 1,
       };
     });
 
     return {
-      success: true,
       data: freezes,
+      success: true,
     };
   } catch (error) {
-    logger.error(error, 'Get available freezes action failed');
+    logger.error(error, "Get available freezes action failed");
     return {
-      success: false,
-      error: 'Failed to get freezes',
       data: [],
+      error: "Failed to get freezes",
+      success: false,
     };
   }
 }
@@ -331,21 +344,21 @@ export async function activateFreezeAction({
   try {
     // Get the freeze item from inventory
     const freezeItem = await prisma.userInventory.findUnique({
-      where: { id: freezeId },
       include: { item: true },
+      where: { id: freezeId },
     });
 
     if (!freezeItem || freezeItem.userId !== userId) {
       return {
-        success: false,
-        error: 'Freeze item not found',
         data: null,
+        error: "Freeze item not found",
+        success: false,
       };
     }
 
     // Extract duration from item name
     const match = freezeItem.item.name.match(/(\d+)-day/);
-    const duration = match ? parseInt(match[1]) : 1;
+    const duration = match ? Number.parseInt(match[1], 10) : 1;
 
     // Get current user streak
     const userStreak = await prisma.userStreak.findUnique({
@@ -354,24 +367,25 @@ export async function activateFreezeAction({
 
     if (!userStreak) {
       return {
-        success: false,
-        error: 'No streak found',
         data: null,
+        error: "No streak found",
+        success: false,
       };
     }
 
     // Calculate new frozen until date
     const currentFrozenUntil = userStreak.frozenUntil || new Date();
     const newFrozenUntil = new Date(
-      Math.max(currentFrozenUntil.getTime(), new Date().getTime()) + duration * 24 * 60 * 60 * 1000
+      Math.max(currentFrozenUntil.getTime(), Date.now()) +
+        duration * 24 * 60 * 60 * 1000
     );
 
     // Update streak with new frozen date
     await prisma.userStreak.update({
-      where: { userId },
       data: {
         frozenUntil: newFrozenUntil,
       },
+      where: { userId },
     });
 
     // Remove the freeze item from inventory
@@ -382,31 +396,31 @@ export async function activateFreezeAction({
     // Log the freeze activation
     logger.info(
       {
-        userId,
-        freezeId,
         duration,
+        freezeId,
         newFrozenUntil,
         timestamp: new Date().toISOString(),
+        userId,
       },
-      'Streak freeze activated'
+      "Streak freeze activated"
     );
 
     // Revalidate dashboard
     revalidatePath(ROUTES.DASHBOARD);
 
     return {
-      success: true,
       data: {
         duration,
         frozenUntil: newFrozenUntil,
       },
+      success: true,
     };
   } catch (error) {
-    logger.error(error, 'Activate freeze action failed');
+    logger.error(error, "Activate freeze action failed");
     return {
-      success: false,
-      error: 'Failed to activate freeze',
       data: null,
+      error: "Failed to activate freeze",
+      success: false,
     };
   }
 }
@@ -424,14 +438,16 @@ export async function checkAndApplyFreezeAction({
 
     if (!freezesResult.success || freezesResult.data.length === 0) {
       return {
-        success: false,
-        error: 'No freezes available',
         data: null,
+        error: "No freezes available",
+        success: false,
       };
     }
 
     // Sort freezes by duration (use shortest first)
-    const freezes = freezesResult.data.sort((a, b) => a.duration - b.duration);
+    const freezes = freezesResult.data.toSorted(
+      (a, b) => a.duration - b.duration
+    );
 
     // Calculate how many days of freeze we need
     let daysToCover = missedDays;
@@ -451,35 +467,35 @@ export async function checkAndApplyFreezeAction({
 
     if (daysToCover > 0) {
       return {
-        success: false,
-        error: 'Not enough freeze days available',
         data: null,
+        error: "Not enough freeze days available",
+        success: false,
       };
     }
 
     // Apply all selected freezes
     let newFrozenUntil = new Date();
     for (const freezeId of usedFreezes) {
-      const result = await activateFreezeAction({ userId, freezeId });
+      const result = await activateFreezeAction({ freezeId, userId });
       if (result.success && result.data) {
         newFrozenUntil = new Date(result.data.frozenUntil);
       }
     }
 
     return {
-      success: true,
       data: {
-        frozenUntil: newFrozenUntil,
         freezesUsed: usedFreezes.length,
+        frozenUntil: newFrozenUntil,
         totalDuration,
       },
+      success: true,
     };
   } catch (error) {
-    logger.error(error, 'Check and apply freeze action failed');
+    logger.error(error, "Check and apply freeze action failed");
     return {
-      success: false,
-      error: 'Failed to apply freeze',
       data: null,
+      error: "Failed to apply freeze",
+      success: false,
     };
   }
 }

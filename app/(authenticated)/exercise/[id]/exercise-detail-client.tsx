@@ -1,25 +1,29 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Play, Clock, Target, Lock, Video } from 'lucide-react';
-import type { Exercise } from '@prisma/client';
-import { ROUTES } from '@/lib/constants/routes';
-import { EXERCISE_DIFFICULTY } from '@/lib/constants/client-enums';
-import { getDifficultyBadgeVariant, getDifficultyColor } from '@/lib/utils';
-import { canStartExercise } from '@/lib/utils/exercise-utils';
-import { ModelVideo } from '@/components/shared/model-video';
+import type { Exercise } from "@prisma/client";
+import { ArrowLeft, Play, Clock, Target, Lock, Video } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+import { ModelVideo } from "@/components/shared/model-video";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { EXERCISE_DIFFICULTY } from "@/lib/constants/client-enums";
+import { ROUTES } from "@/lib/constants/routes";
+import { getDifficultyBadgeVariant, getDifficultyColor } from "@/lib/utils";
+import { canStartExercise } from "@/lib/utils/exercise-utils";
 
 interface ExerciseDetailClientProps {
   exercise: Exercise;
   planExercises: Exercise[];
 }
 
-export function ExerciseDetailClient({ exercise, planExercises }: ExerciseDetailClientProps) {
+export function ExerciseDetailClient({
+  exercise,
+  planExercises,
+}: ExerciseDetailClientProps) {
   const router = useRouter();
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 
@@ -34,7 +38,11 @@ export function ExerciseDetailClient({ exercise, planExercises }: ExerciseDetail
     <div className="px-4 sm:px-6 py-6 max-w-[1400px] mx-auto">
       <div className="space-y-6">
         {/* Back Button */}
-        <Button variant="ghost" onClick={() => router.back()} className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          onClick={() => router.back()}
+          className="flex items-center gap-2"
+        >
           <ArrowLeft className="h-4 w-4" />
           Back to Exercises
         </Button>
@@ -61,9 +69,9 @@ export function ExerciseDetailClient({ exercise, planExercises }: ExerciseDetail
                 <div>
                   <h4 className="font-semibold mb-2">Perfect Form Guide</h4>
                   <p className="text-sm text-muted-foreground">
-                    Watch this demonstration to understand the correct form and technique for this
-                    exercise. Follow along to ensure you're performing the movements safely and
-                    effectively.
+                    Watch this demonstration to understand the correct form and
+                    technique for this exercise. Follow along to ensure you're
+                    performing the movements safely and effectively.
                   </p>
                 </div>
                 <Button
@@ -71,14 +79,17 @@ export function ExerciseDetailClient({ exercise, planExercises }: ExerciseDetail
                   variant="outline"
                   className="w-full sm:w-auto"
                 >
-                  {isVideoPlaying ? 'Pause Video' : 'Play Video'}
+                  {isVideoPlaying ? "Pause Video" : "Play Video"}
                 </Button>
                 <div className="text-sm text-muted-foreground">
-                  <p>💡 Tip: Watch the video at least once before starting the exercise.</p>
+                  <p>
+                    💡 Tip: Watch the video at least once before starting the
+                    exercise.
+                  </p>
                   {!exercise.videoUrl && (
                     <p className="mt-2 text-amber-600">
-                      ⚠️ Using demonstration video. Consider adding a specific demo video for this
-                      exercise.
+                      ⚠️ Using demonstration video. Consider adding a specific
+                      demo video for this exercise.
                     </p>
                   )}
                 </div>
@@ -107,7 +118,10 @@ export function ExerciseDetailClient({ exercise, planExercises }: ExerciseDetail
                     {exercise.difficulty.toLowerCase()}
                   </Badge>
                   {exercise.done && (
-                    <Badge variant="outline" className="text-green-600 border-green-600">
+                    <Badge
+                      variant="outline"
+                      className="text-green-600 border-green-600"
+                    >
                       Completed
                     </Badge>
                   )}
@@ -118,10 +132,13 @@ export function ExerciseDetailClient({ exercise, planExercises }: ExerciseDetail
           <CardContent className="space-y-6">
             {/* Exercise Description Placeholder */}
             <div>
-              <h3 className="text-lg font-semibold mb-2">About this exercise</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                About this exercise
+              </h3>
               <p className="text-muted-foreground">
-                This exercise is designed to improve your strength and mobility. Follow the perfect
-                form demonstration on the right side of your screen while performing the movements.
+                This exercise is designed to improve your strength and mobility.
+                Follow the perfect form demonstration on the right side of your
+                screen while performing the movements.
               </p>
             </div>
 
@@ -144,14 +161,20 @@ export function ExerciseDetailClient({ exercise, planExercises }: ExerciseDetail
             {/* Difficulty Details */}
             <div>
               <h3 className="text-lg font-semibold mb-2">Difficulty Level</h3>
-              <div className={`flex items-center gap-2 ${getDifficultyColor(exercise.difficulty)}`}>
+              <div
+                className={`flex items-center gap-2 ${getDifficultyColor(exercise.difficulty)}`}
+              >
                 <Target className="h-5 w-5" />
-                <span className="font-medium capitalize">{exercise.difficulty.toLowerCase()}</span>
+                <span className="font-medium capitalize">
+                  {exercise.difficulty.toLowerCase()}
+                </span>
                 <span className="text-sm text-muted-foreground">
-                  {exercise.difficulty === EXERCISE_DIFFICULTY.EASY && '- Great for beginners'}
+                  {exercise.difficulty === EXERCISE_DIFFICULTY.EASY &&
+                    "- Great for beginners"}
                   {exercise.difficulty === EXERCISE_DIFFICULTY.MODERATE &&
-                    '- Some experience recommended'}
-                  {exercise.difficulty === EXERCISE_DIFFICULTY.HARD && '- Challenging workout'}
+                    "- Some experience recommended"}
+                  {exercise.difficulty === EXERCISE_DIFFICULTY.HARD &&
+                    "- Challenging workout"}
                 </span>
               </div>
             </div>
@@ -159,7 +182,12 @@ export function ExerciseDetailClient({ exercise, planExercises }: ExerciseDetail
             {/* Start Exercise Button */}
             <div className="pt-4">
               {isLocked ? (
-                <Button disabled={true} size="lg" className="w-full sm:w-auto" variant="outline">
+                <Button
+                  disabled={true}
+                  size="lg"
+                  className="w-full sm:w-auto"
+                  variant="outline"
+                >
                   <Lock className="h-4 w-4 mr-2" />
                   Locked
                 </Button>
@@ -171,17 +199,19 @@ export function ExerciseDetailClient({ exercise, planExercises }: ExerciseDetail
                   className="w-full sm:w-auto"
                 >
                   <Play className="h-4 w-4 mr-2" />
-                  {exercise.done ? 'Already Completed' : 'Start Exercise'}
+                  {exercise.done ? "Already Completed" : "Start Exercise"}
                 </Button>
               )}
               {exercise.done && (
                 <p className="text-sm text-muted-foreground mt-2">
-                  You have already completed this exercise. Check your dashboard for progress.
+                  You have already completed this exercise. Check your dashboard
+                  for progress.
                 </p>
               )}
               {isLocked && (
                 <p className="text-sm text-muted-foreground mt-2">
-                  You need to complete the previous exercises in this plan before starting this one.
+                  You need to complete the previous exercises in this plan
+                  before starting this one.
                 </p>
               )}
             </div>

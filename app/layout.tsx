@@ -1,38 +1,41 @@
-import type { Metadata } from 'next';
-import { Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
-import { Toaster } from 'sonner';
-import { TooltipProvider } from '@/components/ui/tooltip';
-import { ThemeProvider } from '@/components/shared/theme/theme-provider';
-import Chatbox from '@/components/chatbox/chatbox';
+import type { Metadata } from "next";
+import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { Toaster } from "sonner";
 
-import './globals.css';
+import Chatbox from "@/components/chatbox/chatbox";
+import { ThemeProvider } from "@/components/shared/theme/theme-provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
+
+import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
-  variable: '--font-plus-jakarta-sans',
-  subsets: ['latin'],
+  subsets: ["latin"],
+  variable: "--font-plus-jakarta-sans",
 });
 
 const jetBrainsMono = JetBrains_Mono({
-  variable: '--font-jetbrains-mono',
-  subsets: ['latin'],
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
 });
 
 export const metadata: Metadata = {
-  title: 'DisKnee - Virtual Physiotherapy Assistant',
-  description: 'AI-powered physiotherapy for knee rehabilitation',
+  description: "AI-powered physiotherapy for knee rehabilitation",
   icons: {
-    icon: '/logo.png',
+    icon: "/logo.png",
   },
+  title: "DisKnee - Virtual Physiotherapy Assistant",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${plusJakartaSans.variable} ${jetBrainsMono.variable} antialiased`}>
+      <body
+        className={`${plusJakartaSans.variable} ${jetBrainsMono.variable} antialiased`}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -41,7 +44,12 @@ export default async function RootLayout({
         >
           <TooltipProvider>{children}</TooltipProvider>
         </ThemeProvider>
-        <Toaster position="top-right" visibleToasts={5} richColors closeButton />
+        <Toaster
+          position="top-right"
+          visibleToasts={5}
+          richColors
+          closeButton
+        />
         <Chatbox />
       </body>
     </html>

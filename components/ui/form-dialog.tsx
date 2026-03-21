@@ -1,6 +1,8 @@
-'use client';
+"use client";
 
-import { ReactNode } from 'react';
+import type { ReactNode } from "react";
+
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -8,8 +10,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/dialog";
 
 interface FormDialogProps {
   isOpen: boolean;
@@ -34,8 +35,8 @@ export function FormDialog({
   children,
   onSubmit,
   onSkip,
-  submitText = 'Submit',
-  skipText = 'Skip',
+  submitText = "Submit",
+  skipText = "Skip",
   isSubmitting = false,
   canSubmit = true,
   showSkip = true,
@@ -46,7 +47,9 @@ export function FormDialog({
     <Dialog open={isOpen}>
       <DialogContent
         className={className}
-        onPointerDownOutside={preventClose ? (e) => e.preventDefault() : undefined}
+        onPointerDownOutside={
+          preventClose ? (e) => e.preventDefault() : undefined
+        }
       >
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
@@ -73,7 +76,7 @@ export function FormDialog({
             className="w-full sm:w-auto"
             disabled={!canSubmit || isSubmitting}
           >
-            {isSubmitting ? 'Submitting...' : submitText}
+            {isSubmitting ? "Submitting..." : submitText}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,9 +1,11 @@
-import { getLeaderboardAction } from '@/lib/actions/leaderboard';
-import { LeaderboardClient } from './leaderboard-client';
-import { notFound, redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
-import { ROUTES } from '@/lib/constants/routes';
+import { headers } from "next/headers";
+import { notFound, redirect } from "next/navigation";
+
+import { getLeaderboardAction } from "@/lib/actions/leaderboard";
+import { auth } from "@/lib/auth";
+import { ROUTES } from "@/lib/constants/routes";
+
+import { LeaderboardClient } from "./leaderboard-client";
 
 export default async function LeaderboardPage() {
   const session = await auth.api.getSession({
@@ -17,9 +19,9 @@ export default async function LeaderboardPage() {
   const leaderboardResponse = await getLeaderboardAction({
     limit: 50,
     offset: 0,
-    sortBy: 'rank',
-    sortOrder: 'asc',
-    rankingType: 'score',
+    rankingType: "score",
+    sortBy: "rank",
+    sortOrder: "asc",
   });
 
   if (!leaderboardResponse.success || !leaderboardResponse.data) {

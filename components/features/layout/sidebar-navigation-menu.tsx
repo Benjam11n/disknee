@@ -1,19 +1,24 @@
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import { NavigationItem } from '@/lib/constants/sidebar-navigation';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+import {
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import type { NavigationItem } from "@/lib/constants/sidebar-navigation";
+import { cn } from "@/lib/utils";
 
 interface SidebarNavigationMenuProps {
   items: NavigationItem[];
   title: string;
-  itemHeight?: 'h-9' | 'h-10';
+  itemHeight?: "h-9" | "h-10";
 }
 
 export function SidebarNavigationMenu({
   items,
   title,
-  itemHeight = 'h-10',
+  itemHeight = "h-10",
 }: SidebarNavigationMenuProps) {
   const pathname = usePathname();
 
@@ -31,14 +36,18 @@ export function SidebarNavigationMenu({
                 asChild
                 className={cn(
                   `${itemHeight} rounded-lg px-3 text-sm font-medium transition-all duration-200`,
-                  'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-                  'focus-visible:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-sidebar-ring',
-                  isActive && 'bg-primary text-primary-foreground shadow-xs hover:bg-primary/90'
+                  "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                  "focus-visible:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-sidebar-ring",
+                  isActive &&
+                    "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90"
                 )}
               >
                 <Link href={item.href}>
                   <item.icon
-                    className={cn('h-4 w-4 shrink-0', isActive && 'text-primary-foreground')}
+                    className={cn(
+                      "h-4 w-4 shrink-0",
+                      isActive && "text-primary-foreground"
+                    )}
                   />
                   <div className="flex-1 text-left">
                     <span>{item.name}</span>

@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import type { Prisma } from "@prisma/client";
 
 export type InventoryWithItem = Prisma.UserInventoryGetPayload<{
   include: { item: true };
@@ -18,9 +18,7 @@ export interface PoseResult {
   };
   exercise_id?: string;
   feedback?: string;
-  angles?: {
-    [key: string]: number | null;
-  };
+  angles?: Record<string, number | null>;
   rep_completed?: boolean;
   avg_visibility?: number;
   pose_stable?: boolean;

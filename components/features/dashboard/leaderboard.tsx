@@ -1,19 +1,26 @@
-'use client';
+"use client";
 
-import { Separator } from '@/components/ui/separator';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Info } from 'lucide-react';
-import { LeaderboardItem } from './leaderboard-item';
-import type { leaderboardByScore } from '@prisma/client';
+import type { leaderboardByScore } from "@prisma/client";
+import { Info } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+import { LeaderboardItem } from "./leaderboard-item";
 
 interface LeaderboardProps {
   leaderboard: leaderboardByScore[];
   patientName: string;
   showAll?: boolean;
   maxItems?: number;
-  rankingType?: 'score' | 'accuracy';
-  onRankingTypeChange?: (type: 'score' | 'accuracy') => void;
+  rankingType?: "score" | "accuracy";
+  onRankingTypeChange?: (type: "score" | "accuracy") => void;
 }
 
 export function Leaderboard({
@@ -21,20 +28,23 @@ export function Leaderboard({
   patientName,
   showAll = false,
   maxItems = 5,
-  rankingType = 'score',
+  rankingType = "score",
   onRankingTypeChange,
 }: LeaderboardProps) {
-  const sortedLeaderboard = [...leaderboard].sort((a, b) => {
-    if (rankingType === 'accuracy') {
+  const sortedLeaderboard = [...leaderboard].toSorted((a, b) => {
+    if (rankingType === "accuracy") {
       return b.accuracypercentage - a.accuracypercentage || a.rank - b.rank;
     }
     return b.score - a.score || a.rank - b.rank;
   });
 
   const topEntries = sortedLeaderboard.slice(0, maxItems);
-  const currentUserRank = sortedLeaderboard.findIndex((row) => row.name === patientName);
-  const currentUserData = currentUserRank >= 0 ? sortedLeaderboard[currentUserRank] : null;
-  const isUserInTop = currentUserRank >= 0 && currentUserRank < maxItems;
+  const currentUserRank = sortedLeaderboard.findIndex(
+    (row) => row.name === patientName
+  );
+  const currentUserData =
+    currentUserRank !== -1 ? sortedLeaderboard[currentUserRank] : null;
+  const isUserInTop = currentUserRank !== -1 && currentUserRank < maxItems;
 
   return (
     <TooltipProvider>
@@ -42,15 +52,18 @@ export function Leaderboard({
         <div>
           <div className="flex items-center gap-2 mb-3">
             <p className="text-sm text-muted-foreground">
-              Top performers by {rankingType === 'accuracy' ? 'accuracy' : 'score'}
+              Top performers by{" "}
+              {rankingType === "accuracy" ? "accuracy" : "score"}
             </p>
-            {rankingType === 'score' && (
+            {rankingType === "score" && (
               <Tooltip>
                 <TooltipTrigger>
                   <Info className="h-3 w-3 text-muted-foreground" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p className="text-sm">Score = (Accuracy × 100) + 20 bonus for reflection</p>
+                  <p className="text-sm">
+                    Score = (Accuracy × 100) + 20 bonus for reflection
+                  </p>
                 </TooltipContent>
               </Tooltip>
             )}
@@ -58,16 +71,18 @@ export function Leaderboard({
           {onRankingTypeChange && (
             <div className="flex gap-2">
               <Button
-                variant={rankingType === 'score' ? 'default' : 'outline-solid'}
+                variant={rankingType === "score" ? "default" : "outline-solid"}
                 size="sm"
-                onClick={() => onRankingTypeChange('score')}
+                onClick={() => onRankingTypeChange("score")}
               >
                 Score
               </Button>
               <Button
-                variant={rankingType === 'accuracy' ? 'default' : 'outline-solid'}
+                variant={
+                  rankingType === "accuracy" ? "default" : "outline-solid"
+                }
                 size="sm"
-                onClick={() => onRankingTypeChange('accuracy')}
+                onClick={() => onRankingTypeChange("accuracy")}
               >
                 Accuracy
               </Button>
@@ -148,8 +163,8 @@ export function Leaderboard({
             <Separator />
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
-                Showing {Math.min(maxItems, sortedLeaderboard.length)} of {sortedLeaderboard.length}{' '}
-                total
+                Showing {Math.min(maxItems, sortedLeaderboard.length)} of{" "}
+                {sortedLeaderboard.length} total
               </p>
             </div>
           </>
@@ -159,6 +174,9 @@ export function Leaderboard({
   );
 }
 
-function isLeaderboardMe(row: leaderboardByScore, patientName: string): boolean {
+function isLeaderboardMe(
+  row: leaderboardByScore,
+  patientName: string
+): boolean {
   return row?.name === patientName;
 }

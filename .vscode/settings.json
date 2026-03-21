@@ -5,7 +5,7 @@
   "emmet.showExpandedAbbreviation": "never",
   "oxc.configPath": ".oxlintrc.json",
   "oxc.enable": true,
-  "oxc.fmt.configPath": ".oxfmtrc.jsonc",
+  "oxc.fmt.configPath": ".oxfmtrc.json",
   "typescript.tsdk": "node_modules/typescript/lib",
   "[css]": {
     "editor.defaultFormatter": "oxc.oxc-vscode"

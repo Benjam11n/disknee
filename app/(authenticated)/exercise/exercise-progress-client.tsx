@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { ExerciseProgress } from '@/components/features/dashboard/exercise-progress';
-import type { Exercise } from '@prisma/client';
-import { ROUTES } from '@/lib/constants/routes';
+import type { Exercise } from "@prisma/client";
+import { useRouter } from "next/navigation";
+
+import { ExerciseProgress } from "@/components/features/dashboard/exercise-progress";
+import { ROUTES } from "@/lib/constants/routes";
 
 interface ExerciseProgressClientProps {
   exercises: Exercise[];

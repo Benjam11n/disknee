@@ -1,14 +1,23 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import type { ShopItem } from '@prisma/client';
-import { Coins, Check, ShoppingBag, Sparkles, Lock, Star, Eye } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useRouter } from 'next/navigation';
-import { ROUTES } from '@/lib/constants/routes';
-import { getRarity } from '@/lib/utils/shop-utils';
+import type { ShopItem } from "@prisma/client";
+import {
+  Coins,
+  Check,
+  ShoppingBag,
+  Sparkles,
+  Lock,
+  Star,
+  Eye,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { ROUTES } from "@/lib/constants/routes";
+import { cn } from "@/lib/utils";
+import { getRarity } from "@/lib/utils/shop-utils";
 
 interface ShopItemCardProps {
   item: ShopItem;
@@ -32,8 +41,10 @@ export function ShopItemCard({
   const router = useRouter();
   const canAfford = userPoints >= item.price;
   const rarity = getRarity(item.price);
-  const isNew = Date.now() - new Date(item.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
-  const canTryOn = (item.type === 'HAT' || item.type === 'ACCESSORY') && !isOwned;
+  const isNew =
+    Date.now() - new Date(item.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
+  const canTryOn =
+    (item.type === "HAT" || item.type === "ACCESSORY") && !isOwned;
 
   const handleTryOn = () => {
     router.push(
@@ -44,11 +55,11 @@ export function ShopItemCard({
   return (
     <Card
       className={cn(
-        'group relative overflow-hidden transition-all duration-200 hover:shadow-md border-border',
-        'bg-card flex flex-col',
-        isOwned && 'ring-1 ring-primary/30',
-        isEquipped && 'bg-primary/5',
-        !canAfford && !isOwned && 'opacity-80'
+        "group relative overflow-hidden transition-all duration-200 hover:shadow-md border-border",
+        "bg-card flex flex-col",
+        isOwned && "ring-1 ring-primary/30",
+        isEquipped && "bg-primary/5",
+        !canAfford && !isOwned && "opacity-80"
       )}
     >
       {/* Top badges & Rarity */}
@@ -82,22 +93,32 @@ export function ShopItemCard({
           </div>
         </div>
 
-        <h3 className="font-bold text-base leading-tight truncate px-2" title={item.name}>
+        <h3
+          className="font-bold text-base leading-tight truncate px-2"
+          title={item.name}
+        >
           {item.name}
         </h3>
         {item.description && (
-          <p className="text-xs text-muted-foreground line-clamp-1 px-4">{item.description}</p>
+          <p className="text-xs text-muted-foreground line-clamp-1 px-4">
+            {item.description}
+          </p>
         )}
       </CardHeader>
 
       <CardContent className="space-y-4 pt-1 flex-1 flex flex-col justify-end">
         {/* Price section */}
         <div className="flex items-center justify-center space-x-1.5 pb-2 border-b border-border/40">
-          <Coins className={cn('h-4 w-4', canAfford ? 'text-primary' : 'text-muted-foreground')} />
+          <Coins
+            className={cn(
+              "h-4 w-4",
+              canAfford ? "text-primary" : "text-muted-foreground"
+            )}
+          />
           <span
             className={cn(
-              'font-semibold text-lg leading-none',
-              canAfford ? 'text-foreground' : 'text-muted-foreground'
+              "font-semibold text-lg leading-none",
+              canAfford ? "text-foreground" : "text-muted-foreground"
             )}
           >
             {item.price}
@@ -109,7 +130,7 @@ export function ShopItemCard({
           {isOwned ? (
             <Button
               onClick={onEquip}
-              variant={isEquipped ? 'outline-solid' : 'default'}
+              variant={isEquipped ? "outline-solid" : "default"}
               size="sm"
               className="w-full text-xs h-8"
             >
@@ -131,7 +152,7 @@ export function ShopItemCard({
               className="w-full text-xs h-8"
             >
               {isPurchasing ? (
-                'Purchasing...'
+                "Purchasing..."
               ) : (
                 <>
                   <ShoppingBag className="h-3.5 w-3.5 mr-1" /> Buy
@@ -139,7 +160,12 @@ export function ShopItemCard({
               )}
             </Button>
           ) : (
-            <Button disabled variant="outline" size="sm" className="w-full text-xs h-8">
+            <Button
+              disabled
+              variant="outline"
+              size="sm"
+              className="w-full text-xs h-8"
+            >
               <Lock className="h-3.5 w-3.5 mr-1" /> Locked
             </Button>
           )}

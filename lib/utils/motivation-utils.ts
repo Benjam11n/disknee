@@ -3,14 +3,14 @@
  */
 
 const MOTIVATIONAL_QUOTES = [
-  'Every step forward is progress, no matter how small.',
+  "Every step forward is progress, no matter how small.",
   "You're stronger than you think. Keep going!",
-  'Consistency is the key to success.',
-  'Your body thanks you for taking care of it.',
+  "Consistency is the key to success.",
+  "Your body thanks you for taking care of it.",
   "Today's effort is tomorrow's strength.",
-  'Trust the process and celebrate small wins.',
+  "Trust the process and celebrate small wins.",
   "You're building a healthier future, one day at a time.",
-  'Progress, not perfection, is the goal.',
+  "Progress, not perfection, is the goal.",
 ] as const;
 
 /**
@@ -19,12 +19,12 @@ const MOTIVATIONAL_QUOTES = [
 export function getGreeting(): string {
   const hour = new Date().getHours();
   if (hour < 12) {
-    return 'Good morning';
+    return "Good morning";
   }
   if (hour < 17) {
-    return 'Good afternoon';
+    return "Good afternoon";
   }
-  return 'Good evening';
+  return "Good evening";
 }
 
 /**
@@ -33,7 +33,11 @@ export function getGreeting(): string {
 export function getDailyQuote(): string {
   const today = new Date();
   const dayOfYear = Math.floor(
-    (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 1000 / 60 / 60 / 24
+    (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) /
+      1000 /
+      60 /
+      60 /
+      24
   );
   return MOTIVATIONAL_QUOTES[dayOfYear % MOTIVATIONAL_QUOTES.length];
 }
@@ -43,18 +47,18 @@ export function getDailyQuote(): string {
  */
 export function getExerciseMotivation(completionPercentage: number): string {
   if (completionPercentage === 100) {
-    return '🎉 Perfect week! All exercises completed!';
+    return "Perfect week! All exercises completed!";
   }
   if (completionPercentage >= 80) {
-    return "💪 Almost there! You're doing amazing!";
+    return "Almost there! You're doing amazing!";
   }
   if (completionPercentage >= 50) {
-    return '⚡ Great progress! Keep pushing forward!';
+    return "Great progress! Keep pushing forward!";
   }
   if (completionPercentage >= 25) {
-    return "🌟 Good start! You've got this!";
+    return "Good start! You've got this!";
   }
-  return "🚀 Ready to begin? Let's tackle today's exercises!";
+  return "Ready to begin? Let's tackle today's exercises!";
 }
 
 /**
@@ -62,19 +66,19 @@ export function getExerciseMotivation(completionPercentage: number): string {
  */
 export function getStreakMotivation(streakCount: number): string {
   if (streakCount >= 30) {
-    return "Incredible consistency! You're a champion! 🏆";
+    return "Incredible consistency! You're a champion!";
   }
   if (streakCount >= 14) {
-    return 'Amazing dedication! Keep it up! 💪';
+    return "Amazing dedication! Keep it up!";
   }
   if (streakCount >= 7) {
-    return "One week strong! You're on fire! 🔥";
+    return "One week strong! You're on fire!";
   }
   if (streakCount >= 3) {
-    return "Great start! You're building momentum! ⚡";
+    return "Great start! You're building momentum!";
   }
   if (streakCount >= 1) {
-    return "Welcome back! Let's make today count! 🌟";
+    return "Welcome back! Let's make today count!";
   }
-  return "Ready to start your journey? Let's go! 🚀";
+  return "Ready to start your journey? Let's go!";
 }

@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface ProgressSummaryProps {
   overallTarget: number;
@@ -33,7 +33,9 @@ export function ProgressSummary({
             <div className="text-sm text-muted-foreground">Weeks</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-primary">#{patientRank}</div>
+            <div className="text-2xl font-bold text-primary">
+              #{patientRank}
+            </div>
             <div className="text-sm text-muted-foreground">Rank</div>
           </div>
         </div>

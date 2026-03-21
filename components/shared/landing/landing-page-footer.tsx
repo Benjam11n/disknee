@@ -1,4 +1,4 @@
-import { Logo } from '@/components/shared/logo';
+import { Logo } from "@/components/shared/logo";
 
 /**
  * Landing page footer component.

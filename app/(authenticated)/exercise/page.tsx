@@ -1,13 +1,15 @@
-import { getExercisesAction } from '@/lib/actions/exercises';
-import { getPlansAction } from '@/lib/actions/plans';
-import { auth } from '@/lib/auth';
-import { ExerciseProgressClient } from './exercise-progress-client';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { headers } from 'next/headers';
-import { List } from 'lucide-react';
-import { ROUTES } from '@/lib/constants/routes';
+import { List } from "lucide-react";
+import { headers } from "next/headers";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+
+import { Button } from "@/components/ui/button";
+import { getExercisesAction } from "@/lib/actions/exercises";
+import { getPlansAction } from "@/lib/actions/plans";
+import { auth } from "@/lib/auth";
+import { ROUTES } from "@/lib/constants/routes";
+
+import { ExerciseProgressClient } from "./exercise-progress-client";
 
 export default async function ExercisePage() {
   const session = await auth.api.getSession({
@@ -24,9 +26,9 @@ export default async function ExercisePage() {
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
   const plansResponse = await getPlansAction({
+    include: { exercises: true },
     limit: 100,
     offset: 0,
-    include: { exercises: true },
   });
 
   if (!plansResponse.success || !plansResponse.data) {
@@ -41,7 +43,7 @@ export default async function ExercisePage() {
 
   // Fetch exercises for the filtered plans (same as dashboard)
   const exercisesPromises = plans.map((plan) =>
-    getExercisesAction({ planId: plan.id, page: 1, limit: 100 })
+    getExercisesAction({ limit: 100, page: 1, planId: plan.id })
   );
 
   const exercisesResponses = await Promise.all(exercisesPromises);
@@ -49,11 +51,12 @@ export default async function ExercisePage() {
   // Combine all exercises from all plans (same as dashboard)
   const weeklyExercises = exercisesResponses
     .flatMap((response) => (response.success ? response.data || [] : []))
-    .sort((a, b) => a.sequence - b.sequence);
+    .toSorted((a, b) => a.sequence - b.sequence);
 
-  const weeklyTotalMins = weeklyExercises.reduce((total, exercise) => {
-    return total + (exercise.estimatedMins || 0);
-  }, 0);
+  const weeklyTotalMins = weeklyExercises.reduce(
+    (total, exercise) => total + (exercise.estimatedMins || 0),
+    0
+  );
 
   // Calculate weeklyTarget the same way as dashboard (from useDashboardCalculations hook)
   const list = Array.isArray(weeklyExercises) ? weeklyExercises : [];
@@ -67,7 +70,9 @@ export default async function ExercisePage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Monthly Exercises</h1>
-            <p className="text-muted-foreground">Your exercises for this month</p>
+            <p className="text-muted-foreground">
+              Your exercises for this month
+            </p>
           </div>
           <Link href={ROUTES.EXERCISES_ALL}>
             <Button variant="outline">

@@ -1,32 +1,37 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
-import { Leaderboard } from '@/components/features/dashboard/leaderboard';
-import { getLeaderboardAction } from '@/lib/actions/leaderboard';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import type { leaderboardByScore } from '@prisma/client';
-import { logger } from '@/lib/logger';
+import type { leaderboardByScore } from "@prisma/client";
+import { useState, useCallback } from "react";
+
+import { Leaderboard } from "@/components/features/dashboard/leaderboard";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getLeaderboardAction } from "@/lib/actions/leaderboard";
+import { logger } from "@/lib/logger";
 
 interface LeaderboardClientProps {
   initialLeaderboard: leaderboardByScore[];
   patientName: string;
 }
 
-export function LeaderboardClient({ initialLeaderboard, patientName }: LeaderboardClientProps) {
-  const [leaderboardData, setLeaderboardData] = useState<leaderboardByScore[]>(initialLeaderboard);
-  const [rankingType, setRankingType] = useState<'score' | 'accuracy'>('score');
+export function LeaderboardClient({
+  initialLeaderboard,
+  patientName,
+}: LeaderboardClientProps) {
+  const [leaderboardData, setLeaderboardData] =
+    useState<leaderboardByScore[]>(initialLeaderboard);
+  const [rankingType, setRankingType] = useState<"score" | "accuracy">("score");
   const [loading, setLoading] = useState(false);
 
-  const fetchLeaderboard = useCallback(async (type: 'score' | 'accuracy') => {
+  const fetchLeaderboard = useCallback(async (type: "score" | "accuracy") => {
     setLoading(true);
     try {
       const leaderboardResponse = await getLeaderboardAction({
         limit: 50,
         offset: 0,
-        sortBy: 'rank',
-        sortOrder: 'asc',
         rankingType: type,
+        sortBy: "rank",
+        sortOrder: "asc",
       });
 
       if (!leaderboardResponse.success || !leaderboardResponse.data) {
@@ -34,10 +39,12 @@ export function LeaderboardClient({ initialLeaderboard, patientName }: Leaderboa
         return;
       }
 
-      const formattedData = Array.isArray(leaderboardResponse.data) ? leaderboardResponse.data : [];
+      const formattedData = Array.isArray(leaderboardResponse.data)
+        ? leaderboardResponse.data
+        : [];
       setLeaderboardData(formattedData);
     } catch (error) {
-      logger.error(error, 'Failed to fetch leaderboard:');
+      logger.error(error, "Failed to fetch leaderboard:");
       setLeaderboardData([]);
     } finally {
       setLoading(false);
@@ -45,7 +52,7 @@ export function LeaderboardClient({ initialLeaderboard, patientName }: Leaderboa
   }, []);
 
   const handleRankingTypeChange = useCallback(
-    (type: 'score' | 'accuracy') => {
+    (type: "score" | "accuracy") => {
       setRankingType(type);
       fetchLeaderboard(type);
     },

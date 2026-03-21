@@ -1,6 +1,7 @@
-import { Card } from '@/components/ui/card';
-import { Target, Sparkles, TrendingUp } from 'lucide-react';
-import { getGreeting, getDailyQuote } from '@/lib/utils/motivation-utils';
+import { Target, Sparkles, TrendingUp } from "lucide-react";
+
+import { Card } from "@/components/ui/card";
+import { getGreeting, getDailyQuote } from "@/lib/utils/motivation-utils";
 
 interface HeroSectionProps {
   patientName: string;
@@ -23,7 +24,9 @@ export function HeroSection({
           <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground">
             {getGreeting()}, <span className="text-primary">{patientName}</span>
           </h1>
-          <p className="text-muted-foreground mt-2 text-sm sm:text-base">{getDailyQuote()}</p>
+          <p className="text-muted-foreground mt-2 text-sm sm:text-base">
+            {getDailyQuote()}
+          </p>
         </div>
 
         {/* KPI Pills */}
@@ -34,7 +37,9 @@ export function HeroSection({
                 <Sparkles className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <div className="text-xl font-bold leading-none tracking-tight">{streakCount}</div>
+                <div className="text-xl font-bold leading-none tracking-tight">
+                  {streakCount}
+                </div>
                 <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider mt-1">
                   Streak
                 </div>
@@ -46,7 +51,9 @@ export function HeroSection({
               <Target className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <div className="text-xl font-bold leading-none tracking-tight">{userPoints}</div>
+              <div className="text-xl font-bold leading-none tracking-tight">
+                {userPoints}
+              </div>
               <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider mt-1">
                 Points
               </div>

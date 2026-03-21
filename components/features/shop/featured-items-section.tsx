@@ -1,6 +1,7 @@
-import { ShopItemCard } from '@/components/features/shop/shop-item-card';
-import { UserInventory, ShopItem } from '@prisma/client';
-import { Trophy } from 'lucide-react';
+import type { UserInventory, ShopItem } from "@prisma/client";
+import { Trophy } from "lucide-react";
+
+import { ShopItemCard } from "@/components/features/shop/shop-item-card";
 
 interface FeaturedItemsSectionProps {
   featuredItems: ShopItem[];
@@ -31,7 +32,9 @@ export function FeaturedItemsSection({
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {featuredItems.map((item) => {
-          const inventoryItem = userInventory.find((inv) => inv.itemId === item.id);
+          const inventoryItem = userInventory.find(
+            (inv) => inv.itemId === item.id
+          );
           const isOwned = !!inventoryItem;
           const isEquipped = inventoryItem?.isEquipped || false;
 

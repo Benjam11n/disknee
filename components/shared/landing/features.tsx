@@ -1,43 +1,57 @@
-import { Target, Calendar, TrendingUp, Users, Shield, Award } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import {
+  Target,
+  Calendar,
+  TrendingUp,
+  Users,
+  Shield,
+  Award,
+} from "lucide-react";
+
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 
 export function Features() {
   const features = [
     {
+      description:
+        "Advanced pose detection monitors your form instantly, correcting unsafe movements to prevent injury.",
       icon: Target,
-      title: 'Real-time Tracking',
-      description:
-        'Advanced pose detection monitors your form instantly, correcting unsafe movements to prevent injury.',
+      title: "Real-time Tracking",
     },
     {
+      description:
+        "Your recovery protocol evolves daily based on your completion rates and form accuracy.",
       icon: Calendar,
-      title: 'Adaptive Programs',
-      description:
-        'Your recovery protocol evolves daily based on your completion rates and form accuracy.',
+      title: "Adaptive Programs",
     },
     {
+      description:
+        "Visualize your joint mobility and strength improvements through detailed, easy-to-read charts.",
       icon: TrendingUp,
-      title: 'Deep Analytics',
-      description:
-        'Visualize your joint mobility and strength improvements through detailed, easy-to-read charts.',
+      title: "Deep Analytics",
     },
     {
+      description:
+        "Share access directly with your physical therapist for remote monitoring and routine adjustments.",
       icon: Users,
-      title: 'Provider Clinics',
-      description:
-        'Share access directly with your physical therapist for remote monitoring and routine adjustments.',
+      title: "Provider Clinics",
     },
     {
+      description:
+        "Bank-grade encryption ensures your health data remains completely private and secure.",
       icon: Shield,
-      title: 'HIPAA Compliant',
-      description:
-        'Bank-grade encryption ensures your health data remains completely private and secure.',
+      title: "HIPAA Compliant",
     },
     {
-      icon: Award,
-      title: 'Milestone Tracking',
       description:
-        'Stay committed with progress markers that celebrate your major recovery milestones.',
+        "Stay committed with progress markers that celebrate your major recovery milestones.",
+      icon: Award,
+      title: "Milestone Tracking",
     },
   ];
 
@@ -48,8 +62,8 @@ export function Features() {
           Everything you need to recover.
         </h2>
         <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
-          We combine computer vision with clinical best practices to deliver a complete physical
-          therapy experience in your living room.
+          We combine computer vision with clinical best practices to deliver a
+          complete physical therapy experience in your living room.
         </p>
       </div>
 

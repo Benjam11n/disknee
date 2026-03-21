@@ -300,8 +300,8 @@ ctx.scale(-1, 1);
 ctx.drawImage(videoElement, -targetWidth, 0, targetWidth, targetHeight);
 
 // Compress to JPEG (70% quality)
-const imageData = canvas.toDataURL('image/jpeg', 0.7);
-const base64Data = imageData.split(',')[1];
+const imageData = canvas.toDataURL("image/jpeg", 0.7);
+const base64Data = imageData.split(",")[1];
 ```
 
 ### WebSocket Transmission

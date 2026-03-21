@@ -2,16 +2,16 @@
  * WebSocket client for pose detection backend communication
  */
 
-import { logger } from './logger';
+import { logger } from "./logger";
 
 interface PoseResult {
   pose_detected: boolean;
-  landmarks?: Array<{
+  landmarks?: {
     x: number;
     y: number;
     z: number;
     visibility: number;
-  }>;
+  }[];
   fps?: number;
   exercise_state: {
     reps: number;
@@ -59,7 +59,7 @@ export class PoseSocketClient {
       }
 
       this.isConnecting = true;
-      const wsUrl = `${this.options.baseUrl.replace('http', 'ws')}/ws/${this.options.exerciseId}`;
+      const wsUrl = `${this.options.baseUrl.replace("http", "ws")}/ws/${this.options.exerciseId}`;
 
       try {
         this.ws = new WebSocket(wsUrl);
@@ -84,7 +84,10 @@ export class PoseSocketClient {
           this.options.onConnectionChange?.(false);
 
           // Attempt to reconnect
-          if (this.reconnectAttempts < this.maxReconnectAttempts && !event.wasClean) {
+          if (
+            this.reconnectAttempts < this.maxReconnectAttempts &&
+            !event.wasClean
+          ) {
             setTimeout(() => {
               this.reconnectAttempts++;
               // console.log(`Reconnecting... Attempt ${this.reconnectAttempts}`);
@@ -94,22 +97,22 @@ export class PoseSocketClient {
         };
 
         this.ws.onerror = (error) => {
-          logger.error(error, 'WebSocket error:');
+          logger.error(error, "WebSocket error:");
           this.isConnecting = false;
-          this.options.onError?.(new Error('WebSocket connection error'));
+          this.options.onError?.(new Error("WebSocket connection error"));
           reject(error);
         };
 
         this.ws.onmessage = (event) => {
           try {
             const message = JSON.parse(event.data);
-            if (message.type === 'pose_result') {
+            if (message.type === "pose_result") {
               this.options.onPoseResult?.(message.data);
-            } else if (message.type === 'error') {
+            } else if (message.type === "error") {
               this.options.onError?.(new Error(message.message));
             }
           } catch (error) {
-            logger.error(error, 'Error parsing WebSocket message:');
+            logger.error(error, "Error parsing WebSocket message:");
           }
         };
       } catch (error) {
@@ -124,7 +127,11 @@ export class PoseSocketClient {
    * @param videoElement - HTML video element to capture frame from
    */
   sendFrame(videoElement: HTMLVideoElement): void {
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN || !this.isConnected) {
+    if (
+      !this.ws ||
+      this.ws.readyState !== WebSocket.OPEN ||
+      !this.isConnected
+    ) {
       return;
     }
 
@@ -142,8 +149,8 @@ export class PoseSocketClient {
 
     try {
       // Create canvas to capture frame
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
       if (!ctx) {
         return;
       }
@@ -162,23 +169,23 @@ export class PoseSocketClient {
 
       // Get image data as base64
       const quality = this.options.quality || 0.7;
-      const imageData = canvas.toDataURL('image/jpeg', quality);
+      const imageData = canvas.toDataURL("image/jpeg", quality);
 
       // Remove data URL prefix
-      const base64Data = imageData.split(',')[1];
+      const base64Data = imageData.split(",")[1];
 
       // Check if WebSocket is still open before sending
       if (this.ws.readyState === WebSocket.OPEN) {
         this.ws.send(
           JSON.stringify({
-            type: 'frame',
             data: base64Data,
             timestamp: performance.now(),
+            type: "frame",
           })
         );
       }
     } catch (error) {
-      logger.error(error, 'Error sending frame:');
+      logger.error(error, "Error sending frame:");
     }
   }
 
@@ -189,8 +196,8 @@ export class PoseSocketClient {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(
         JSON.stringify({
-          type: 'reset',
           timestamp: performance.now(),
+          type: "reset",
         })
       );
     }

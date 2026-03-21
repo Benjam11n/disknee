@@ -1,62 +1,64 @@
-'use server';
+"use server";
 
-import { prisma } from '@/lib/prisma';
-import { action } from '@/lib/handlers/action';
-import { handleError } from '@/lib/handlers/error';
+import type { Exercise } from "@prisma/client";
+
+import { action } from "@/lib/handlers/action";
+import { handleError } from "@/lib/handlers/error";
+import { NotFoundError } from "@/lib/http-errors";
+import { prisma } from "@/lib/prisma";
+import type {
+  CreateExerciseParams,
+  GetExerciseByIdParams,
+  GetExercisesParams,
+  UpdateExerciseDoneParams,
+} from "@/lib/types/exercises";
 import {
   CreateExerciseSchema,
   GetExercisesSchema,
   GetExerciseByIdSchema,
   UpdateExerciseDoneSchema,
-} from '@/lib/validations/exercise-validations';
-import {
-  CreateExerciseParams,
-  GetExerciseByIdParams,
-  GetExercisesParams,
-  UpdateExerciseDoneParams,
-} from '@/lib/types/exercises';
-import { Exercise } from '@prisma/client';
-import { NotFoundError } from '@/lib/http-errors';
+} from "@/lib/validations/exercise-validations";
 
 export async function createExerciseAction(
   params: CreateExerciseParams
 ): Promise<ActionResponse<Exercise>> {
   const validationResult = await action({
+    authorize: true,
     params: params,
     schema: CreateExerciseSchema,
-    authorize: true,
   });
 
   if (validationResult instanceof Error) {
     return handleError(validationResult) as ErrorResponse;
   }
 
-  const { title, estimatedMins, difficulty, done, planId } = validationResult.params!;
+  const { title, estimatedMins, difficulty, done, planId } =
+    validationResult.params!;
 
   try {
     const lastExercise = await prisma.exercise.findFirst({
+      orderBy: { sequence: "desc" },
       where: { planId },
-      orderBy: { sequence: 'desc' },
     });
 
     const nextSequence = lastExercise ? lastExercise.sequence + 1 : 1;
 
     const exercise = await prisma.exercise.create({
       data: {
-        title,
-        estimatedMins,
         difficulty,
         done: done || false,
-        sequence: nextSequence,
+        estimatedMins,
         planId: planId,
+        sequence: nextSequence,
+        title,
       },
     });
 
     if (!exercise) {
-      throw new NotFoundError('Exercise not created');
+      throw new NotFoundError("Exercise not created");
     }
 
-    return { success: true, data: exercise };
+    return { data: exercise, success: true };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
@@ -66,9 +68,9 @@ export async function getExercisesAction(
   params: GetExercisesParams
 ): Promise<ActionResponse<Exercise[]>> {
   const validationResult = await action({
+    authorize: true,
     params: params,
     schema: GetExercisesSchema,
-    authorize: true,
   });
 
   if (validationResult instanceof Error) {
@@ -86,13 +88,13 @@ export async function getExercisesAction(
         planId: planId || undefined,
       },
       orderBy: planId
-        ? [{ sequence: 'asc' }, { createdAt: 'asc' }] // Order by sequence if planId is specified
-        : { createdAt: 'desc' }, // Default ordering for general queries
+        ? [{ sequence: "asc" }, { createdAt: "asc" }] // Order by sequence if planId is specified
+        : { createdAt: "desc" }, // Default ordering for general queries
       take: limit,
       skip,
     });
 
-    return { success: true, data: exercises };
+    return { data: exercises, success: true };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
@@ -102,9 +104,9 @@ export async function getExerciseByIdAction(
   params: GetExerciseByIdParams
 ): Promise<ActionResponse<Exercise>> {
   const validationResult = await action({
+    authorize: true,
     params: params,
     schema: GetExerciseByIdSchema,
-    authorize: true,
   });
 
   if (validationResult instanceof Error) {
@@ -119,10 +121,10 @@ export async function getExerciseByIdAction(
     });
 
     if (!exercise) {
-      throw new NotFoundError('Exercise not found');
+      throw new NotFoundError("Exercise not found");
     }
 
-    return { success: true, data: exercise };
+    return { data: exercise, success: true };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
@@ -132,9 +134,9 @@ export async function updateExerciseDoneAction(
   params: UpdateExerciseDoneParams
 ): Promise<ActionResponse<Exercise>> {
   const validationResult = await action({
+    authorize: true,
     params: params,
     schema: UpdateExerciseDoneSchema,
-    authorize: true,
   });
 
   if (validationResult instanceof Error) {
@@ -145,15 +147,15 @@ export async function updateExerciseDoneAction(
 
   try {
     const exercise = await prisma.exercise.update({
-      where: { id },
       data: { done },
+      where: { id },
     });
 
     if (!exercise) {
-      throw new NotFoundError('Exercise not found');
+      throw new NotFoundError("Exercise not found");
     }
 
-    return { success: true, data: exercise };
+    return { data: exercise, success: true };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }

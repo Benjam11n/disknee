@@ -1,11 +1,14 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from "react";
 
 interface DashboardLayoutProps {
   leftColumn: ReactNode;
   rightColumn: ReactNode;
 }
 
-export function DashboardLayout({ leftColumn, rightColumn }: DashboardLayoutProps) {
+export function DashboardLayout({
+  leftColumn,
+  rightColumn,
+}: DashboardLayoutProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 w-full mt-8">
       {/* Left Column */}
