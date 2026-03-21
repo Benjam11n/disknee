@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { VideoStream } from '@/components/shared/video-stream';
-import { ShopItem } from '@prisma/client';
+import type { ShopItem } from '@prisma/client';
 import { Video, VideoOff } from 'lucide-react';
 
 export function TryOnClient() {

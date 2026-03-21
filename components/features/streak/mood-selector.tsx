@@ -1,8 +1,8 @@
 import { cn } from '@/lib/utils';
-import { Mood } from '@prisma/client';
+import { MOOD, type MoodValue } from '@/lib/constants/client-enums';
 
 interface MoodOption {
-  mood: Mood;
+  mood: MoodValue;
   emoji: string;
   label: string;
   color: string;
@@ -13,7 +13,7 @@ interface MoodOption {
 
 const moodOptions: MoodOption[] = [
   {
-    mood: Mood.ENERGIZED,
+    mood: MOOD.ENERGIZED,
     emoji: '😄',
     label: 'Energized',
     color: 'text-green-600',
@@ -22,7 +22,7 @@ const moodOptions: MoodOption[] = [
     encouragement: "Awesome! Let's push a little further today 💪",
   },
   {
-    mood: Mood.OKAY,
+    mood: MOOD.OKAY,
     emoji: '🙂',
     label: 'Okay',
     color: 'text-blue-600',
@@ -31,7 +31,7 @@ const moodOptions: MoodOption[] = [
     encouragement: 'Great job! Consistency matters more than intensity.',
   },
   {
-    mood: Mood.TIRED,
+    mood: MOOD.TIRED,
     emoji: '😔',
     label: 'Tired',
     color: 'text-orange-600',
@@ -40,7 +40,7 @@ const moodOptions: MoodOption[] = [
     encouragement: "That's okay — listen to your body and take it easy today.",
   },
   {
-    mood: Mood.FRUSTRATED,
+    mood: MOOD.FRUSTRATED,
     emoji: '😩',
     label: 'Frustrated',
     color: 'text-purple-600',
@@ -51,8 +51,8 @@ const moodOptions: MoodOption[] = [
 ];
 
 interface MoodSelectorProps {
-  selectedMood?: Mood;
-  onMoodSelect: (mood: Mood, encouragement: string) => void;
+  selectedMood?: MoodValue;
+  onMoodSelect: (mood: MoodValue, encouragement: string) => void;
   disabled?: boolean;
 }
 

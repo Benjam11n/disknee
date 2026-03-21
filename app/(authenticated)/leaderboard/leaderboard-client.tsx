@@ -5,7 +5,7 @@ import { Leaderboard } from '@/components/features/dashboard/leaderboard';
 import { getLeaderboardAction } from '@/lib/actions/leaderboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { leaderboardByScore } from '@prisma/client';
+import type { leaderboardByScore } from '@prisma/client';
 import { logger } from '@/lib/logger';
 
 interface LeaderboardClientProps {

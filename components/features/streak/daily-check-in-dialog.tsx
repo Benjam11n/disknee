@@ -14,7 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Calendar } from 'lucide-react';
 import { MoodSelector } from './mood-selector';
-import { Mood } from '@prisma/client';
+import { MOOD, type MoodValue } from '@/lib/constants/client-enums';
 import { logger } from '@/lib/logger';
 import { checkInAction } from '@/lib/actions/streaks';
 import { ROUTES } from '@/lib/constants/routes';
@@ -23,7 +23,7 @@ interface DailyCheckInDialogProps {
   isOpen: boolean;
   onClose: () => void;
   userId: string;
-  onCheckInComplete?: (mood: Mood, points: number, encouragement: string) => void;
+  onCheckInComplete?: (mood: MoodValue, points: number, encouragement: string) => void;
 }
 
 export function DailyCheckInDialog({
@@ -33,11 +33,11 @@ export function DailyCheckInDialog({
   onCheckInComplete,
 }: DailyCheckInDialogProps) {
   const router = useRouter();
-  const [selectedMood, setSelectedMood] = useState<Mood | undefined>();
+  const [selectedMood, setSelectedMood] = useState<MoodValue | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [encouragement, setEncouragement] = useState('');
 
-  const handleMoodSelect = (mood: Mood, message: string) => {
+  const handleMoodSelect = (mood: MoodValue, message: string) => {
     setSelectedMood(mood);
     setEncouragement(message);
   };
@@ -52,10 +52,10 @@ export function DailyCheckInDialog({
 
     try {
       const moodPoints = {
-        [Mood.ENERGIZED]: 15,
-        [Mood.OKAY]: 10,
-        [Mood.TIRED]: 5,
-        [Mood.FRUSTRATED]: 5,
+        [MOOD.ENERGIZED]: 15,
+        [MOOD.OKAY]: 10,
+        [MOOD.TIRED]: 5,
+        [MOOD.FRUSTRATED]: 5,
       };
 
       const points = moodPoints[selectedMood];

@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ShopItem } from '@prisma/client';
+import type { ShopItem } from '@prisma/client';
 import { Coins, Check, ShoppingBag, Sparkles, Lock, Star, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';

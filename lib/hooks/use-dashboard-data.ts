@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Appointment, Plan, leaderboardByScore } from '@prisma/client';
+import type { Appointment, Plan, leaderboardByScore } from '@prisma/client';
 import { buildMonthMatrix, formatYMD, formatTime24Hour } from '@/lib/utils/date-utils';
 import { PlanWithExercises } from '@/lib/types/plans';
 

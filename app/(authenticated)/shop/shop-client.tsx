@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { ShopItem, UserInventory } from '@prisma/client';
+import type { ShopItem, UserInventory } from '@prisma/client';
 import { toast } from 'sonner';
 import { purchaseItemAction, equipItemAction } from '@/lib/actions/shop';
 import { ShopHeader } from '@/components/features/shop/shop-header';

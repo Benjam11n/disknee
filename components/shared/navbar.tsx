@@ -1,6 +1,6 @@
 'use client';
 
-import { Appointment } from '@prisma/client';
+import type { Appointment } from '@prisma/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {

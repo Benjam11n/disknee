@@ -13,7 +13,7 @@ import { useDashboardData } from '@/lib/hooks/use-dashboard-data';
 import { StreakDisplay } from '@/components/features/streak/streak-display';
 import { DailyCheckInDialog } from '@/components/features/streak/daily-check-in-dialog';
 import { useState, useEffect } from 'react';
-import { Appointment, Exercise, leaderboardByScore, Plan } from '@prisma/client';
+import type { Appointment, Exercise, leaderboardByScore, Plan } from '@prisma/client';
 import { logger } from '@/lib/logger';
 import { StreakData } from '@/lib/types/streaks';
 import { ROUTES } from '@/lib/constants/routes';

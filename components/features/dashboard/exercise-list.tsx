@@ -3,7 +3,7 @@
 import { ExerciseItem } from './exercise-item';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Exercise } from '@prisma/client';
+import type { Exercise } from '@prisma/client';
 import { canStartExercise } from '@/lib/utils/exercise-utils';
 
 interface ExerciseListProps {

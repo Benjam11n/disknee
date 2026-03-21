@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { ExerciseProgress } from '@/components/features/dashboard/exercise-progress';
-import { Exercise } from '@prisma/client';
+import type { Exercise } from '@prisma/client';
 import { ROUTES } from '@/lib/constants/routes';
 
 interface ExerciseProgressClientProps {

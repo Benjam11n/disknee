@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Exercise } from '@prisma/client';
+import type { Exercise } from '@prisma/client';
 
 interface UseDashboardCalculationsProps {
   exercises: Exercise[];

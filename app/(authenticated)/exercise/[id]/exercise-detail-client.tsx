@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Play, Clock, Target, Lock, Video } from 'lucide-react';
-import { ExerciseDifficulty, Exercise } from '@prisma/client';
+import type { Exercise } from '@prisma/client';
 import { ROUTES } from '@/lib/constants/routes';
+import { EXERCISE_DIFFICULTY } from '@/lib/constants/client-enums';
 import { getDifficultyBadgeVariant, getDifficultyColor } from '@/lib/utils';
 import { canStartExercise } from '@/lib/utils/exercise-utils';
 import { ModelVideo } from '@/components/shared/model-video';
@@ -147,10 +148,10 @@ export function ExerciseDetailClient({ exercise, planExercises }: ExerciseDetail
                 <Target className="h-5 w-5" />
                 <span className="font-medium capitalize">{exercise.difficulty.toLowerCase()}</span>
                 <span className="text-sm text-muted-foreground">
-                  {exercise.difficulty === ExerciseDifficulty.EASY && '- Great for beginners'}
-                  {exercise.difficulty === ExerciseDifficulty.MODERATE &&
+                  {exercise.difficulty === EXERCISE_DIFFICULTY.EASY && '- Great for beginners'}
+                  {exercise.difficulty === EXERCISE_DIFFICULTY.MODERATE &&
                     '- Some experience recommended'}
-                  {exercise.difficulty === ExerciseDifficulty.HARD && '- Challenging workout'}
+                  {exercise.difficulty === EXERCISE_DIFFICULTY.HARD && '- Challenging workout'}
                 </span>
               </div>
             </div>

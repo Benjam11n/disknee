@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Phone, PhoneOff, Video, VideoOff, PlayCircle, PauseCircle, Activity } from 'lucide-react';
 import { toast } from 'sonner';
-import { Exercise, ShopItem } from '@prisma/client';
+import type { Exercise, ShopItem } from '@prisma/client';
 import { logger } from '@/lib/logger';
 
 import { VideoStream } from '@/components/shared/video-stream';

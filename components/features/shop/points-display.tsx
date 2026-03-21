@@ -4,7 +4,7 @@ import { Coins, Crown, TrendingUp, Target } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { ShopItem } from '@prisma/client';
+import type { ShopItem } from '@prisma/client';
 import { cn } from '@/lib/utils';
 
 interface PointsDisplayProps {
