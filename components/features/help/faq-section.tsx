@@ -41,7 +41,7 @@ export function FAQSection() {
                   </Card>
                 ))}
               </div>
-              {category.category !== faqs.at(-1).category && (
+              {category.category !== faqs.at(-1)?.category && (
                 <Separator className="my-6" />
               )}
             </div>

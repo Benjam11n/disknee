@@ -32,7 +32,7 @@ function handleAuth(
   request: NextRequest,
   session: Session | null,
   response: NextResponse
-): Promise<NextResponse> {
+): NextResponse {
   const pathName = request.nextUrl.pathname;
   if ((PUBLIC_ROUTES as readonly string[]).includes(pathName)) {
     return response;

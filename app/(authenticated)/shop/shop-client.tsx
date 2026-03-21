@@ -133,13 +133,10 @@ export function ShopClient({
     }
   };
 
-  const getEquippedItems = () =>
-    userInventory.filter((inv) => inv.isEquipped).map((inv) => inv.item);
-
   return (
     <div className="container mx-auto p-6 max-w-7xl">
       <div className="space-y-8">
-        <ShopHeader points={points} equippedItems={getEquippedItems()} />
+        <ShopHeader points={points} />
 
         <FeaturedItemsSection
           featuredItems={featuredItems}

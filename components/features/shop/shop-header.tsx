@@ -1,13 +1,10 @@
-import type { ShopItem } from "@prisma/client";
-
 import { PointsDisplay } from "@/components/features/shop/points-display";
 
 interface ShopHeaderProps {
   points: number;
-  equippedItems: ShopItem[];
 }
 
-export function ShopHeader({ points, equippedItems }: ShopHeaderProps) {
+export function ShopHeader({ points }: ShopHeaderProps) {
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <div>
@@ -18,7 +15,7 @@ export function ShopHeader({ points, equippedItems }: ShopHeaderProps) {
           Customize your character with awesome items!
         </p>
       </div>
-      <PointsDisplay points={points} equippedItems={equippedItems} />
+      <PointsDisplay points={points} />
     </div>
   );
 }
