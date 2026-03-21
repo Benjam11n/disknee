@@ -25,7 +25,7 @@ export function getDifficultyBadgeVariant(difficulty?: ExerciseDifficultyValue) 
     case EXERCISE_DIFFICULTY.HARD:
       return 'destructive';
     default:
-      return 'outline';
+      return 'outline-solid';
   }
 }
 

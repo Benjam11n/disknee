@@ -50,7 +50,7 @@ export function ShopItemCard({
         rarity.shadow,
         isOwned && 'ring-2 ring-primary/30',
         isEquipped &&
-          'bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10',
+          'bg-linear-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10',
         !canAfford && !isOwned && 'opacity-75'
       )}
     >
@@ -66,7 +66,7 @@ export function ShopItemCard({
 
         {/* Equipped badge */}
         {isEquipped && (
-          <Badge className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black">
+          <Badge className="bg-linear-to-r from-yellow-400 to-yellow-500 text-black">
             <Sparkles className="h-3 w-3 mr-1" />
             Equipped
           </Badge>
@@ -155,7 +155,7 @@ export function ShopItemCard({
           {isOwned ? (
             <Button
               onClick={onEquip}
-              variant={isEquipped ? 'outline' : 'default'}
+              variant={isEquipped ? 'outline-solid' : 'default'}
               size="sm"
               className="w-full"
             >
@@ -176,7 +176,7 @@ export function ShopItemCard({
               onClick={onPurchase}
               disabled={isPurchasing}
               size="sm"
-              className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary"
+              className="w-full bg-linear-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary"
             >
               {isPurchasing ? (
                 <>Purchasing...</>

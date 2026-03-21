@@ -51,7 +51,7 @@ export function ShopFilters({
             {categories.map((category) => (
               <Button
                 key={category}
-                variant={selectedCategory === category ? 'default' : 'outline'}
+                variant={selectedCategory === category ? 'default' : 'outline-solid'}
                 size="sm"
                 onClick={() => setSelectedCategory(category)}
                 className="capitalize"
@@ -64,21 +64,21 @@ export function ShopFilters({
           {/* Sort Options */}
           <div className="flex gap-2">
             <Button
-              variant={sortBy === 'name' ? 'default' : 'outline'}
+              variant={sortBy === 'name' ? 'default' : 'outline-solid'}
               size="sm"
               onClick={() => setSortBy('name')}
             >
               Name
             </Button>
             <Button
-              variant={sortBy === 'price-asc' ? 'default' : 'outline'}
+              variant={sortBy === 'price-asc' ? 'default' : 'outline-solid'}
               size="sm"
               onClick={() => setSortBy('price-asc')}
             >
               Price ↑
             </Button>
             <Button
-              variant={sortBy === 'price-desc' ? 'default' : 'outline'}
+              variant={sortBy === 'price-desc' ? 'default' : 'outline-solid'}
               size="sm"
               onClick={() => setSortBy('price-desc')}
             >

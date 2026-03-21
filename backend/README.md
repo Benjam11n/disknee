@@ -208,13 +208,11 @@ docker run -d \
 ### Common Issues
 
 1. **High CPU Usage:**
-
    - Reduce frame skip rate
    - Use smaller image dimensions
    - Enable GPU acceleration if available
 
 2. **Connection Drops:**
-
    - Check WebSocket ping/pong settings
    - Verify network stability
    - Monitor memory usage

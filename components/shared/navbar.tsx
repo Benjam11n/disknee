@@ -36,7 +36,7 @@ export function Navbar({ nextAppt }: NavbarProps) {
   };
 
   return (
-    <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+    <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/60 border-b">
       <div className="mx-auto flex items-center justify-between px-6 py-3 max-w-7xl">
         {/* Left spacer - sidebar handles branding */}
         <div></div>

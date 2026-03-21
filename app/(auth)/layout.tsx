@@ -9,7 +9,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
       <TooltipProvider>
-        <div className="min-h-screen bg-gradient-to-br from-pink-100 to-orange-200 dark:from-pink-300 dark:to-orange-800 relative">
+        <div className="min-h-screen bg-linear-to-br from-pink-100 to-orange-200 dark:from-pink-300 dark:to-orange-800 relative">
           {children}
 
           {/* Return button at bottom */}

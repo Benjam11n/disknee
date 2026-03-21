@@ -10,9 +10,23 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+function getPrismaDatasourceUrl() {
+  const databaseUrl = new URL(env.DATABASE_URL);
+  const isSupabasePooler =
+    databaseUrl.hostname.includes('.pooler.supabase.com') || databaseUrl.port === '6543';
+
+  if (isSupabasePooler) {
+    databaseUrl.searchParams.set('pgbouncer', 'true');
+    databaseUrl.searchParams.set('connection_limit', '1');
+  }
+
+  return databaseUrl.toString();
+}
+
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
+    datasourceUrl: getPrismaDatasourceUrl(),
     log: env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
   });
 

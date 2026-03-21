@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 
 export function EncouragementSection() {
   return (
-    <Card className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
+    <Card className="bg-linear-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
       <CardContent className="p-8 text-center">
         <h2 className="text-2xl font-bold mb-4">You've Got This!</h2>
         <p className="text-muted-foreground max-w-2xl mx-auto">

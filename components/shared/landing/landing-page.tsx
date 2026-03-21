@@ -3,7 +3,7 @@
 import { LandingPageNavbar } from '@/components/shared/landing/landing-page-navbar';
 import { LandingPageFooter } from '@/components/shared/landing/landing-page-footer';
 import { Hero } from '@/components/shared/landing/hero';
-import { HeroMedia } from '@/components/shared/landing/hero-media';
+
 import { Features } from '@/components/shared/landing/features';
 
 export function LandingPage() {
@@ -13,21 +13,19 @@ export function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+    <div className="min-h-screen bg-background selection:bg-primary/30">
       <LandingPageNavbar scrollToFeatures={scrollToFeatures} />
 
-      {/* Hero Section with GlowBlob */}
-      <div className="min-h-[600px] flex items-center justify-center">
-        <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <Hero onLearnMore={scrollToFeatures} />
-            <HeroMedia />
-          </div>
+      {/* Hero Section */}
+      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden border-b border-border/40">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-size-[24px_24px]"></div>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-center">
+          <Hero onLearnMore={scrollToFeatures} />
         </div>
-      </div>
+      </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 bg-background">
+      <section id="features" className="py-24 bg-zinc-50 dark:bg-zinc-950/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Features />
         </div>

@@ -58,14 +58,14 @@ export function Leaderboard({
           {onRankingTypeChange && (
             <div className="flex gap-2">
               <Button
-                variant={rankingType === 'score' ? 'default' : 'outline'}
+                variant={rankingType === 'score' ? 'default' : 'outline-solid'}
                 size="sm"
                 onClick={() => onRankingTypeChange('score')}
               >
                 Score
               </Button>
               <Button
-                variant={rankingType === 'accuracy' ? 'default' : 'outline'}
+                variant={rankingType === 'accuracy' ? 'default' : 'outline-solid'}
                 size="sm"
                 onClick={() => onRankingTypeChange('accuracy')}
               >

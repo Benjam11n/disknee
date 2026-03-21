@@ -37,15 +37,15 @@ export function TwoFactorAuthSection() {
             <h4 className="font-medium mb-2">Why enable 2FA?</h4>
             <ul className="text-sm text-muted-foreground space-y-1">
               <li className="flex items-start gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
                 <span>Adds an extra layer of security beyond just your password</span>
               </li>
               <li className="flex items-start gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
                 <span>Protects your personal health data</span>
               </li>
               <li className="flex items-start gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
                 <span>Prevents unauthorized access to your account</span>
               </li>
             </ul>

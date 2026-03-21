@@ -29,8 +29,8 @@ async function getAllExercises(searchParams?: {
   if (!session?.user) {
     return [];
   }
-
-  const page = parseInt(searchParams?.page || '1');
+  const params = await searchParams;
+  const page = parseInt(params?.page || '1');
   const limit = 50;
 
   const response = await getExercisesAction({

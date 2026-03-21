@@ -137,7 +137,7 @@ export default function ReportsClient({ initialWeeks }: { initialWeeks: ReportWe
 
                 {week.feedback && (
                   <div className="mt-2 p-3 border rounded-md bg-neutral/5">
-                    <div className="text-sm font-bold uppercase !tracking-[3px]">Feedback</div>
+                    <div className="text-sm font-bold uppercase tracking-[3px]!">Feedback</div>
                     <div className="mt-1 text-sm">{week.feedback}</div>
                   </div>
                 )}
