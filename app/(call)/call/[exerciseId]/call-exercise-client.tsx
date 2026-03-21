@@ -1,27 +1,35 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Phone, PhoneOff, Video, VideoOff, PlayCircle, PauseCircle, Activity } from 'lucide-react';
-import { toast } from 'sonner';
-import type { Exercise, ShopItem } from '@prisma/client';
-import { logger } from '@/lib/logger';
+import type { Exercise, ShopItem } from "@prisma/client";
+import {
+  Phone,
+  PhoneOff,
+  Video,
+  VideoOff,
+  PlayCircle,
+  PauseCircle,
+  Activity,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { toast } from "sonner";
 
-import { VideoStream } from '@/components/shared/video-stream';
-import { ModelVideo } from '@/components/shared/model-video';
-import { ReflectionDialog } from '@/components/shared/reflection-dialog';
+import { ModelVideo } from "@/components/shared/model-video";
+import { ReflectionDialog } from "@/components/shared/reflection-dialog";
+import { VideoStream } from "@/components/shared/video-stream";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   createExerciseSessionAction,
   updateExerciseSessionAction,
-} from '@/lib/actions/exercise-sessions';
-import { updateExerciseDoneAction } from '@/lib/actions/exercises';
-import { ROUTES } from '@/lib/constants/routes';
-import { createReflectionAction } from '@/lib/actions/reflections';
-import { formatTime } from '@/lib/utils/date-utils';
-import { PoseResult } from '@/lib/types/exercise';
+} from "@/lib/actions/exercise-sessions";
+import { updateExerciseDoneAction } from "@/lib/actions/exercises";
+import { createReflectionAction } from "@/lib/actions/reflections";
+import { ROUTES } from "@/lib/constants/routes";
+import { logger } from "@/lib/logger";
+import type { PoseResult } from "@/lib/types/exercise";
+import { formatTime } from "@/lib/utils/date-utils";
 
 interface Ex4State {
   reps: number;
@@ -34,7 +42,10 @@ interface CallExerciseClientProps {
   equippedItems?: ShopItem[];
 }
 
-export function CallExerciseClient({ exercise, equippedItems = [] }: CallExerciseClientProps) {
+export function CallExerciseClient({
+  exercise,
+  equippedItems = [],
+}: CallExerciseClientProps) {
   const router = useRouter();
 
   const [isCallActive, setIsCallActive] = useState(false);
@@ -42,35 +53,40 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
 
   const equippedHat = equippedItems.find(
     (item) =>
-      item.type === 'HAT' ||
-      item.name.toLowerCase().includes('crown') ||
-      item.name.toLowerCase().includes('hat')
+      item.type === "HAT" ||
+      item.name.toLowerCase().includes("crown") ||
+      item.name.toLowerCase().includes("hat")
   );
 
   // Find equipped glasses/accessory item
   const equippedGlasses = equippedItems.find(
     (item) =>
-      item.type === 'ACCESSORY' ||
-      item.name.toLowerCase().includes('glasses') ||
-      item.name.toLowerCase().includes('shades') ||
-      item.name.toLowerCase().includes('monocle') ||
-      item.name.toLowerCase().includes('eye')
+      item.type === "ACCESSORY" ||
+      item.name.toLowerCase().includes("glasses") ||
+      item.name.toLowerCase().includes("shades") ||
+      item.name.toLowerCase().includes("monocle") ||
+      item.name.toLowerCase().includes("eye")
   );
   const [isModelPlaying, setIsModelPlaying] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
   const [showReflection, setShowReflection] = useState(false);
-  const [exerciseSessionId, setExerciseSessionId] = useState<string | null>(null);
+  const [exerciseSessionId, setExerciseSessionId] = useState<string | null>(
+    null
+  );
   const [sessionTime, setSessionTime] = useState(0);
   const [ex4State, setEx4State] = useState<Ex4State>({
-    reps: 0,
     currentAngle: null,
     holdTime: 0,
+    reps: 0,
   });
 
   // Feedback states
-  const [repFeedback, setRepFeedback] = useState<{ show: boolean; text: string }>({
+  const [repFeedback, setRepFeedback] = useState<{
+    show: boolean;
+    text: string;
+  }>({
     show: false,
-    text: '',
+    text: "",
   });
   const [cameraWarning, setCameraWarning] = useState<boolean>(false);
   const [exerciseComplete, setExerciseComplete] = useState<boolean>(false);
@@ -82,20 +98,27 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
   // Get angle label based on exercise type
   const getAngleLabel = (exerciseType: string | undefined | null) => {
     switch (exerciseType) {
-      case 'knee-extension':
-        return 'Knee Angle';
-      case 'calf-raises':
-        return 'Ankle Angle';
-      case 'squat':
-        return 'Hip/Knee Angle';
-      case 'simple-squat':
-        return 'Hip Angle';
-      case 'hip-abduction':
-        return 'Hip Angle';
-      case 'step-down':
-        return 'Knee/Hip Angle';
-      default:
-        return 'Angle';
+      case "knee-extension": {
+        return "Knee Angle";
+      }
+      case "calf-raises": {
+        return "Ankle Angle";
+      }
+      case "squat": {
+        return "Hip/Knee Angle";
+      }
+      case "simple-squat": {
+        return "Hip Angle";
+      }
+      case "hip-abduction": {
+        return "Hip Angle";
+      }
+      case "step-down": {
+        return "Knee/Hip Angle";
+      }
+      default: {
+        return "Angle";
+      }
     }
   };
 
@@ -109,7 +132,9 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
         sessionStartTime.current = Date.now();
       }
       interval = setInterval(() => {
-        setSessionTime(Math.floor((Date.now() - sessionStartTime.current!) / 1000));
+        setSessionTime(
+          Math.floor((Date.now() - sessionStartTime.current!) / 1000)
+        );
       }, 1000);
     } else {
       // Reset start time when call ends
@@ -128,7 +153,7 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
   useEffect(() => {
     if (repFeedback.show) {
       const timer = setTimeout(() => {
-        setRepFeedback({ show: false, text: '' });
+        setRepFeedback({ show: false, text: "" });
       }, 1500);
       return () => clearTimeout(timer);
     }
@@ -147,17 +172,19 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
   const startCall = async () => {
     // Check if exercise type is set
     if (!exercise.type) {
-      toast.error(`Exercise type not configured for "${exercise.title}". Please contact support.`);
+      toast.error(
+        `Exercise type not configured for "${exercise.title}". Please contact support.`
+      );
       return;
     }
 
     // Reset all exercise state
     setEx4State({
-      reps: 0,
       currentAngle: null,
       holdTime: 0,
+      reps: 0,
     });
-    setRepFeedback({ show: false, text: '' });
+    setRepFeedback({ show: false, text: "" });
     setCameraWarning(false);
     setExerciseComplete(false);
     prevRepsRef.current = 0;
@@ -166,17 +193,17 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
     setIsRecording(true);
     try {
       const exerciseSession = await createExerciseSessionAction({
-        exerciseId: exercise.id,
-        startedAt: new Date().toISOString(),
-        repsCompleted: 0,
         accuracy: 0,
+        exerciseId: exercise.id,
+        repsCompleted: 0,
+        startedAt: new Date().toISOString(),
       });
       if (exerciseSession.success && exerciseSession.data) {
         setExerciseSessionId(exerciseSession.data.id);
       }
-    } catch (err) {
-      logger.error(err);
-      toast.error('Failed to start session');
+    } catch (error) {
+      logger.error(error);
+      toast.error("Failed to start session");
     }
   };
 
@@ -186,17 +213,17 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
     if (exerciseSessionId) {
       try {
         await updateExerciseSessionAction(exerciseSessionId, {
-          endedAt: new Date(),
-          duration: sessionTime,
           accuracy: 85,
+          duration: sessionTime,
+          endedAt: new Date(),
           maxAccuracy: 90,
         });
-        await updateExerciseDoneAction({ id: exercise.id, done: true });
-        toast.success('Session completed!');
+        await updateExerciseDoneAction({ done: true, id: exercise.id });
+        toast.success("Session completed!");
         setShowReflection(true);
-      } catch (err) {
-        logger.error(err);
-        toast.error('Failed to end session');
+      } catch (error) {
+        logger.error(error);
+        toast.error("Failed to end session");
       }
     }
   };
@@ -230,9 +257,9 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
       }
 
       setEx4State({
-        reps: newReps,
         currentAngle,
         holdTime,
+        reps: newReps,
       });
 
       prevRepsRef.current = newReps;
@@ -248,16 +275,16 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
     try {
       await createReflectionAction({
         exerciseSessionId: exerciseSessionId!,
-        rating: reflection.rating,
         fatigue: reflection.fatigue,
         feedback: reflection.feedback,
+        rating: reflection.rating,
       });
-      toast.success('Reflection saved!');
+      toast.success("Reflection saved!");
       setShowReflection(false);
       router.push(ROUTES.DASHBOARD);
-    } catch (err) {
-      logger.error(err);
-      toast.error('Failed to save reflection');
+    } catch (error) {
+      logger.error(error);
+      toast.error("Failed to save reflection");
     }
   };
 
@@ -271,12 +298,12 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
             isCallActive={isCallActive}
             exerciseId={exercise.type || undefined}
             crownSettings={{
-              emoji: equippedHat?.icon || '👑',
+              emoji: equippedHat?.icon || "👑",
               size: equippedHat ? 60 : 60, // Can be customized per item in future
-              yOffset: equippedHat ? -60 : -60, // Can be customized per item in future
+              yOffset: equippedHat ? -70 : -70, // Can be customized per item in future
             }}
             glassesSettings={{
-              emoji: equippedGlasses?.icon || '🕶️',
+              emoji: equippedGlasses?.icon || "🕶️",
               size: equippedGlasses ? 100 : 100, // Can be customized per item in future
               yOffset: equippedGlasses ? 10 : 10, // Slightly lower on face
             }}
@@ -289,7 +316,9 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="bg-green-500/90 text-white px-8 py-6 rounded-2xl shadow-2xl transform scale-110 animate-pulse">
                 <div className="text-center">
-                  <div className="text-4xl font-bold mb-2">{repFeedback.text}</div>
+                  <div className="text-4xl font-bold mb-2">
+                    {repFeedback.text}
+                  </div>
                   <div className="text-lg opacity-90">Great job!</div>
                 </div>
               </div>
@@ -301,7 +330,9 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
             <div className="absolute top-20 left-0 right-0 flex justify-center pointer-events-none">
               <div className="bg-yellow-500/90 text-black px-6 py-3 rounded-xl shadow-lg animate-pulse">
                 <div className="text-center">
-                  <div className="text-lg font-bold">Move back from camera!</div>
+                  <div className="text-lg font-bold">
+                    Move back from camera!
+                  </div>
                   <div className="text-sm opacity-90">You're too close</div>
                 </div>
               </div>
@@ -315,7 +346,9 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
                 <div className="text-center">
                   <div className="text-5xl font-bold mb-3">🎉 Complete! 🎉</div>
                   <div className="text-2xl mb-2">Target Reached!</div>
-                  <div className="text-lg opacity-90">{ex4State.reps} reps done</div>
+                  <div className="text-lg opacity-90">
+                    {ex4State.reps} reps done
+                  </div>
                 </div>
               </div>
             </div>
@@ -324,7 +357,8 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
           {/* Overlay for reps, angle, and hold timer */}
           <div className="absolute top-4 left-4 text-white text-lg font-bold bg-black/40 px-3 py-2 rounded-md space-y-1">
             <div>
-              {getAngleLabel(exercise.type)}: {ex4State.currentAngle?.toFixed(0) ?? 'N/A'}°
+              {getAngleLabel(exercise.type)}:{" "}
+              {ex4State.currentAngle?.toFixed(0) ?? "N/A"}°
             </div>
             <div>Reps: {ex4State.reps}</div>
             <div>Hold Time: {ex4State.holdTime.toFixed(1)}s</div>
@@ -348,12 +382,10 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
 
         {/* Model Video */}
         <Card className="relative bg-black overflow-hidden">
-          <ModelVideo isPlaying={isModelPlaying} exerciseType={exercise.type || 'knee-extension'} />
-          <div className="absolute top-4 right-4">
-            <Badge variant="secondary" className="bg-black/50 text-white">
-              Perfect Form
-            </Badge>
-          </div>
+          <ModelVideo
+            isPlaying={isModelPlaying}
+            exerciseType={exercise.type || "knee-extension"}
+          />
         </Card>
       </div>
 
@@ -363,8 +395,9 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
           <div>
             <h2 className="text-2xl font-bold mb-2">{exercise.title}</h2>
             <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-              <Activity className="h-4 w-4" /> {exercise.difficulty.toLowerCase()} |{' '}
-              {exercise.estimatedMins} min | {formatTime['duration'](sessionTime)}
+              <Activity className="h-4 w-4" />{" "}
+              {exercise.difficulty.toLowerCase()} | {exercise.estimatedMins} min
+              | {formatTime["duration"](sessionTime)}
             </div>
           </div>
 
@@ -382,14 +415,18 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
                 <>
                   <Button
                     onClick={() => setIsVideoOn((prev) => !prev)}
-                    variant={isVideoOn ? 'default' : 'secondary'}
+                    variant={isVideoOn ? "default" : "secondary"}
                     size="lg"
                   >
-                    {isVideoOn ? <VideoOff className="h-5 w-5" /> : <Video className="h-5 w-5" />}
+                    {isVideoOn ? (
+                      <VideoOff className="h-5 w-5" />
+                    ) : (
+                      <Video className="h-5 w-5" />
+                    )}
                   </Button>
                   <Button
                     onClick={() => setIsModelPlaying((prev) => !prev)}
-                    variant={isModelPlaying ? 'default' : 'secondary'}
+                    variant={isModelPlaying ? "default" : "secondary"}
                     size="lg"
                   >
                     {isModelPlaying ? (
@@ -398,7 +435,11 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
                       <PlayCircle className="h-5 w-5" />
                     )}
                   </Button>
-                  <Button onClick={endCall} className="bg-red-600 hover:bg-red-700" size="lg">
+                  <Button
+                    onClick={endCall}
+                    className="bg-red-600 hover:bg-red-700"
+                    size="lg"
+                  >
                     <PhoneOff className="h-5 w-5" />
                   </Button>
                 </>
@@ -412,9 +453,9 @@ export function CallExerciseClient({ exercise, equippedItems = [] }: CallExercis
       <ReflectionDialog
         isOpen={showReflection}
         sessionData={{
+          accuracy: 85,
           duration: sessionTime,
           repsCompleted: ex4State.reps,
-          accuracy: 85,
         }}
         onSubmit={handleReflectionSubmit}
         onSkip={() => {

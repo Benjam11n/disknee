@@ -4,9 +4,16 @@ import json
 import base64
 from typing import Dict
 import structlog
+import sys
+from pathlib import Path
 
-from .pose.exercises import ExerciseProcessor
-from .models.session import ConnectionManager
+try:
+    from .pose.exercises import ExerciseProcessor
+    from .models.session import ConnectionManager
+except ImportError:
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from app.pose.exercises import ExerciseProcessor
+    from app.models.session import ConnectionManager
 
 # Configure structured logging
 structlog.configure(

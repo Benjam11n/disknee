@@ -239,21 +239,21 @@ async function main() {
 
   // sample mapping for statuses / clinician assignment (fake)
   const weekStatusMap: Record<string, ReviewStatus> = {
-    '2025-10-13': ReviewStatus.NOT_SENT,
-    '2025-10-20': ReviewStatus.REVIEWED,
-    '2025-10-27': ReviewStatus.PENDING,
+    '2026-02-09': ReviewStatus.NOT_SENT,
+    '2026-02-16': ReviewStatus.REVIEWED,
+    '2026-02-23': ReviewStatus.PENDING,
   };
 
   const weekFeedbackMap: Record<string, string> = {
-    '2025-10-13': 'Older week: no clinician review available.',
-    '2025-10-20': 'Steady progress; check ankle ROM next visit.',
-    '2025-10-27': 'Pending review - clinician to update notes.',
+    '2026-02-09': 'Older week: no clinician review available.',
+    '2026-02-16': 'Steady progress; check ankle ROM next visit.',
+    '2026-02-23': 'Pending review - clinician to update notes.',
   };
 
   let createdWeekReports = 0;
   for (const [key, { sessions, weekStart }] of Object.entries(weeksMap)) {
-    // Only create reports for weeks before 2025-11-03 as requested
-    if (new Date(key) >= new Date('2025-11-03')) {
+    // Only create reports for weeks before the current program window.
+    if (new Date(key) >= new Date('2026-03-03')) {
       continue;
     }
 

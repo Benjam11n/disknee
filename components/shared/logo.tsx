@@ -13,13 +13,13 @@ interface LogoProps {
 export function Logo({ variant = 'icon', size = 32, className, showText = false }: LogoProps) {
   if (variant === 'text') {
     return (
-      <div className={cn('flex items-center dark:bg-primary rounded-2xl', className)}>
+      <div className={cn('flex items-center', className)}>
         <Image
           src={logoText}
           alt="DisKnee"
           width={size * 4}
           height={size}
-          className="object-contain"
+          className="object-contain dark:bg-primary/60 rounded-2xl"
           unoptimized
         />
       </div>
@@ -29,7 +29,7 @@ export function Logo({ variant = 'icon', size = 32, className, showText = false 
   return (
     <div className={cn('flex items-center gap-2', className)}>
       <div
-        className="relative bg-primary rounded-full overflow-hidden"
+        className="relative bg-primary rounded-2xl overflow-hidden"
         style={{ width: size, height: size }}
       >
         <Image src={logoIcon} alt="DisKnee Logo" fill className="object-contain p-1" />

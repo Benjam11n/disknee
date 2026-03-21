@@ -50,9 +50,9 @@ export function ExerciseProgress({
             className={cn(
               'text-sm px-3 py-1',
               completionPercentage === 100
-                ? 'bg-green-100 text-green-800 border-green-200'
+                ? 'bg-green-500/10 text-green-600 border-green-500/20'
                 : completionPercentage >= 50
-                  ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                  ? 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20'
                   : 'bg-muted text-muted-foreground'
             )}
           >
@@ -85,8 +85,8 @@ export function ExerciseProgress({
             <div className="text-2xl font-bold text-primary">{weeklyTotalMins}</div>
             <div className="text-xs text-muted-foreground">Total Minutes</div>
           </div>
-          <div className="text-center p-3 bg-green-50 rounded-lg">
-            <div className="text-2xl font-bold text-green-600">
+          <div className="text-center p-3 bg-green-500/10 rounded-lg">
+            <div className="text-2xl font-bold text-green-600 dark:text-green-500">
               {Math.round(weeklyTarget * 100)}%
             </div>
             <div className="text-xs text-muted-foreground">Target Progress</div>
@@ -113,7 +113,7 @@ export function ExerciseProgress({
                   {completedExercises.slice(0, 3).map((exercise) => (
                     <div
                       key={exercise.id}
-                      className="flex items-center justify-between p-2 bg-green-50 rounded-lg"
+                      className="flex items-center justify-between p-2 bg-green-500/10 rounded-lg"
                     >
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-600" />

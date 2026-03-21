@@ -7,7 +7,7 @@ import { ExerciseProgress } from '@/components/features/dashboard/exercise-progr
 import { UpcomingAppointments } from '@/components/features/dashboard/upcoming-appointments';
 import { ProgressJourney } from '@/components/features/dashboard/progress-journey';
 import { HeroSection } from '@/components/features/dashboard/hero-section';
-import { DashboardLayout } from '@/components/features/dashboard/dashboard-layout';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDashboardCalculations } from '@/lib/hooks/use-dashboard-calculations';
 import { useDashboardData } from '@/lib/hooks/use-dashboard-data';
 import { StreakDisplay } from '@/components/features/streak/streak-display';
@@ -92,63 +92,6 @@ export function DashboardClient({ initialData, userId }: DashboardClientProps): 
     patientName,
   });
 
-  const leftColumn = (
-    <>
-      {/* Streak Display - More prominent */}
-      {streakData && (
-        <StreakDisplay
-          currentStreak={streakData.currentStreak}
-          longestStreak={streakData.longestStreak}
-          lastCheckIn={streakData.lastCheckInDate || undefined}
-          frozenUntil={streakData.frozenUntil || undefined}
-          userId={userId}
-          onFreezeActivated={() => {
-            // Refresh the page to show updated freeze status
-            window.location.reload();
-          }}
-        />
-      )}
-
-      {/* Enhanced Exercise Progress */}
-      <ExerciseProgress
-        exercises={exercises}
-        weeklyTarget={weeklyTarget}
-        weeklyTotalMins={weeklyTotalMins}
-        onStartExercise={(exerciseId) => {
-          router.push(ROUTES.CALL_DETAIL(exerciseId));
-        }}
-      />
-
-      <UpcomingAppointments appointments={upcomingAppointments} />
-    </>
-  );
-
-  const rightColumn = (
-    <>
-      {/* Progress Journey */}
-      <ProgressJourney
-        overallTarget={overallTarget}
-        weeksCompleted={weeksCompleted}
-        programWeeks={programWeeks}
-        patientRank={patientRank}
-        userPoints={userPoints}
-      />
-
-      {/* Calendar and Plans */}
-      <CalendarAndPlans
-        monthMatrix={monthMatrix}
-        monthLabel={monthLabel}
-        today={today}
-        selectedDate={selectedDate}
-        setSelectedDate={setSelectedDate}
-        apptDays={apptDays}
-        planDays={planDays}
-        selectedPlans={selectedPlans}
-        ringProgress={overallTarget}
-      />
-    </>
-  );
-
   return (
     <>
       <HeroSection
@@ -158,7 +101,78 @@ export function DashboardClient({ initialData, userId }: DashboardClientProps): 
         completionRate={overallTarget}
       />
 
-      <DashboardLayout leftColumn={leftColumn} rightColumn={rightColumn} />
+      <div className="w-full">
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="mb-6 bg-transparent border-b border-border/40 rounded-none w-full justify-start h-auto p-0 gap-8">
+            <TabsTrigger
+              value="overview"
+              className="rounded-none border-b-2 border-transparent text-sm font-medium tracking-wide text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 py-3 -mb-px transition-colors"
+            >
+              Overview
+            </TabsTrigger>
+            <TabsTrigger
+              value="schedule"
+              className="rounded-none border-b-2 border-transparent text-sm font-medium tracking-wide text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 py-3 -mb-px transition-colors"
+            >
+              Schedule
+            </TabsTrigger>
+            <TabsTrigger
+              value="progress"
+              className="rounded-none border-b-2 border-transparent text-sm font-medium tracking-wide text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 py-3 -mb-px transition-colors"
+            >
+              Journey
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6 mt-0">
+            {streakData && (
+              <StreakDisplay
+                currentStreak={streakData.currentStreak}
+                longestStreak={streakData.longestStreak}
+                lastCheckIn={streakData.lastCheckInDate || undefined}
+                frozenUntil={streakData.frozenUntil || undefined}
+                userId={userId}
+                onFreezeActivated={() => {
+                  window.location.reload();
+                }}
+              />
+            )}
+            <ExerciseProgress
+              exercises={exercises}
+              weeklyTarget={weeklyTarget}
+              weeklyTotalMins={weeklyTotalMins}
+              onStartExercise={(exerciseId) => {
+                router.push(ROUTES.CALL_DETAIL(exerciseId));
+              }}
+            />
+            <UpcomingAppointments appointments={upcomingAppointments} />
+          </TabsContent>
+
+          <TabsContent value="schedule" className="space-y-6 mt-0">
+            <CalendarAndPlans
+              monthMatrix={monthMatrix}
+              monthLabel={monthLabel}
+              today={today}
+              selectedDate={selectedDate}
+              setSelectedDate={setSelectedDate}
+              apptDays={apptDays}
+              planDays={planDays}
+              selectedPlans={selectedPlans}
+              ringProgress={overallTarget}
+            />
+          </TabsContent>
+
+          <TabsContent value="progress" className="space-y-6 mt-0">
+            <ProgressJourney
+              overallTarget={overallTarget}
+              weeksCompleted={weeksCompleted}
+              programWeeks={programWeeks}
+              patientRank={patientRank}
+              userPoints={userPoints}
+            />
+          </TabsContent>
+        </Tabs>
+      </div>
 
       {/* Daily Check-In Dialog */}
       <DailyCheckInDialog
@@ -167,7 +181,6 @@ export function DashboardClient({ initialData, userId }: DashboardClientProps): 
         userId={userId}
         onCheckInComplete={(mood, points, encouragement) => {
           logger.info({ mood, points, encouragement }, 'Checked in:');
-          // Refresh the page or update streak data
           window.location.reload();
         }}
       />

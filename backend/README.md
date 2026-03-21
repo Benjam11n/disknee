@@ -23,7 +23,7 @@ backend/
 │   └── models/
 │       ├── pose.py          # Pydantic models for pose data
 │       └── session.py       # WebSocket connection management
-├── requirements.txt         # Python dependencies
+├── pyproject.toml           # uv-managed Python dependencies
 ├── Dockerfile              # Docker configuration
 └── .env.example            # Environment variables template
 ```
@@ -36,7 +36,7 @@ backend/
 
    ```bash
    cd backend
-   pip install -r requirements.txt
+   uv sync
    ```
 
 2. **Set up environment variables:**
@@ -48,9 +48,9 @@ backend/
 
 3. **Run the server:**
    ```bash
-   python -m app.main
+   uv run python -m app.main
    # OR
-   uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+   uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
    ```
 
 ### Using Docker
@@ -245,13 +245,13 @@ For production:
 Run tests:
 
 ```bash
-pytest
+uv run pytest
 ```
 
 Run with coverage:
 
 ```bash
-pytest --cov=app tests/
+uv run pytest --cov=app tests/
 ```
 
 ## License

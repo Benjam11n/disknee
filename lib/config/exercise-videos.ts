@@ -4,11 +4,11 @@
 
 export const EXERCISE_VIDEOS = {
   'knee-extension': '/knee-extension.mp4',
-  'calf-raises': '/calf-raises.mp4',
+  'calf-raises': '/simple-squat.mp4', // TODO: replace with actual video
   squat: '/spanish-squat.mp4',
   'simple-squat': '/simple-squat.mp4',
-  'hip-abduction': '/hip-abduction.mp4',
-  'step-down': '/step-down.mp4',
+  'hip-abduction': '/simple-squat.mp4', // TODO: replace with actual video
+  'step-down': '/simple-squat.mp4', // TODO: replace with actual video
 } as const;
 
 export type ExerciseType = keyof typeof EXERCISE_VIDEOS;

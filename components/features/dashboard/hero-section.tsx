@@ -16,7 +16,7 @@ export function HeroSection({
   completionRate = 0,
 }: HeroSectionProps) {
   return (
-    <div className="w-full mb-8 mt-2 flex flex-col gap-6">
+    <div className="w-full mb-8 mt-12 flex flex-col gap-6">
       {/* Sleek Header Section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
