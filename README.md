@@ -1,108 +1,83 @@
-# DisKnee
+# <div align="center">DisKnee</div>
 
-A comprehensive physiotherapy application designed to help patients track their knee rehabilitation exercises and monitor their progress through interactive sessions and real-time feedback.
+<div align="center">
+  <img src="public/logo-text.png" alt="DisKnee" width="220" />
+</div>
 
-## Features
+<div align="center">
 
-- **Exercise Tracking**: Track various knee rehabilitation exercises with video guidance
-- **Session Management**: Monitor exercise sessions with duration, accuracy, and completion metrics
-- **Real-time Pose Detection**: Python-powered pose analysis for exercise form validation
-- **Progress Analytics**: Visual charts and statistics for rehabilitation progress
-- **Leaderboard**: Competitive element to motivate patients through gamification
-- **Reflections**: Journal-style notes for mental and physical progress tracking
-- **Telehealth Appointments**: Schedule and manage virtual consultations
-- **Shop**: Purchase rehabilitation equipment and accessories
+  **AI-powered knee rehabilitation that makes home recovery feel guided, measurable, and motivating.**
 
-## Tech Stack
+</div>
 
-- **Frontend**: Next.js 16, TypeScript, Tailwind CSS, Shadcn UI
-- **Backend**: Next.js API Routes, Prisma ORM
-- **Database**: PostgreSQL
-- **Authentication**: Better Auth
+<div align="center">
 
-## Prerequisites
+![Hackathon](https://img.shields.io/badge/Hack%202%20Heal-UNSW%202025-black)
+![Achievement](https://img.shields.io/badge/Achievement-Finalist-success)
+![Next.js](https://img.shields.io/badge/Next.js-16-111111)
+![React](https://img.shields.io/badge/React-19-149ECA)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6)
+![Prisma](https://img.shields.io/badge/Prisma-PostgreSQL-2D3748)
 
-- Node.js 18+
-- PostgreSQL 14+
-- Python 3.11+ (for pose detection features)
-- npm
+</div>
 
-## Getting Started
+## Rehab, redesigned
 
-### 1. Clone the Repository
+DisKnee is a virtual physiotherapy experience built to support knee recovery beyond the clinic. It combines real-time motion tracking, guided exercise sessions, progress analytics, reflections, streaks, and telehealth-style touchpoints in one product designed to keep patients engaged from day one to full confidence.
 
-### 2. Install Dependencies
+Originally created for **Hack 2 Heal at UNSW**, DisKnee was selected as a **finalist project**, and the product still reflects that hackathon energy: ambitious, patient-centered, and built to turn rehab from a repetitive chore into a feedback-rich recovery journey.
 
-```bash
-npm install
-```
+## Why it stands out
 
-### 3. Set Up Environment Variables
+| | |
+| --- | --- |
+| **Real-time pose detection** | Tracks movement during exercises and gives instant form-aware feedback. |
+| **Adaptive recovery flow** | Sessions, progress, and motivation systems keep patients consistent over time. |
+| **Built for actual users** | Combines exercises, reports, reflections, appointments, and a rewards loop in one experience. |
+| **Hackathon-to-product vision** | Designed not just as a prototype, but as a credible digital rehab platform. |
 
-Create a `.env` file in the root directory:
+## Experience highlights
 
-```env
-# Database
-DATABASE_URL="postgresql://username:password@localhost:5432/disknee"
+### Real-time recovery guidance
 
-# Auth
-BETTER_AUTH_SECRET="your-secret-key-here"
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
+DisKnee uses computer vision to monitor knee rehabilitation exercises, helping users correct form, count reps, and stay aligned with their recovery plan from home.
 
-# Other environment variables as needed
-```
+### Motivation built into the product
 
-### 4. Set Up the Database
+Recovery is hard to sustain when progress feels invisible. DisKnee adds streaks, milestone tracking, reflections, leaderboards, and a points-based shop to make consistency feel rewarding.
 
-```bash
-# Generate Prisma client
-npx prisma generate
+### A fuller care journey
 
-# Run database migrations
-npx prisma db push
+This is more than an exercise counter. The platform also includes appointment flows, reports, progress views, and patient-facing support surfaces that make the experience feel closer to a complete rehab companion.
 
-# (Optional) Seed the database
-npm run db:seed
-```
+## Product snapshot
 
-### 5. Start the Development Server
+- Guided rehabilitation exercises with video support
+- Pose-aware exercise session tracking
+- Reports and progress analytics
+- Reflection logging and recovery journaling
+- Streaks, points, rewards, and leaderboard mechanics
+- Appointment and care-touchpoint flows
+- Modern web app architecture with a separate pose backend
 
-```bash
-npm run dev
-```
+## Built with
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
+- `Next.js 16`, `React 19`, `TypeScript`
+- `Tailwind CSS 4`, `shadcn/ui`
+- `Prisma` + `PostgreSQL`
+- `Better Auth`
+- Python-based pose detection backend
 
-## Project Structure
+## For judges, recruiters, and collaborators
 
-```
-DisKnee/
-├── app/                    # Next.js app router pages
-│   ├── (auth)/            # Authentication pages (login, register)
-│   ├── (authenticated)/   # Protected app pages
-│   └── api/               # API routes
-├── components/            # React components
-├── lib/                   # Utility libraries
-│   ├── actions/           # Server actions
-│   ├── handlers/          # Request handlers
-│   └── validations/       # Zod schemas
-├── prisma/                # Database schema and migrations
-└── public/                # Static assets
-```
+DisKnee is the kind of project that sits in a strong middle ground: technically ambitious enough to demonstrate real engineering depth, but product-focused enough to feel like something people could actually use. It brings together frontend craft, full-stack product thinking, data modeling, authentication, and motion-analysis workflows in a single cohesive experience.
 
-## Available Scripts
+## Documentation
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-- `npm run db:push` - Push database schema changes
-- `npm run db:seed` - Seed database with sample data
-- `npm run db:studio` - Open Prisma Studio
+The developer and technical documentation now lives in [`docs/README.md`](docs/README.md).
 
-## Authentication
-
-The application uses Better Auth for authentication. Users can:
-
-- Log in to access personalized features using the demo@disknee.com email and demo123 password
-- Maintain secure sessions across the app
+- Setup and local development: [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md)
+- Architecture notes: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- Technical deep dive: [`docs/TECHNICAL_DEEP_DIVE.md`](docs/TECHNICAL_DEEP_DIVE.md)
+- Database setup: [`docs/DB-SETUP.md`](docs/DB-SETUP.md)
+- Local Supabase setup: [`docs/LOCAL-SUPABASE.md`](docs/LOCAL-SUPABASE.md)
