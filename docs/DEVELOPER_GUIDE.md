@@ -79,6 +79,10 @@ docs/        Technical and developer documentation
 If you seed the database, these demo users are created:
 
 - `demo@disknee.com` / `demo123`
+- `mickey@disknee.com` / `demo123`
+- `goofy@disknee.com` / `demo123`
+- `minnie@disknee.com` / `demo123`
+- `daisy@disknee.com` / `demo123`
 - `physio@example.com` / `physio2024`
 
 ## More technical detail

@@ -29,13 +29,16 @@ async function main() {
   // Create users with Better Auth
   const userCredentials = [
     { email: "demo@disknee.com", name: "Donald Duck", password: "demo123" },
-    {
-      email: "patient@example.com",
-      name: "John Patient",
-      password: "patient2024",
-    },
-    { email: "physio@example.com", name: "Dr. Smith", password: "physio2024" },
+    { email: "mickey@disknee.com", name: "Mickey Mouse", password: "demo123" },
+    { email: "goofy@disknee.com", name: "Goofy", password: "demo123" },
+    { email: "minnie@disknee.com", name: "Minnie Mouse", password: "demo123" },
+    { email: "daisy@disknee.com", name: "Daisy Duck", password: "demo123" },
   ];
+  const clinicianCredentials = {
+    email: "physio@example.com",
+    name: "Dr. Smith",
+    password: "physio2024",
+  };
 
   const users = [];
   for (const [index, userCred] of userCredentials.entries()) {
@@ -49,6 +52,19 @@ async function main() {
         continue;
       }
     }
+  }
+
+  let clinicianUser = null;
+  try {
+    clinicianUser = await createSeedUser(clinicianCredentials);
+    logger.info(
+      `✅ Created clinician: ${clinicianCredentials.name} (${clinicianCredentials.email})`
+    );
+  } catch (error) {
+    logger.error(
+      error,
+      `❌ Error creating clinician ${clinicianCredentials.email}:`
+    );
   }
 
   // Create shop items
@@ -296,9 +312,11 @@ async function main() {
     const status = weekStatusMap[key] ?? ReviewStatus.NOT_SENT;
     const feedback = weekFeedbackMap[key] ?? "";
 
-    // clinician assigned only for REVIEWED weeks (use Dr. Smith if exists)
+    // clinician assigned only for REVIEWED weeks
     const clinicianId =
-      status === ReviewStatus.REVIEWED && users[2] ? users[2].id : null;
+      status === ReviewStatus.REVIEWED && clinicianUser
+        ? clinicianUser.id
+        : null;
 
     // upsert week report (unique userId + weekStart)
     await prisma.weekReport.upsert({
@@ -357,7 +375,10 @@ async function main() {
 
   logger.info("\n🔐 Login Credentials:");
   logger.info("  • demo@disknee.com / demo123");
-  logger.info("  • patient@example.com / patient2024");
+  logger.info("  • mickey@disknee.com / demo123");
+  logger.info("  • goofy@disknee.com / demo123");
+  logger.info("  • minnie@disknee.com / demo123");
+  logger.info("  • daisy@disknee.com / demo123");
   logger.info("  • physio@example.com / physio2024");
 }
 
