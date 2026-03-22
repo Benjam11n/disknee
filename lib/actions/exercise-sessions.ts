@@ -144,6 +144,8 @@ export async function updateExerciseSessionAction(
     duration?: number;
     accuracy?: number;
     maxAccuracy?: number;
+    repsCompleted?: number;
+    notes?: string;
   }
 ): Promise<ActionResponse<ExerciseSession>> {
   try {

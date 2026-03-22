@@ -15,6 +15,7 @@ export interface PoseResult {
     current_angle?: number | null;
     hold_time: number;
     exercise_active: boolean;
+    target_reps: number;
   };
   exercise_id?: string;
   feedback?: string;
@@ -23,6 +24,7 @@ export interface PoseResult {
   avg_visibility?: number;
   pose_stable?: boolean;
   skipped?: boolean;
+  server_timestamp_ms?: number;
 }
 
 export interface Landmark {

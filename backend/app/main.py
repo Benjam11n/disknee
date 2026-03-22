@@ -2,7 +2,6 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 import json
 import base64
-from typing import Dict
 import structlog
 import sys
 from pathlib import Path
@@ -55,10 +54,6 @@ app.add_middleware(
 # Global connection manager
 manager = ConnectionManager()
 
-# Exercise processors cache
-exercise_processors: Dict[str, ExerciseProcessor] = {}
-
-
 @app.on_event("startup")
 async def startup_event():
     """Initialize the pose detection system"""
@@ -88,12 +83,7 @@ async def websocket_endpoint(websocket: WebSocket, exercise_id: str):
     """Main WebSocket endpoint for pose detection"""
     await manager.connect(websocket, exercise_id)
     logger.info("New connection", exercise_id=exercise_id, client_id=websocket.client)
-
-    # Initialize exercise processor if not exists
-    if exercise_id not in exercise_processors:
-        exercise_processors[exercise_id] = ExerciseProcessor(exercise_id)
-
-    processor = exercise_processors[exercise_id]
+    processor = ExerciseProcessor(exercise_id)
 
     try:
         while True:
@@ -106,19 +96,19 @@ async def websocket_endpoint(websocket: WebSocket, exercise_id: str):
                 if message["type"] == "frame":
                     # Process the frame
                     frame_data = message["data"]
-                    timestamp = message.get("timestamp", 0)
+                    timestamp_ms = message.get("timestamp", 0)
 
                     # Decode base64 frame
                     frame_bytes = base64.b64decode(frame_data)
 
                     # Process frame and get pose data
-                    result = await processor.process_frame(frame_bytes, timestamp)
+                    result = await processor.process_frame(frame_bytes, timestamp_ms)
 
                     # Send result back to client
                     await websocket.send_text(json.dumps({
                         "type": "pose_result",
                         "data": result.dict() if hasattr(result, 'dict') else result,
-                        "timestamp": timestamp
+                        "timestamp": timestamp_ms
                     }))
 
                 elif message["type"] == "reset":
@@ -146,6 +136,8 @@ async def websocket_endpoint(websocket: WebSocket, exercise_id: str):
     except Exception as e:
         logger.error("WebSocket error", error=str(e), exercise_id=exercise_id)
         await manager.disconnect(websocket, exercise_id)
+    finally:
+        processor.cleanup()
 
 
 @app.get("/health/detailed")

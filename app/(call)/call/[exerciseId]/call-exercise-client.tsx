@@ -17,7 +17,6 @@ import { toast } from "sonner";
 import { ModelVideo } from "@/components/shared/model-video";
 import { ReflectionDialog } from "@/components/shared/reflection-dialog";
 import { VideoStream } from "@/components/shared/video-stream";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -30,6 +29,8 @@ import { ROUTES } from "@/lib/constants/routes";
 import { logger } from "@/lib/logger";
 import type { PoseResult } from "@/lib/types/exercise";
 import { formatTime } from "@/lib/utils/date-utils";
+
+const EMPTY_ITEMS: ShopItem[] = [];
 
 interface Ex4State {
   reps: number;
@@ -44,7 +45,7 @@ interface CallExerciseClientProps {
 
 export function CallExerciseClient({
   exercise,
-  equippedItems = [],
+  equippedItems = EMPTY_ITEMS,
 }: CallExerciseClientProps) {
   const router = useRouter();
 
@@ -90,7 +91,7 @@ export function CallExerciseClient({
   });
   const [cameraWarning, setCameraWarning] = useState<boolean>(false);
   const [exerciseComplete, setExerciseComplete] = useState<boolean>(false);
-  const [targetReps] = useState<number>(10);
+  const [targetReps, setTargetReps] = useState<number | null>(null);
 
   const sessionStartTime = useRef<number | null>(null);
   const prevRepsRef = useRef<number>(0);
@@ -187,6 +188,7 @@ export function CallExerciseClient({
     setRepFeedback({ show: false, text: "" });
     setCameraWarning(false);
     setExerciseComplete(false);
+    setTargetReps(null);
     prevRepsRef.current = 0;
 
     setIsCallActive(true);
@@ -217,6 +219,7 @@ export function CallExerciseClient({
           duration: sessionTime,
           endedAt: new Date(),
           maxAccuracy: 90,
+          repsCompleted: ex4State.reps,
         });
         await updateExerciseDoneAction({ done: true, id: exercise.id });
         toast.success("Session completed!");
@@ -235,6 +238,7 @@ export function CallExerciseClient({
   const handlePoseUpdate = useCallback(
     (result: PoseResult) => {
       const newReps = result.exercise_state?.reps || 0;
+      const newTargetReps = result.exercise_state?.target_reps ?? null;
       const currentAngle =
         result.angles?.hip ||
         result.angles?.knee ||
@@ -242,6 +246,8 @@ export function CallExerciseClient({
         result.exercise_state?.current_angle ||
         null;
       const holdTime = result.exercise_state?.hold_time || 0;
+
+      setTargetReps(newTargetReps);
 
       // Check if a new rep was completed
       if (newReps > prevRepsRef.current) {
@@ -251,7 +257,11 @@ export function CallExerciseClient({
         });
 
         // Check if exercise is complete
-        if (newReps >= targetReps && !exerciseComplete) {
+        if (
+          newTargetReps !== null &&
+          newReps >= newTargetReps &&
+          !exerciseComplete
+        ) {
           setExerciseComplete(true);
         }
       }
@@ -264,7 +274,7 @@ export function CallExerciseClient({
 
       prevRepsRef.current = newReps;
     },
-    [targetReps, exerciseComplete]
+    [exerciseComplete]
   );
 
   const handleReflectionSubmit = async (reflection: {
@@ -353,6 +363,7 @@ export function CallExerciseClient({
               {ex4State.currentAngle?.toFixed(0) ?? "N/A"}°
             </div>
             <div>Reps: {ex4State.reps}</div>
+            <div>Target: {targetReps ?? "..."}</div>
             <div>Hold Time: {ex4State.holdTime.toFixed(1)}s</div>
           </div>
 

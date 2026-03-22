@@ -23,6 +23,7 @@ class ExerciseState:
         self.smoothed_angle = None
         self.angle_history = []  # For moving average
         self.max_history = 3
+        self.exercise_in_squat = False
 
     def reset(self):
         """Reset exercise state"""
@@ -37,8 +38,9 @@ class ExerciseState:
         self.last_valid_angle = None
         self.smoothed_angle = None
         self.angle_history = []
+        self.exercise_in_squat = False
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self, target_reps: int) -> Dict[str, Any]:
         """Convert state to dictionary"""
         return {
             "reps": self.reps,
@@ -46,7 +48,8 @@ class ExerciseState:
             "ready_for_next": self.ready_for_next,
             "current_angle": self.smoothed_angle or self.current_angle,
             "hold_time": self.hold_time,
-            "exercise_active": self.exercise_active
+            "exercise_active": self.exercise_active,
+            "target_reps": target_reps,
         }
 
     def smooth_angle(self, new_angle: float, smoothing_factor: float = 0.7) -> float:
@@ -133,7 +136,7 @@ class ExerciseProcessor:
         self.frame_count = 0
         self.process_every_n_frames = 1  # Process every frame for now
         self.last_processed_time = 0
-        self.min_process_interval = 0.05  # Minimum 50ms between processing
+        self.min_process_interval_ms = 50.0
 
         logger.info(
             "ExerciseProcessor initialized",
@@ -213,13 +216,13 @@ class ExerciseProcessor:
         }
         return params.get(exercise_id, params["ex5"])
 
-    async def process_frame(self, frame_bytes: bytes, timestamp: float) -> Dict[str, Any]:
+    async def process_frame(self, frame_bytes: bytes, timestamp_ms: float) -> Dict[str, Any]:
         """
         Process a frame and update exercise state
 
         Args:
             frame_bytes: Raw image bytes
-            timestamp: Frame timestamp
+            timestamp_ms: Frame timestamp in milliseconds
 
         Returns:
             Dictionary with pose data and exercise state
@@ -227,42 +230,37 @@ class ExerciseProcessor:
         # Frame skipping logic
         self.frame_count += 1
 
-        # Skip frames if we processed too recently
-        if timestamp - self.last_processed_time < self.min_process_interval:
-            # Still get pose for skeleton display but don't process exercise logic
-            pose_result = await self.detector.process_frame_async(frame_bytes, timestamp)
-            return {
-                "pose_detected": pose_result.get("pose_detected", False) if pose_result else False,
-                "landmarks": pose_result.get("landmarks") if pose_result else None,
-                "exercise_state": self.state.to_dict(),
-                "exercise_id": self.exercise_id,
-                "feedback": "Processing...",
-                "skipped": True
-            }
-
-        # Only process every Nth frame
-        if self.frame_count % self.process_every_n_frames != 0:
-            # Still get pose for skeleton display
-            pose_result = await self.detector.process_frame_async(frame_bytes, timestamp)
-            return {
-                "pose_detected": pose_result.get("pose_detected", False) if pose_result else False,
-                "landmarks": pose_result.get("landmarks") if pose_result else None,
-                "exercise_state": self.state.to_dict(),
-                "exercise_id": self.exercise_id,
-                "feedback": "Tracking...",
-                "skipped": True
-            }
-
-        # Get pose detection results
-        pose_result = await self.detector.process_frame_async(frame_bytes, timestamp)
+        # Run detection once for every received frame so the frontend can keep
+        # drawing fresh landmarks, but throttle exercise-state transitions.
+        pose_result = await self.detector.process_frame_async(frame_bytes, timestamp_ms)
+        target_reps = self.exercise_params["target_reps"]
 
         if not pose_result:
-            self.last_processed_time = timestamp
+            self.last_processed_time = timestamp_ms
             return {
                 "pose_detected": False,
-                "exercise_state": self.state.to_dict(),
+                "exercise_state": self.state.to_dict(target_reps),
                 "exercise_id": self.exercise_id,
-                "feedback": "No pose detected"
+                "feedback": "No pose detected",
+                "server_timestamp_ms": time.time() * 1000,
+            }
+
+        should_skip_processing = (
+            timestamp_ms - self.last_processed_time < self.min_process_interval_ms
+            or self.frame_count % self.process_every_n_frames != 0
+        )
+
+        if should_skip_processing:
+            return {
+                "pose_detected": pose_result.get("pose_detected", False),
+                "landmarks": pose_result.get("landmarks"),
+                "fps": pose_result.get("fps"),
+                "exercise_state": self.state.to_dict(target_reps),
+                "exercise_id": self.exercise_id,
+                "feedback": "Tracking...",
+                "pose_stable": pose_result.get("pose_stable", True),
+                "server_timestamp_ms": time.time() * 1000,
+                "skipped": True,
             }
 
         # Check overall pose confidence
@@ -277,13 +275,14 @@ class ExerciseProcessor:
 
         # Skip if visibility is too low
         if avg_visibility < 0.2:
-            self.last_processed_time = timestamp
+            self.last_processed_time = timestamp_ms
             return {
                 "pose_detected": False,
-                "exercise_state": self.state.to_dict(),
+                "exercise_state": self.state.to_dict(target_reps),
                 "exercise_id": self.exercise_id,
                 "feedback": "Position yourself better in camera",
-                "avg_visibility": avg_visibility
+                "avg_visibility": avg_visibility,
+                "server_timestamp_ms": time.time() * 1000,
             }
 
         # Process exercise-specific logic
@@ -302,20 +301,21 @@ class ExerciseProcessor:
         else:
             exercise_result = {"feedback": f"Exercise type '{self.exercise_id}' not supported"}
 
-        self.last_processed_time = timestamp
+        self.last_processed_time = timestamp_ms
 
         # Combine results
         return {
             "pose_detected": pose_result["pose_detected"],
             "landmarks": pose_result.get("landmarks"),
             "fps": pose_result.get("fps"),
-            "exercise_state": self.state.to_dict(),
+            "exercise_state": self.state.to_dict(target_reps),
             "exercise_id": self.exercise_id,
             "feedback": exercise_result.get("feedback"),
             "angles": exercise_result.get("angles", {}),
             "rep_completed": exercise_result.get("rep_completed", False),
             "avg_visibility": avg_visibility,
-            "pose_stable": pose_result.get("pose_stable", True)
+            "pose_stable": pose_result.get("pose_stable", True),
+            "server_timestamp_ms": time.time() * 1000,
         }
 
     def _process_calf_raise(self, pose_result: Dict[str, Any]) -> Dict[str, Any]:
@@ -419,9 +419,13 @@ class ExerciseProcessor:
 
         # Check if pose is stable
         pose_stable = pose_result.get("pose_stable", True)
+        params = self.exercise_params
         if not pose_stable:
             # Skip processing if pose is too unstable
-            feedback = f"Knee: {self.state.smoothed_angle or 'N/A'}° | Reps: {self.state.reps}/{params['target_reps']}" if hasattr(self, 'params') else "Keep still..."
+            feedback = (
+                f"Knee: {self.state.smoothed_angle or 'N/A'}° | "
+                f"Reps: {self.state.reps}/{params['target_reps']}"
+            )
             return {
                 "feedback": feedback,
                 "angles": {"knee": self.state.smoothed_angle},
@@ -676,7 +680,7 @@ class ExerciseProcessor:
             feedback = "Good! Now stand up"
         else:
             # Check if standing up after being in squat position
-            if hasattr(self.state, 'exercise_in_squat') and self.state.exercise_in_squat and hip_angle >= params["hip_reset_threshold"]:
+            if self.state.exercise_in_squat and hip_angle >= params["hip_reset_threshold"]:
                 # Count a rep
                 self.state.reps += 1
                 self.state.exercise_in_squat = False
@@ -823,26 +827,60 @@ class ExerciseProcessor:
         feedback = ""
 
         # Calculate knee angle
-        knee_angle = self.detector.calculate_angle(
-            pose_result["landmarks"],
-            self.LANDMARKS["RIGHT_HIP"],
-            self.LANDMARKS["RIGHT_KNEE"],
-            self.LANDMARKS["RIGHT_ANKLE"]
+        landmarks = pose_result.get("landmarks")
+        if not landmarks:
+            self.state.exercise_active = False
+            return {
+                "feedback": "No landmarks detected",
+                "angles": {},
+                "rep_completed": False,
+            }
+
+        min_visibility = 0.3
+        hip = self.detector.get_landmark_point(
+            landmarks, self.LANDMARKS["RIGHT_HIP"], min_visibility
+        )
+        knee = self.detector.get_landmark_point(
+            landmarks, self.LANDMARKS["RIGHT_KNEE"], min_visibility
+        )
+        ankle = self.detector.get_landmark_point(
+            landmarks, self.LANDMARKS["RIGHT_ANKLE"], min_visibility
+        )
+        shoulder = self.detector.get_landmark_point(
+            landmarks, self.LANDMARKS["RIGHT_SHOULDER"], min_visibility
         )
 
-        # Calculate hip angle
-        hip_angle = self.detector.calculate_angle(
-            pose_result["landmarks"],
-            self.LANDMARKS["RIGHT_SHOULDER"],
-            self.LANDMARKS["RIGHT_HIP"],
-            self.LANDMARKS["RIGHT_KNEE"]
-        )
+        if not all([hip, knee, ankle, shoulder]):
+            hip = self.detector.get_landmark_point(
+                landmarks, self.LANDMARKS["LEFT_HIP"], min_visibility
+            )
+            knee = self.detector.get_landmark_point(
+                landmarks, self.LANDMARKS["LEFT_KNEE"], min_visibility
+            )
+            ankle = self.detector.get_landmark_point(
+                landmarks, self.LANDMARKS["LEFT_ANKLE"], min_visibility
+            )
+            shoulder = self.detector.get_landmark_point(
+                landmarks, self.LANDMARKS["LEFT_SHOULDER"], min_visibility
+            )
+
+        if not all([hip, knee, ankle, shoulder]):
+            self.state.exercise_active = False
+            self.state.current_angle = None
+            return {
+                "feedback": "Position yourself better in camera",
+                "angles": {},
+                "rep_completed": False,
+            }
+
+        knee_angle = self.detector.calculate_angle(hip, knee, ankle)
+        hip_angle = self.detector.calculate_angle(shoulder, hip, knee)
 
         if knee_angle is not None and hip_angle is not None:
-            # Apply smoothing to both angles
-            knee_angle = self.state.smooth_angle(knee_angle)
-            hip_angle = self.state.smooth_angle(hip_angle)
+            knee_angle = round(knee_angle, 1)
+            hip_angle = round(hip_angle, 1)
             self.state.current_angle = knee_angle  # Primary angle for display
+            self.state.exercise_active = True
 
             # Check if in stepped-down position (both knee flexed and hip flexed)
             in_step_position = (knee_angle <= params["knee_flex_threshold"] and

@@ -61,9 +61,8 @@ class PoseDetector:
         self._initialize_pose()
 
         # Performance metrics
-        self.last_frame_time = 0
         self.fps_counter = 0
-        self.fps_start_time = time.time()
+        self.fps_start_time_ms: float | None = None
         self.current_fps = 0
 
         logger.info(
@@ -89,13 +88,13 @@ class PoseDetector:
             logger.error("Failed to initialize MediaPipe Pose", error=str(e))
             raise
 
-    async def process_frame_async(self, frame_bytes: bytes, timestamp: float = None) -> Optional[Dict[str, Any]]:
+    async def process_frame_async(self, frame_bytes: bytes, timestamp_ms: float | None = None) -> Optional[Dict[str, Any]]:
         """
         Asynchronously process a frame for pose detection
 
         Args:
             frame_bytes: Raw image bytes
-            timestamp: Frame timestamp for FPS calculation
+            timestamp_ms: Frame timestamp in milliseconds for FPS calculation
 
         Returns:
             Dictionary containing pose landmarks and metadata
@@ -108,27 +107,27 @@ class PoseDetector:
                 self.executor,
                 self._process_frame_sync,
                 frame_bytes,
-                timestamp or time.time()
+                timestamp_ms if timestamp_ms is not None else (time.perf_counter() * 1000)
             )
             return result
         except Exception as e:
             logger.error("Error in async frame processing", error=str(e))
             return None
 
-    def _process_frame_sync(self, frame_bytes: bytes, timestamp: float) -> Optional[Dict[str, Any]]:
+    def _process_frame_sync(self, frame_bytes: bytes, timestamp_ms: float) -> Optional[Dict[str, Any]]:
         """
         Synchronously process a frame for pose detection
 
         Args:
             frame_bytes: Raw image bytes
-            timestamp: Frame timestamp for FPS calculation
+            timestamp_ms: Frame timestamp in milliseconds for FPS calculation
 
         Returns:
             Dictionary containing pose landmarks and metadata
         """
         try:
             # Calculate FPS
-            self._update_fps(timestamp)
+            self._update_fps(timestamp_ms)
 
             # Decode image from bytes
             nparr = np.frombuffer(frame_bytes, np.uint8)
@@ -149,7 +148,7 @@ class PoseDetector:
 
             # Prepare response
             response = {
-                "timestamp": timestamp,
+                "timestamp_ms": timestamp_ms,
                 "frame_width": original_width,
                 "frame_height": original_height,
                 "fps": self.current_fps,
@@ -216,15 +215,26 @@ class PoseDetector:
             logger.error("Error processing frame", error=str(e))
             return None
 
-    def _update_fps(self, timestamp: float):
+    def _update_fps(self, timestamp_ms: float):
         """Update FPS counter"""
+        if self.fps_start_time_ms is None or timestamp_ms < self.fps_start_time_ms:
+            self.fps_start_time_ms = timestamp_ms
+            self.fps_counter = 0
+            self.current_fps = 0
+
         self.fps_counter += 1
 
+        if self.fps_start_time_ms is None:
+            return
+
+        elapsed_ms = timestamp_ms - self.fps_start_time_ms
+
         # Calculate FPS every second
-        if timestamp - self.fps_start_time >= 1.0:
-            self.current_fps = self.fps_counter / (timestamp - self.fps_start_time)
+        if elapsed_ms >= 1000:
+            elapsed_seconds = elapsed_ms / 1000
+            self.current_fps = self.fps_counter / elapsed_seconds
             self.fps_counter = 0
-            self.fps_start_time = timestamp
+            self.fps_start_time_ms = timestamp_ms
 
     def _smooth_landmarks(self, landmarks: List[Dict]) -> List[Dict]:
         """

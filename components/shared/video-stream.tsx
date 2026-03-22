@@ -49,14 +49,66 @@ export function VideoStream({
   const crownConfig = { ...DEFAULT_CROWN_SETTINGS, ...crownSettings };
   const glassesConfig = { ...DEFAULT_GLASSES_SETTINGS, ...glassesSettings };
   const streamConfig = { ...DEFAULT_VIDEO_STREAM_TRANSPORT, ...streamSettings };
+  const crownEmoji = crownConfig.emoji;
+  const crownSize = crownConfig.size;
+  const crownYOffset = crownConfig.yOffset;
+  const glassesEmoji = glassesConfig.emoji;
+  const glassesSize = glassesConfig.size;
+  const glassesYOffset = glassesConfig.yOffset;
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const animationRef = useRef<number | null>(null);
   const poseClientRef = useRef<PoseSocketClient | null>(null);
   const lastLandmarks = useRef<Landmark[] | null>(null);
+  const onPoseUpdateRef = useRef(onPoseUpdate);
+  const onCameraDistanceWarningRef = useRef(onCameraDistanceWarning);
+  const flippedRef = useRef(flipped);
+  const exerciseIdRef = useRef(exerciseId);
+  const accessoryConfigRef = useRef({
+    crownEmoji,
+    crownSize,
+    crownYOffset,
+    glassesEmoji,
+    glassesSize,
+    glassesYOffset,
+  });
 
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    onPoseUpdateRef.current = onPoseUpdate;
+  }, [onPoseUpdate]);
+
+  useEffect(() => {
+    onCameraDistanceWarningRef.current = onCameraDistanceWarning;
+  }, [onCameraDistanceWarning]);
+
+  useEffect(() => {
+    flippedRef.current = flipped;
+  }, [flipped]);
+
+  useEffect(() => {
+    exerciseIdRef.current = exerciseId;
+  }, [exerciseId]);
+
+  useEffect(() => {
+    accessoryConfigRef.current = {
+      crownEmoji,
+      crownSize,
+      crownYOffset,
+      glassesEmoji,
+      glassesSize,
+      glassesYOffset,
+    };
+  }, [
+    crownEmoji,
+    crownSize,
+    crownYOffset,
+    glassesEmoji,
+    glassesSize,
+    glassesYOffset,
+  ]);
 
   const drawVideoFrame = useCallback(
     (
@@ -96,6 +148,14 @@ export function VideoStream({
         return;
       }
 
+      const {
+        crownEmoji,
+        crownSize,
+        crownYOffset,
+        glassesEmoji,
+        glassesSize,
+        glassesYOffset,
+      } = accessoryConfigRef.current;
       const { width } = ctx.canvas;
       const { height } = ctx.canvas;
 
@@ -155,11 +215,11 @@ export function VideoStream({
         const noseX = flipped ? width - nose.x * width : nose.x * width;
         const noseY = nose.y * height;
 
-        ctx.font = `${crownConfig.size}px Arial`;
+        ctx.font = `${crownSize}px Arial`;
         ctx.textAlign = "center";
         ctx.textBaseline = "bottom";
 
-        ctx.fillText(crownConfig.emoji, noseX, noseY + crownConfig.yOffset);
+        ctx.fillText(crownEmoji, noseX, noseY + crownYOffset);
       }
 
       // Draw glasses between the eyes
@@ -183,13 +243,13 @@ export function VideoStream({
 
         // Calculate center position between eyes
         const glassesX = (leftEyeX + rightEyeX) / 2 + 5;
-        const glassesY = (leftEyeY + rightEyeY) / 2 + glassesConfig.yOffset;
+        const glassesY = (leftEyeY + rightEyeY) / 2 + glassesYOffset;
 
         // Calculate distance between eyes to scale glasses
         const eyeDistance = Math.abs(rightEyeX - leftEyeX);
         const scaleFactor = (eyeDistance / 60) * 1.5; // Base distance for scaling, 1.5x multiplier for better visibility
 
-        ctx.font = `${glassesConfig.size * scaleFactor}px Arial`;
+        ctx.font = `${glassesSize * scaleFactor}px Arial`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
@@ -199,7 +259,7 @@ export function VideoStream({
         ctx.shadowOffsetX = 2;
         ctx.shadowOffsetY = 2;
 
-        ctx.fillText(glassesConfig.emoji, glassesX, glassesY);
+        ctx.fillText(glassesEmoji, glassesX, glassesY);
 
         // Reset shadow
         ctx.shadowColor = "transparent";
@@ -208,59 +268,8 @@ export function VideoStream({
         ctx.shadowOffsetY = 0;
       }
     },
-    [crownConfig, glassesConfig]
+    []
   );
-
-  const startCamera = useCallback(async () => {
-    if (!videoRef.current) {
-      return;
-    }
-
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: false,
-        video: { facingMode: "user", height: 480, width: 640 },
-      });
-      streamRef.current = stream;
-      videoRef.current.srcObject = stream;
-
-      await new Promise((resolve) => {
-        videoRef.current!.onloadedmetadata = () => {
-          // Start animation loop when video metadata is loaded
-          if (!animationRef.current) {
-            animationRef.current = requestAnimationFrame(drawFrame);
-          }
-          resolve(true);
-        };
-      });
-
-      await videoRef.current.play();
-
-      // Also start animation loop after play begins
-      if (!animationRef.current) {
-        animationRef.current = requestAnimationFrame(drawFrame);
-      }
-    } catch (error) {
-      logger.error(error);
-      setError("Failed to access camera. Grant permissions and reload.");
-    }
-  }, []);
-
-  const stopCamera = useCallback(() => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-    }
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-      animationRef.current = null;
-    }
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-    }
-    // Clear landmarks when stopping
-    lastLandmarks.current = null;
-  }, []);
 
   // Draw video frame and send to backend
   const drawFrame = useCallback(() => {
@@ -279,11 +288,13 @@ export function VideoStream({
           canvas.height = video.videoHeight;
         }
 
-        drawVideoFrame(ctx, video, canvas, flipped);
+        const currentFlipped = flippedRef.current;
+
+        drawVideoFrame(ctx, video, canvas, currentFlipped);
 
         // Check camera distance (person too close if they fill most of the frame)
         if (
-          onCameraDistanceWarning &&
+          onCameraDistanceWarningRef.current &&
           video.videoHeight > 0 &&
           lastLandmarks.current &&
           lastLandmarks.current.length > 0
@@ -296,18 +307,18 @@ export function VideoStream({
 
           // If body occupies more than 80% of frame height, person is too close
           const tooClose = bodyHeight > frameHeight * 0.8;
-          onCameraDistanceWarning(tooClose);
+          onCameraDistanceWarningRef.current(tooClose);
         }
 
         // Draw skeleton if we have landmarks
         if (lastLandmarks.current) {
-          drawSkeleton(ctx, lastLandmarks.current, flipped);
+          drawSkeleton(ctx, lastLandmarks.current, currentFlipped);
         }
 
         // Send frame to backend if connected
         if (
           poseClientRef.current &&
-          exerciseId &&
+          exerciseIdRef.current &&
           poseClientRef.current.connected()
         ) {
           poseClientRef.current.sendFrame(video);
@@ -316,14 +327,57 @@ export function VideoStream({
     }
 
     animationRef.current = requestAnimationFrame(drawFrame);
-  }, [
-    flipped,
-    exerciseId,
-    drawSkeleton,
-    drawVideoFrame,
-    getBodyHeightPx,
-    onCameraDistanceWarning,
-  ]);
+  }, [drawSkeleton, drawVideoFrame, getBodyHeightPx]);
+
+  const startCamera = useCallback(async () => {
+    if (!videoRef.current) {
+      return;
+    }
+
+    try {
+      setError(null);
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: { facingMode: "user", height: 480, width: 640 },
+      });
+      streamRef.current = stream;
+      videoRef.current.srcObject = stream;
+
+      await new Promise((resolve) => {
+        videoRef.current!.onloadedmetadata = () => {
+          if (!animationRef.current) {
+            animationRef.current = requestAnimationFrame(drawFrame);
+          }
+          resolve(true);
+        };
+      });
+
+      await videoRef.current.play();
+
+      if (!animationRef.current) {
+        animationRef.current = requestAnimationFrame(drawFrame);
+      }
+    } catch (error) {
+      logger.error(error);
+      setError("Failed to access camera. Grant permissions and reload.");
+    }
+  }, [drawFrame]);
+
+  const stopCamera = useCallback(() => {
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+      videoRef.current.onloadedmetadata = null;
+    }
+    lastLandmarks.current = null;
+  }, []);
 
   useEffect(() => {
     if (isCallActive && isVideoOn) {
@@ -335,19 +389,10 @@ export function VideoStream({
           baseUrl: env.NEXT_PUBLIC_BACKEND_URL,
           exerciseId: exerciseId,
           onPoseResult: (result: PoseResult) => {
-            // Handle pose results from backend
-            logger.info(result, "Pose result from backend:");
-            // Store landmarks for skeleton drawing
             if (result.landmarks && result.landmarks.length > 0) {
               lastLandmarks.current = result.landmarks;
             }
-            // Call parent component callback with pose data
-            if (onPoseUpdate) {
-              onPoseUpdate(result);
-            }
-          },
-          onConnectionChange: (connected) => {
-            logger.info(connected, "Backend connection status:");
+            onPoseUpdateRef.current?.(result);
           },
           onError: (error) => {
             logger.error(error, "PoseSocketClient error:");
@@ -394,7 +439,6 @@ export function VideoStream({
     isVideoOn,
     startCamera,
     exerciseId,
-    onPoseUpdate,
     streamConfig.captureHeight,
     streamConfig.captureWidth,
     streamConfig.frameSkip,

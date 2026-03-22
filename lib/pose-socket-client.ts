@@ -3,29 +3,7 @@
  */
 
 import { logger } from "./logger";
-
-interface PoseResult {
-  pose_detected: boolean;
-  landmarks?: {
-    x: number;
-    y: number;
-    z: number;
-    visibility: number;
-  }[];
-  fps?: number;
-  exercise_state: {
-    reps: number;
-    timer_started: boolean;
-    ready_for_next: boolean;
-    current_angle: number | null;
-    hold_time: number;
-    exercise_active: boolean;
-  };
-  exercise_id: string;
-  feedback: string;
-  angles: Record<string, number>;
-  rep_completed: boolean;
-}
+import type { PoseResult } from "./types/exercise";
 
 interface PoseSocketClientOptions {
   baseUrl: string;
@@ -48,6 +26,10 @@ export class PoseSocketClient {
   private isConnecting = false;
   private frameCount = 0;
   private isConnected = false;
+  private captureCanvas: HTMLCanvasElement | null = null;
+  private captureContext: CanvasRenderingContext2D | null = null;
+  private reconnectTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  private manualClose = false;
 
   constructor(private options: PoseSocketClientOptions) {}
 
@@ -62,6 +44,7 @@ export class PoseSocketClient {
       }
 
       this.isConnecting = true;
+      this.manualClose = false;
       const wsUrl = `${this.options.baseUrl.replace("http", "ws")}/ws/${this.options.exerciseId}`;
 
       try {
@@ -69,6 +52,10 @@ export class PoseSocketClient {
 
         this.ws.onopen = () => {
           // console.log('Connected to pose detection server'); // Commented out for production
+          if (this.reconnectTimeoutId) {
+            clearTimeout(this.reconnectTimeoutId);
+            this.reconnectTimeoutId = null;
+          }
           this.isConnecting = false;
           this.isConnected = true;
           this.reconnectAttempts = 0;
@@ -89,11 +76,11 @@ export class PoseSocketClient {
           // Attempt to reconnect
           if (
             this.reconnectAttempts < this.maxReconnectAttempts &&
-            !event.wasClean
+            !event.wasClean &&
+            !this.manualClose
           ) {
-            setTimeout(() => {
+            this.reconnectTimeoutId = setTimeout(() => {
               this.reconnectAttempts++;
-              // console.log(`Reconnecting... Attempt ${this.reconnectAttempts}`);
               this.connect();
             }, this.reconnectDelay * this.reconnectAttempts);
           }
@@ -151,9 +138,16 @@ export class PoseSocketClient {
     }
 
     try {
-      // Create canvas to capture frame
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
+      if (!this.captureCanvas) {
+        this.captureCanvas = document.createElement("canvas");
+      }
+
+      if (!this.captureContext) {
+        this.captureContext = this.captureCanvas.getContext("2d");
+      }
+
+      const canvas = this.captureCanvas;
+      const ctx = this.captureContext;
       if (!ctx) {
         return;
       }
@@ -221,11 +215,18 @@ export class PoseSocketClient {
    * Disconnect from the server
    */
   disconnect(): void {
+    this.manualClose = true;
+    if (this.reconnectTimeoutId) {
+      clearTimeout(this.reconnectTimeoutId);
+      this.reconnectTimeoutId = null;
+    }
     if (this.ws) {
       this.ws.close();
       this.ws = null;
     }
     this.isConnected = false;
     this.isConnecting = false;
+    this.captureContext = null;
+    this.captureCanvas = null;
   }
 }
