@@ -34,7 +34,10 @@ interface PoseSocketClientOptions {
   onConnectionChange?: (connected: boolean) => void;
   onError?: (error: Error) => void;
   frameSkip?: number; // Send every nth frame
-  quality?: number; // JPEG quality 0-1
+  jpegQuality?: number; // JPEG quality 0-1
+  captureWidth?: number;
+  captureHeight?: number;
+  mirrorForBackend?: boolean;
 }
 
 export class PoseSocketClient {
@@ -142,7 +145,7 @@ export class PoseSocketClient {
 
     // Frame skipping for performance
     this.frameCount++;
-    const frameSkip = this.options.frameSkip || 2;
+    const frameSkip = this.options.frameSkip ?? 2;
     if (this.frameCount % frameSkip !== 0) {
       return;
     }
@@ -156,20 +159,24 @@ export class PoseSocketClient {
       }
 
       // Set canvas size (smaller for performance)
-      const targetWidth = 640;
-      const targetHeight = 480;
+      const targetWidth = this.options.captureWidth ?? 640;
+      const targetHeight = this.options.captureHeight ?? 480;
       canvas.width = targetWidth;
       canvas.height = targetHeight;
 
-      // Draw video frame to canvas (mirrored)
-      ctx.save();
-      ctx.scale(-1, 1);
-      ctx.drawImage(videoElement, -targetWidth, 0, targetWidth, targetHeight);
-      ctx.restore();
+      const mirrorForBackend = this.options.mirrorForBackend ?? true;
+      if (mirrorForBackend) {
+        ctx.save();
+        ctx.scale(-1, 1);
+        ctx.drawImage(videoElement, -targetWidth, 0, targetWidth, targetHeight);
+        ctx.restore();
+      } else {
+        ctx.drawImage(videoElement, 0, 0, targetWidth, targetHeight);
+      }
 
       // Get image data as base64
-      const quality = this.options.quality || 0.7;
-      const imageData = canvas.toDataURL("image/jpeg", quality);
+      const jpegQuality = this.options.jpegQuality ?? 0.7;
+      const imageData = canvas.toDataURL("image/jpeg", jpegQuality);
 
       // Remove data URL prefix
       const base64Data = imageData.split(",")[1];

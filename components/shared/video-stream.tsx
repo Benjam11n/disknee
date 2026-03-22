@@ -3,6 +3,15 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 
 import { env } from "@/env";
+import {
+  DEFAULT_CROWN_SETTINGS,
+  DEFAULT_GLASSES_SETTINGS,
+  DEFAULT_VIDEO_STREAM_TRANSPORT,
+} from "@/lib/config/video-stream";
+import type {
+  VideoAccessoryConfig,
+  VideoStreamTransportConfig,
+} from "@/lib/config/video-stream";
 import { logger } from "@/lib/logger";
 import { PoseSocketClient } from "@/lib/pose-socket-client";
 import type { PoseResult } from "@/lib/types/exercise";
@@ -21,16 +30,9 @@ interface VideoStreamProps {
   exerciseId?: string;
   onPoseUpdate?: (data: PoseResult) => void;
   onCameraDistanceWarning?: (tooClose: boolean) => void;
-  crownSettings?: {
-    emoji?: string; // Crown emoji (default: 👑)
-    size?: number; // Font size in pixels (default: 60)
-    yOffset?: number; // Vertical offset from nose (default: -60)
-  };
-  glassesSettings?: {
-    emoji?: string; // Glasses emoji (default: 🕶️)
-    size?: number; // Font size in pixels (default: 50)
-    yOffset?: number; // Vertical offset from eyes (default: 0)
-  };
+  crownSettings?: Partial<VideoAccessoryConfig>;
+  glassesSettings?: Partial<VideoAccessoryConfig>;
+  streamSettings?: Partial<VideoStreamTransportConfig>;
 }
 
 export function VideoStream({
@@ -42,20 +44,11 @@ export function VideoStream({
   onCameraDistanceWarning,
   crownSettings,
   glassesSettings,
+  streamSettings,
 }: VideoStreamProps) {
-  // Set default crown settings
-  const crownConfig = {
-    emoji: crownSettings?.emoji || "👑",
-    size: crownSettings?.size || 60,
-    yOffset: crownSettings?.yOffset || -60,
-  };
-
-  // Set default glasses settings
-  const glassesConfig = {
-    emoji: glassesSettings?.emoji || "🕶️",
-    size: glassesSettings?.size || 80,
-    yOffset: glassesSettings?.yOffset || 0,
-  };
+  const crownConfig = { ...DEFAULT_CROWN_SETTINGS, ...crownSettings };
+  const glassesConfig = { ...DEFAULT_GLASSES_SETTINGS, ...glassesSettings };
+  const streamConfig = { ...DEFAULT_VIDEO_STREAM_TRANSPORT, ...streamSettings };
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -64,6 +57,33 @@ export function VideoStream({
   const lastLandmarks = useRef<Landmark[] | null>(null);
 
   const [error, setError] = useState<string | null>(null);
+
+  const drawVideoFrame = useCallback(
+    (
+      ctx: CanvasRenderingContext2D,
+      video: HTMLVideoElement,
+      canvas: HTMLCanvasElement,
+      flipped: boolean
+    ) => {
+      if (flipped) {
+        ctx.drawImage(video, canvas.width, 0, -canvas.width, canvas.height);
+        return;
+      }
+
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    },
+    []
+  );
+
+  const getBodyHeightPx = useCallback(
+    (landmarks: Landmark[], canvasHeight: number) => {
+      const minY = Math.min(...landmarks.map((landmark) => landmark.y));
+      const maxY = Math.max(...landmarks.map((landmark) => landmark.y));
+
+      return (maxY - minY) * canvasHeight;
+    },
+    []
+  );
 
   // Draw skeleton from landmarks
   const drawSkeleton = useCallback(
@@ -162,7 +182,7 @@ export function VideoStream({
         const rightEyeY = rightEye.y * height;
 
         // Calculate center position between eyes
-        const glassesX = (leftEyeX + rightEyeX) / 2 + 5; // Move 15px to the left
+        const glassesX = (leftEyeX + rightEyeX) / 2 + 5;
         const glassesY = (leftEyeY + rightEyeY) / 2 + glassesConfig.yOffset;
 
         // Calculate distance between eyes to scale glasses
@@ -188,7 +208,7 @@ export function VideoStream({
         ctx.shadowOffsetY = 0;
       }
     },
-    []
+    [crownConfig, glassesConfig]
   );
 
   const startCamera = useCallback(async () => {
@@ -259,13 +279,7 @@ export function VideoStream({
           canvas.height = video.videoHeight;
         }
 
-        // Draw video frame
-        ctx.save();
-        if (flipped) {
-          ctx.translate(canvas.width, 0);
-          ctx.scale(-1, 1);
-        }
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        drawVideoFrame(ctx, video, canvas, flipped);
 
         // Check camera distance (person too close if they fill most of the frame)
         if (
@@ -274,11 +288,10 @@ export function VideoStream({
           lastLandmarks.current &&
           lastLandmarks.current.length > 0
         ) {
-          const minY =
-            Math.min(...lastLandmarks.current.map((l) => l.y)) * canvas.height;
-          const maxY =
-            Math.max(...lastLandmarks.current.map((l) => l.y)) * canvas.height;
-          const bodyHeight = maxY - minY;
+          const bodyHeight = getBodyHeightPx(
+            lastLandmarks.current,
+            canvas.height
+          );
           const frameHeight = canvas.height;
 
           // If body occupies more than 80% of frame height, person is too close
@@ -290,8 +303,6 @@ export function VideoStream({
         if (lastLandmarks.current) {
           drawSkeleton(ctx, lastLandmarks.current, flipped);
         }
-
-        ctx.restore();
 
         // Send frame to backend if connected
         if (
@@ -309,8 +320,9 @@ export function VideoStream({
     flipped,
     exerciseId,
     drawSkeleton,
+    drawVideoFrame,
+    getBodyHeightPx,
     onCameraDistanceWarning,
-    onPoseUpdate,
   ]);
 
   useEffect(() => {
@@ -340,8 +352,11 @@ export function VideoStream({
           onError: (error) => {
             logger.error(error, "PoseSocketClient error:");
           },
-          frameSkip: 2, // Send every 2nd frame (15fps)
-          quality: 0.7, // JPEG quality
+          captureHeight: streamConfig.captureHeight,
+          captureWidth: streamConfig.captureWidth,
+          frameSkip: streamConfig.frameSkip,
+          jpegQuality: streamConfig.jpegQuality,
+          mirrorForBackend: streamConfig.mirrorForBackend,
         });
 
         poseClientRef.current
@@ -374,7 +389,18 @@ export function VideoStream({
         lastLandmarks.current = null;
       }
     };
-  }, [isCallActive, isVideoOn, startCamera, exerciseId, onPoseUpdate]);
+  }, [
+    isCallActive,
+    isVideoOn,
+    startCamera,
+    exerciseId,
+    onPoseUpdate,
+    streamConfig.captureHeight,
+    streamConfig.captureWidth,
+    streamConfig.frameSkip,
+    streamConfig.jpegQuality,
+    streamConfig.mirrorForBackend,
+  ]);
 
   return (
     <div className="relative w-full h-full">

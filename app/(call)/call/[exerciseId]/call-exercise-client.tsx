@@ -297,16 +297,8 @@ export function CallExerciseClient({
             isVideoOn={isVideoOn}
             isCallActive={isCallActive}
             exerciseId={exercise.type || undefined}
-            crownSettings={{
-              emoji: equippedHat?.icon || "👑",
-              size: equippedHat ? 60 : 60, // Can be customized per item in future
-              yOffset: equippedHat ? -70 : -70, // Can be customized per item in future
-            }}
-            glassesSettings={{
-              emoji: equippedGlasses?.icon || "🕶️",
-              size: equippedGlasses ? 100 : 100, // Can be customized per item in future
-              yOffset: equippedGlasses ? 10 : 10, // Slightly lower on face
-            }}
+            crownSettings={{ emoji: equippedHat?.icon || "👑" }}
+            glassesSettings={{ emoji: equippedGlasses?.icon || "🕶️" }}
             onCameraDistanceWarning={handleCameraDistanceWarning}
             onPoseUpdate={handlePoseUpdate}
           />

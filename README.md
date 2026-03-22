@@ -6,7 +6,7 @@
 
 <div align="center">
 
-  **AI-powered knee rehabilitation that makes home recovery feel guided, measurable, and motivating.**
+**AI-powered knee rehabilitation that makes home recovery feel guided, measurable, and motivating.**
 
 </div>
 
@@ -29,12 +29,12 @@ Originally created for **Hack 2 Heal at UNSW**, DisKnee was selected as a **fina
 
 ## Why it stands out
 
-| | |
-| --- | --- |
-| **Real-time pose detection** | Tracks movement during exercises and gives instant form-aware feedback. |
-| **Adaptive recovery flow** | Sessions, progress, and motivation systems keep patients consistent over time. |
-| **Built for actual users** | Combines exercises, reports, reflections, appointments, and a rewards loop in one experience. |
-| **Hackathon-to-product vision** | Designed not just as a prototype, but as a credible digital rehab platform. |
+|                                 |                                                                                               |
+| ------------------------------- | --------------------------------------------------------------------------------------------- |
+| **Real-time pose detection**    | Tracks movement during exercises and gives instant form-aware feedback.                       |
+| **Adaptive recovery flow**      | Sessions, progress, and motivation systems keep patients consistent over time.                |
+| **Built for actual users**      | Combines exercises, reports, reflections, appointments, and a rewards loop in one experience. |
+| **Hackathon-to-product vision** | Designed not just as a prototype, but as a credible digital rehab platform.                   |
 
 ## Experience highlights
 

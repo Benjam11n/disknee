@@ -40,16 +40,8 @@ export function TryOnClient() {
             isVideoOn={isVideoOn}
             isCallActive={true}
             exerciseId="simple-squat"
-            crownSettings={{
-              emoji: equippedHat?.icon || "👑",
-              size: 60,
-              yOffset: -60,
-            }}
-            glassesSettings={{
-              emoji: equippedGlasses?.icon || "🕶️",
-              size: 100,
-              yOffset: 10,
-            }}
+            crownSettings={{ emoji: equippedHat?.icon || "👑" }}
+            glassesSettings={{ emoji: equippedGlasses?.icon || "🕶️" }}
           />
         </Card>
       </div>
