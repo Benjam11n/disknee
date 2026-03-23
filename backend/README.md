@@ -24,8 +24,8 @@ backend/
 │       ├── pose.py          # Pydantic models for pose data
 │       └── session.py       # WebSocket connection management
 ├── pyproject.toml           # uv-managed Python dependencies
-├── Dockerfile              # Docker configuration
-└── .env.example            # Environment variables template
+├── Dockerfile              # Container image for the pose backend
+└── tests/                  # Backend tests
 ```
 
 ## Quick Start
@@ -65,6 +65,28 @@ backend/
    ```bash
    docker run -p 8000:8000 disknee-pose-backend
    ```
+
+On Apple Silicon, build and run the image as `linux/amd64` because `mediapipe==0.10.21` does not currently provide Linux `arm64` wheels:
+
+```bash
+docker build --platform linux/amd64 -t disknee-pose-backend .
+docker run --platform linux/amd64 -p 8000:8000 disknee-pose-backend
+```
+
+### Using Docker Compose from the repo root
+
+For the full demo stack, run Compose from the project root instead of starting the backend on its own.
+
+```bash
+cp .env.compose.example .env.compose
+docker compose up --build
+```
+
+For hot reload:
+
+```bash
+docker compose -f compose.yaml -f compose.dev.yaml up --build
+```
 
 ## API Endpoints
 

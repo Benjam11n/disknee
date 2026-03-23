@@ -2,6 +2,21 @@
 
 This project can run fully against a local Supabase stack instead of the remote hosted instance.
 
+The recommended path for demos and easy distribution is now Docker Compose with the bundled stack:
+
+```bash
+cp .env.compose.example .env.compose
+docker compose up --build
+```
+
+That path exposes the same local URLs:
+
+- Studio: `http://127.0.0.1:54323`
+- API URL: `http://127.0.0.1:54321`
+- Postgres: `postgresql://postgres:postgres@127.0.0.1:54322/postgres`
+
+Use the Supabase CLI flow below when you specifically want to work with the native local Supabase tooling.
+
 ## Prerequisites
 
 - Docker or OrbStack running

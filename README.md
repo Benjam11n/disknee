@@ -76,6 +76,9 @@ DisKnee is the kind of project that sits in a strong middle ground: technically 
 
 The developer and technical documentation now lives in [`docs/README.md`](docs/README.md).
 
+- Recommended demo setup with Docker Compose: `cp .env.compose.example .env.compose && docker compose up --build`
+- Development override with hot reload: `docker compose -f compose.yaml -f compose.dev.yaml up --build`
+
 - Setup and local development: [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md)
 - Architecture notes: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 - Technical deep dive: [`docs/TECHNICAL_DEEP_DIVE.md`](docs/TECHNICAL_DEEP_DIVE.md)

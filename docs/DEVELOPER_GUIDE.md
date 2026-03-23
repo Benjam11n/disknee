@@ -17,8 +17,58 @@
 - `pnpm`
 - PostgreSQL 14+
 - Python 3.11+ for pose-detection work
+- Docker or OrbStack for the Compose workflow
+
+## Recommended: Docker Compose
+
+For the easiest local demo or handoff, use the bundled Compose stack.
+
+1. Create the Compose env file.
+
+```bash
+cp .env.compose.example .env.compose
+```
+
+2. Start the full demo stack.
+
+```bash
+docker compose up --build
+```
+
+This boots:
+
+- Next.js frontend on `http://localhost:3000`
+- Python backend on `http://localhost:8000`
+- Supabase API gateway on `http://localhost:54321`
+- Supabase Studio on `http://localhost:54323`
+
+On Apple Silicon, Compose runs the backend container as `linux/amd64` because the pinned `mediapipe` release does not ship Linux `arm64` wheels.
+
+On first startup, Compose also:
+
+- generates the Prisma client
+- pushes the Prisma schema
+- applies `prisma/migrations/create-leaderboard-views.sql`
+- seeds the demo data
+
+Reset the full demo stack:
+
+```bash
+docker compose down -v
+docker compose up --build
+```
+
+### Compose development mode
+
+Use the development override for hot reload on the frontend and backend.
+
+```bash
+docker compose -f compose.yaml -f compose.dev.yaml up --build
+```
 
 ## Local setup
+
+The non-Docker workflow is still supported when you want to run services directly.
 
 1. Install dependencies.
 
@@ -55,6 +105,8 @@ The app runs at `http://localhost:3000`.
 
 ## Core commands
 
+- `docker compose up --build` for the bundled demo stack
+- `docker compose -f compose.yaml -f compose.dev.yaml up --build` for containerized development
 - `pnpm run dev` for local development
 - `pnpm run lint` to run the repo linter
 - `pnpm run type-check` to run TypeScript checks

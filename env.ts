@@ -15,6 +15,7 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(["development", "production", "test"])
       .default("development"),
+    SUPABASE_INTERNAL_URL: z.string().url().optional(),
     SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
   },
 
@@ -53,6 +54,7 @@ export const env = createEnv({
     NEXT_PUBLIC_VERCEL_ENV: process.env.NEXT_PUBLIC_VERCEL_ENV,
     NEXT_RUNTIME: process.env.NEXT_RUNTIME,
     NODE_ENV: process.env.NODE_ENV,
+    SUPABASE_INTERNAL_URL: process.env.SUPABASE_INTERNAL_URL,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
   },
   emptyStringAsUndefined: true,

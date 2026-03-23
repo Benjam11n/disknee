@@ -1,0 +1,14 @@
+.git
+.next
+node_modules
+coverage
+.env
+.env.local
+.env.compose
+backend/.venv
+backend/.pytest_cache
+supabase/.temp
+supabase/.branches
+.vscode
+.DS_Store
+*.log
