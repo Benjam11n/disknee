@@ -9,6 +9,15 @@ import time
 
 logger = structlog.get_logger()
 
+"""
+@class PoseDetector
+@description A high-performance wrapper around MediaPipe Pose. 
+Key Features:
+- Thread-pool based asynchronous processing to prevent blocking the Event Loop.
+- Exponential Temporal Smoothing to eliminate jitter in real-time landmarks.
+- Frame-by-frame FPS calculation for performance monitoring.
+- Custom pose-stability algorithm that filters out high-noise frames.
+"""
 class PoseDetector:
     """
     Optimized MediaPipe pose detector for real-time processing
@@ -116,14 +125,13 @@ class PoseDetector:
 
     def _process_frame_sync(self, frame_bytes: bytes, timestamp_ms: float) -> Optional[Dict[str, Any]]:
         """
-        Synchronously process a frame for pose detection
-
-        Args:
-            frame_bytes: Raw image bytes
-            timestamp_ms: Frame timestamp in milliseconds for FPS calculation
-
-        Returns:
-            Dictionary containing pose landmarks and metadata
+        Synchronous Core Pipeline:
+        Step 1: Compute real-time FPS context
+        Step 2: Buffer decoding (Bytes -> Numpy/OpenCV Mat)
+        Step 3: Color Transformation (BGR -> RGB) for MediaPipe compliance
+        Step 4: Inference execution via MediaPipe Pose Engine
+        Step 5: Dynamic Landmark & Visibility filtration
+        Step 6: Stability scoring & Temporal Jitter Smoothing
         """
         try:
             # Calculate FPS

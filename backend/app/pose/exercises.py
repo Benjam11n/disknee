@@ -2,10 +2,19 @@ import structlog
 from typing import Dict, Any
 import time
 import math
-import numpy as np
 from .detector import PoseDetector
 
 logger = structlog.get_logger()
+
+"""
+@file exercises.py
+@description Domain-specific exercise logic. This is where the machine learning 
+landmarks are turned into clinical metrics (angles, reps, hold times).
+
+Pattern: State-Machine based exercise tracking.
+Each exercise (Knee Extension, Squat, etc.) is treated as a state machine where 
+transitions (e.g., from 'standing' to 'squatting') trigger rep counts and timers.
+"""
 
 class ExerciseState:
     """Base class for exercise state management"""
@@ -132,9 +141,10 @@ class ExerciseProcessor:
         # Exercise-specific parameters
         self.exercise_params = self._get_exercise_params(exercise_id)
 
+        # TODO: make these configurable
         # Frame processing control
         self.frame_count = 0
-        self.process_every_n_frames = 1  # Process every frame for now
+        self.process_every_n_frames = 2  # Process every 2nd frame for now (for performance)
         self.last_processed_time = 0
         self.min_process_interval_ms = 50.0
 
@@ -218,14 +228,13 @@ class ExerciseProcessor:
 
     async def process_frame(self, frame_bytes: bytes, timestamp_ms: float) -> Dict[str, Any]:
         """
-        Process a frame and update exercise state
-
-        Args:
-            frame_bytes: Raw image bytes
-            timestamp_ms: Frame timestamp in milliseconds
-
-        Returns:
-            Dictionary with pose data and exercise state
+        Main Event Loop for Frame Processing:
+        Step 1: Frame count orchestration for metrics/logging
+        Step 2: Delegate byte-stream to Detector for CV land-marking
+        Step 3: Perform latency validation (skip processing if frame is stale)
+        Step 4: Execute Visibility Check for critical joints (medical validity)
+        Step 5: Pass landmarks to specialized State Machine (e.g., Squat/Calf-raise)
+        Step 6: Combine CV metadata with Clinical state for WS response
         """
         # Frame skipping logic
         self.frame_count += 1
@@ -459,7 +468,7 @@ class ExerciseProcessor:
         if knee_angle < 30 or knee_angle > 180:
             logger.warning(f"Invalid knee angle detected: {knee_angle:.1f}°")
             return {
-                "feedback": f"Invalid angle detected. Adjust position.",
+                "feedback": "Invalid angle detected. Adjust position.",
                 "angles": {"knee": self.state.smoothed_angle}
             }
 

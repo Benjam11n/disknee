@@ -1,5 +1,12 @@
 /**
- * WebSocket client for pose detection backend communication
+ * @class PoseSocketClient
+ * @description A robust WebSocket client designed for high-throughput image data transfer.
+ * 
+ * Responsibilities:
+ * 1. Handling binary image serialization (Canvas -> JPEG -> Base64).
+ * 2. Managing back-pressure via frame-skipping logic.
+ * 3. Graceful reconnection with exponential backoff for flaky networks.
+ * 4. Bi-directional communication with the Python Computer Vision backend.
  */
 
 import { logger } from "./logger";
@@ -35,6 +42,12 @@ export class PoseSocketClient {
 
   /**
    * Connect to the pose detection WebSocket server
+   * Workflow:
+   * 1. Re-format HTTP URL to WS/WSS protocol
+   * 2. Initialize native WebSocket with exercise-specific route
+   * 3. Set up event listeners for open, close, and error handling
+   * 4. Implement automatic reconnection loop if the connection drops
+   * 5. Deserialize incoming performance results from the AI
    */
   connect(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -51,7 +64,6 @@ export class PoseSocketClient {
         this.ws = new WebSocket(wsUrl);
 
         this.ws.onopen = () => {
-          // console.log('Connected to pose detection server'); // Commented out for production
           if (this.reconnectTimeoutId) {
             clearTimeout(this.reconnectTimeoutId);
             this.reconnectTimeoutId = null;
@@ -64,11 +76,6 @@ export class PoseSocketClient {
         };
 
         this.ws.onclose = (event) => {
-          // console.log('Disconnected from pose detection server', {
-          //   code: event.code,
-          //   reason: event.reason || 'No reason provided',
-          //   wasClean: event.wasClean
-          // });
           this.isConnecting = false;
           this.isConnected = false;
           this.options.onConnectionChange?.(false);
@@ -114,7 +121,12 @@ export class PoseSocketClient {
 
   /**
    * Send a video frame to the server for processing
-   * @param videoElement - HTML video element to capture frame from
+   * Step 1: Validate connection state and hardware availability
+   * Step 2: Implement frame skipping (throttling) for congestion control
+   * Step 3: Capture the current video frame into a temporary off-screen Canvas
+   * Step 4: Mirror and downscale the image to maintain sub-100ms latency
+   * Step 5: Convert the pixel data into a compressed JPEG Base64 payload
+   * Step 6: Dispatch JSON packet with a high-precision browser timestamp (performance.now())
    */
   sendFrame(videoElement: HTMLVideoElement): void {
     if (
