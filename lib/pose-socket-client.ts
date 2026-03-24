@@ -58,11 +58,14 @@ export class PoseSocketClient {
 
       this.isConnecting = true;
       this.manualClose = false;
+      // Re-format HTTP URL to WS/WSS protocol
       const wsUrl = `${this.options.baseUrl.replace("http", "ws")}/ws/${this.options.exerciseId}`;
 
       try {
+        // Initialise websocket
         this.ws = new WebSocket(wsUrl);
 
+        // Set up event listeners for open, close, and error handling
         this.ws.onopen = () => {
           if (this.reconnectTimeoutId) {
             clearTimeout(this.reconnectTimeoutId);
@@ -86,6 +89,7 @@ export class PoseSocketClient {
             !event.wasClean &&
             !this.manualClose
           ) {
+            // Retry logic with exponential backoff
             this.reconnectTimeoutId = setTimeout(() => {
               this.reconnectAttempts++;
               this.connect();
@@ -100,6 +104,7 @@ export class PoseSocketClient {
           reject(error);
         };
 
+        // Handle incoming messages from the server
         this.ws.onmessage = (event) => {
           try {
             const message = JSON.parse(event.data);
