@@ -59,7 +59,7 @@ export function Features() {
     <div>
       <div className="text-center space-y-4 mb-20">
         <h2 className="text-3xl lg:text-5xl font-semibold tracking-tight">
-          Everything you need to recover.
+          Everything you need to stay on track.
         </h2>
         <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
           We combine computer vision with clinical best practices to deliver a

@@ -23,12 +23,12 @@ export function Hero({ onLearnMore }: HeroProps) {
         <h1 className="text-5xl lg:text-7xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
           Restore your mobility.
           <br className="hidden lg:block" />
-          <span className="text-zinc-500">Accelerate recovery.</span>
+          <span className="text-zinc-500">Stay on track.</span>
         </h1>
         <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed">
           DisKnee uses cutting-edge motion tracking to monitor your home
-          exercises, correct your form in real-time, and get you back on your
-          feet faster.
+          exercises, correct your form in real-time, and ensure you stay
+          consistent throughout your entire recovery journey.
         </p>
       </div>
 
@@ -38,7 +38,7 @@ export function Hero({ onLearnMore }: HeroProps) {
             size="lg"
             className="h-12 px-8 text-base shadow-sm group w-full sm:w-auto"
           >
-            Start Recovering Free
+            Start Recovering
             <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Button>
         </Link>
