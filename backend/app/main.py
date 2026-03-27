@@ -1,20 +1,28 @@
+from __future__ import annotations
+
+import base64
+import json
+import sys
+from contextlib import asynccontextmanager
+from pathlib import Path
+from collections.abc import AsyncIterator
+from typing import Any
+
+import structlog
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-import json
-import base64
-import structlog
-import sys
-from pathlib import Path
 
 try:
-    from .pose.exercises import ExerciseProcessor
+    from .models.pose import ErrorMessage, FrameMessage, PoseResultMessage, ResetMessage, StateResetMessage
     from .models.session import ConnectionManager
+    from .pose.exercises import ExerciseProcessor
 except ImportError:
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from app.pose.exercises import ExerciseProcessor
+    from app.models.pose import ErrorMessage, FrameMessage, PoseResultMessage, ResetMessage, StateResetMessage
     from app.models.session import ConnectionManager
+    from app.pose.exercises import ExerciseProcessor
 
-# Configure structured logging
+
 structlog.configure(
     processors=[
         structlog.stdlib.filter_by_level,
@@ -24,7 +32,7 @@ structlog.configure(
         structlog.processors.TimeStamper(fmt="iso"),
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
-        structlog.processors.JSONRenderer()
+        structlog.processors.JSONRenderer(),
     ],
     context_class=dict,
     logger_factory=structlog.stdlib.LoggerFactory(),
@@ -34,15 +42,33 @@ structlog.configure(
 
 logger = structlog.get_logger()
 
-# Initialize FastAPI app
+manager = ConnectionManager()
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    logger.info("Starting DisKnee Pose Detection Server")
+    try:
+        import mediapipe as mp
+
+        logger.info("MediaPipe version", version=mp.__version__)
+    except ImportError:
+        logger.warning("MediaPipe not installed")
+
+    try:
+        yield
+    finally:
+        logger.info("Shutting down DisKnee Pose Detection Server")
+        await manager.disconnect_all()
+
+
 app = FastAPI(
     title="DisKnee Pose Detection API",
     description="Real-time pose detection backend for DisKnee exercises",
     version="1.0.0",
-    ws="/ws/{exercise_id}"
+    lifespan=lifespan,
 )
 
-# CORS middleware for frontend connection
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000", "https://disknee.vercel.app", "https://disknee.app"],
@@ -51,102 +77,73 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Global connection manager
-manager = ConnectionManager()
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize the pose detection system"""
-    logger.info("Starting DisKnee Pose Detection Server")
-    try:
-        import mediapipe as mp
-        logger.info("MediaPipe version", version=mp.__version__)
-    except ImportError:
-        logger.warning("MediaPipe not installed")
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Cleanup on server shutdown"""
-    logger.info("Shutting down DisKnee Pose Detection Server")
-    await manager.disconnect_all()
-
 
 @app.get("/")
-async def get():
-    """Health check endpoint"""
+async def get() -> dict[str, str]:
     return {"status": "healthy", "service": "DisKnee Pose Detection API"}
 
 
+def _parse_client_message(raw_text: str) -> FrameMessage | ResetMessage:
+    payload = json.loads(raw_text)
+    if not isinstance(payload, dict):
+        raise ValueError("WebSocket payload must be a JSON object")
+
+    message_type = payload.get("type")
+    if message_type == "frame":
+        return FrameMessage.model_validate(payload)
+    if message_type == "reset":
+        return ResetMessage.model_validate(payload)
+
+    raise ValueError(f"Unsupported message type: {message_type}")
+
+
 @app.websocket("/ws/{exercise_id}")
-async def websocket_endpoint(websocket: WebSocket, exercise_id: str):
-    """Main WebSocket endpoint for pose detection"""
+async def websocket_endpoint(websocket: WebSocket, exercise_id: str) -> None:
     await manager.connect(websocket, exercise_id)
     logger.info("New connection", exercise_id=exercise_id, client_id=websocket.client)
     processor = ExerciseProcessor(exercise_id)
 
     try:
         while True:
-            # Receive frame data from client
-            data = await websocket.receive_text()
+            raw_message = await websocket.receive_text()
 
             try:
-                message = json.loads(data)
+                message = _parse_client_message(raw_message)
+                if isinstance(message, FrameMessage):
+                    frame_bytes = base64.b64decode(message.data)
+                    result = await processor.process_frame(frame_bytes, message.timestamp or 0.0)
+                    response = PoseResultMessage(timestamp=message.timestamp, data=result)
+                    await websocket.send_text(response.model_dump_json())
+                    continue
 
-                if message["type"] == "frame":
-                    # Process the frame
-                    frame_data = message["data"]
-                    timestamp_ms = message.get("timestamp", 0)
-
-                    # Decode base64 frame
-                    frame_bytes = base64.b64decode(frame_data)
-
-                    # Process frame and get pose data
-                    result = await processor.process_frame(frame_bytes, timestamp_ms)
-
-                    # Send result back to client
-                    await websocket.send_text(json.dumps({
-                        "type": "pose_result",
-                        "data": result.dict() if hasattr(result, 'dict') else result,
-                        "timestamp": timestamp_ms
-                    }))
-
-                elif message["type"] == "reset":
-                    # Reset exercise state
-                    processor.reset_state()
-                    await websocket.send_text(json.dumps({
-                        "type": "state_reset",
-                        "timestamp": message.get("timestamp", 0)
-                    }))
-
+                processor.reset_state()
+                await websocket.send_text(StateResetMessage(timestamp=message.timestamp).model_dump_json())
             except json.JSONDecodeError:
                 logger.error("Invalid JSON received", client_id=websocket.client)
                 continue
-            except Exception as e:
-                logger.error("Error processing frame", error=str(e), exercise_id=exercise_id)
-                await websocket.send_text(json.dumps({
-                    "type": "error",
-                    "message": "Processing error",
-                    "timestamp": message.get("timestamp", 0)
-                }))
-
+            except Exception as exc:
+                logger.error("Error processing frame", error=str(exc), exercise_id=exercise_id)
+                error_payload = ErrorMessage(
+                    message="Processing error",
+                    timestamp=(message.timestamp if "message" in locals() else None),
+                )
+                await websocket.send_text(error_payload.model_dump_json())
     except WebSocketDisconnect:
         await manager.disconnect(websocket, exercise_id)
         logger.info("Client disconnected", exercise_id=exercise_id, client_id=websocket.client)
-    except Exception as e:
-        logger.error("WebSocket error", error=str(e), exercise_id=exercise_id)
+    except Exception as exc:
+        logger.error("WebSocket error", error=str(exc), exercise_id=exercise_id)
         await manager.disconnect(websocket, exercise_id)
     finally:
         processor.cleanup()
 
 
 @app.get("/health/detailed")
-async def health_check():
-    """Detailed health check with system info"""
+async def health_check() -> dict[str, Any]:
     try:
-        import psutil
-        import mediapipe as mp
         import cv2
+        import mediapipe as mp
+        import psutil
 
         return {
             "status": "healthy",
@@ -160,19 +157,18 @@ async def health_check():
             "dependencies": {
                 "mediapipe": mp.__version__,
                 "opencv": cv2.__version__,
-            }
+            },
         }
-    except ImportError as e:
+    except ImportError as exc:
         return {
             "status": "unhealthy",
-            "error": f"Missing dependency: {str(e)}"
+            "error": f"Missing dependency: {str(exc)}",
         }
 
 
 if __name__ == "__main__":
     import uvicorn
 
-    # Run with uvicorn
     uvicorn.run(
         "app.main:app",
         host="0.0.0.0",

@@ -1,50 +1,38 @@
-import cv2
-import numpy as np
-import mediapipe as mp
-import structlog
-from typing import Tuple, Optional, List, Dict, Any
+from __future__ import annotations
+
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
+import math
 import time
+from concurrent.futures import ThreadPoolExecutor
+from typing import Any, TypeAlias
+
+import cv2
+import mediapipe as mp
+import numpy as np
+import structlog
+
+from app.models.pose import Landmark, PoseDetectionResult
 
 logger = structlog.get_logger()
 
-"""
-@class PoseDetector
-@description A high-performance wrapper around MediaPipe Pose. 
-Key Features:
-- Thread-pool based asynchronous processing to prevent blocking the Event Loop.
-- Exponential Temporal Smoothing to eliminate jitter in real-time landmarks.
-- Frame-by-frame FPS calculation for performance monitoring.
-- Custom pose-stability algorithm that filters out high-noise frames.
-"""
+Point2D: TypeAlias = tuple[float, float]
+LandmarkList: TypeAlias = list[Landmark]
+VisibilityScores: TypeAlias = dict[int, float]
+
+
 class PoseDetector:
-    """
-    Optimized MediaPipe pose detector for real-time processing
-    """
+    """Optimized MediaPipe pose detector for real-time processing."""
 
     def __init__(
         self,
-        model_complexity: int = 0,  # 0: lite, 1: full, 2: heavy
+        model_complexity: int = 0,
         min_detection_confidence: float = 0.5,
         min_tracking_confidence: float = 0.5,
         enable_segmentation: bool = False,
         smooth_landmarks: bool = True,
         static_image_mode: bool = False,
-        smoothing_factor: float = 0.7  # Exponential smoothing factor
-    ):
-        """
-        Initialize the MediaPipe pose detector with optimized settings
-
-        Args:
-            model_complexity: Complexity of pose landmark model (0=lite, 1=full, 2=heavy)
-            min_detection_confidence: Minimum detection confidence threshold
-            min_tracking_confidence: Minimum tracking confidence threshold
-            enable_segmentation: Whether to enable segmentation mask
-            smooth_landmarks: Whether to smooth landmarks across frames
-            static_image_mode: Whether to treat input as static images
-            smoothing_factor: Exponential smoothing factor (0-1, higher = more smoothing)
-        """
+        smoothing_factor: float = 0.7,
+    ) -> None:
         self.model_complexity = model_complexity
         self.min_detection_confidence = min_detection_confidence
         self.min_tracking_confidence = min_tracking_confidence
@@ -53,36 +41,27 @@ class PoseDetector:
         self.static_image_mode = static_image_mode
         self.smoothing_factor = smoothing_factor
 
-        # For temporal smoothing
-        self.previous_landmarks = None
-        self.smoothed_landmarks = None
+        self.previous_landmarks: LandmarkList | None = None
+        self.smoothed_landmarks: LandmarkList | None = None
 
-        # MediaPipe pose solution
         self.mp_pose = mp.solutions.pose
-        self.mp_drawing = mp.solutions.drawing_utils
-        self.mp_drawing_styles = mp.solutions.drawing_styles
-
-        # Thread pool for async processing
         self.executor = ThreadPoolExecutor(max_workers=2)
-
-        # Initialize pose detector
-        self.pose = None
+        self.pose: Any | None = None
         self._initialize_pose()
 
-        # Performance metrics
         self.fps_counter = 0
         self.fps_start_time_ms: float | None = None
-        self.current_fps = 0
+        self.current_fps = 0.0
 
         logger.info(
             "PoseDetector initialized",
             model_complexity=model_complexity,
             min_detection_confidence=min_detection_confidence,
-            min_tracking_confidence=min_tracking_confidence
+            min_tracking_confidence=min_tracking_confidence,
         )
 
-    def _initialize_pose(self):
-        """Initialize MediaPipe pose solution"""
+    def _initialize_pose(self) -> None:
+        """Initialize the MediaPipe pose solution."""
         try:
             self.pose = self.mp_pose.Pose(
                 model_complexity=self.model_complexity,
@@ -90,298 +69,222 @@ class PoseDetector:
                 min_tracking_confidence=self.min_tracking_confidence,
                 enable_segmentation=self.enable_segmentation,
                 smooth_landmarks=self.smooth_landmarks,
-                static_image_mode=self.static_image_mode
+                static_image_mode=self.static_image_mode,
             )
             logger.info("MediaPipe Pose initialized successfully")
-        except Exception as e:
-            logger.error("Failed to initialize MediaPipe Pose", error=str(e))
+        except Exception as exc:
+            logger.error("Failed to initialize MediaPipe Pose", error=str(exc))
             raise
 
-    async def process_frame_async(self, frame_bytes: bytes, timestamp_ms: float | None = None) -> Optional[Dict[str, Any]]:
-        """
-        Asynchronously process a frame for pose detection
+    async def process_frame_async(
+        self,
+        frame_bytes: bytes,
+        timestamp_ms: float | None = None,
+    ) -> PoseDetectionResult | None:
+        """Process a frame without blocking the event loop."""
+        loop = asyncio.get_running_loop()
+        frame_timestamp_ms = timestamp_ms if timestamp_ms is not None else time.perf_counter() * 1000
 
-        Args:
-            frame_bytes: Raw image bytes
-            timestamp_ms: Frame timestamp in milliseconds for FPS calculation
-
-        Returns:
-            Dictionary containing pose landmarks and metadata
-        """
-        loop = asyncio.get_event_loop()
-
-        # Run CPU-intensive processing in thread pool
         try:
-            result = await loop.run_in_executor(
+            return await loop.run_in_executor(
                 self.executor,
                 self._process_frame_sync,
                 frame_bytes,
-                timestamp_ms if timestamp_ms is not None else (time.perf_counter() * 1000)
+                frame_timestamp_ms,
             )
-            return result
-        except Exception as e:
-            logger.error("Error in async frame processing", error=str(e))
+        except Exception as exc:
+            logger.error("Error in async frame processing", error=str(exc))
             return None
 
-    def _process_frame_sync(self, frame_bytes: bytes, timestamp_ms: float) -> Optional[Dict[str, Any]]:
-        """
-        Synchronous Core Pipeline:
-        Step 1: Compute real-time FPS context
-        Step 2: Buffer decoding (Bytes -> Numpy/OpenCV Mat)
-        Step 3: Color Transformation (BGR -> RGB) for MediaPipe compliance
-        Step 4: Inference execution via MediaPipe Pose Engine
-        Step 5: Dynamic Landmark & Visibility filtration
-        Step 6: Stability scoring & Temporal Jitter Smoothing
-        """
+    def _process_frame_sync(self, frame_bytes: bytes, timestamp_ms: float) -> PoseDetectionResult | None:
+        """Decode a frame, run MediaPipe, and package a typed detector response."""
         try:
-            # Calculate FPS
             self._update_fps(timestamp_ms)
 
-            # Decode image from bytes
             nparr = np.frombuffer(frame_bytes, np.uint8)
             frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-
-            if frame is None:
-                logger.warning("Failed to decode frame")
-                return None
-
-            # Store original dimensions
             original_height, original_width = frame.shape[:2]
-
-            # Convert color space (OpenCV uses BGR, MediaPipe expects RGB)
             rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-            # Process frame
-            results = self.pose.process(rgb_frame)
+            if self.pose is None:
+                logger.error("Pose detector is not initialized")
+                return None
 
-            # Prepare response
-            response = {
-                "timestamp_ms": timestamp_ms,
-                "frame_width": original_width,
-                "frame_height": original_height,
-                "fps": self.current_fps,
-                "landmarks": None,
-                "pose_detected": False,
-                "visibility_scores": {}
+            results = self.pose.process(rgb_frame)
+            response = PoseDetectionResult(
+                timestamp_ms=timestamp_ms,
+                frame_width=original_width,
+                frame_height=original_height,
+                fps=self.current_fps,
+                pose_detected=False,
+            )
+
+            if not results.pose_landmarks:
+                logger.debug("No pose detected in frame")
+                return response
+
+            landmarks: LandmarkList = []
+            visibility_scores: VisibilityScores = {}
+
+            tracked_indices = {
+                self.mp_pose.PoseLandmark.LEFT_KNEE.value,
+                self.mp_pose.PoseLandmark.RIGHT_KNEE.value,
+                self.mp_pose.PoseLandmark.LEFT_ANKLE.value,
+                self.mp_pose.PoseLandmark.RIGHT_ANKLE.value,
+                self.mp_pose.PoseLandmark.LEFT_HIP.value,
+                self.mp_pose.PoseLandmark.RIGHT_HIP.value,
             }
 
-            if results.pose_landmarks:
-                # Extract landmarks
-                landmarks = []
-                visibility_scores = {}
-
-                for idx, landmark in enumerate(results.pose_landmarks.landmark):
-                    # Normalize coordinates (0-1 range)
-                    landmark_data = {
-                        "x": float(landmark.x),
-                        "y": float(landmark.y),
-                        "z": float(landmark.z),
-                        "visibility": float(landmark.visibility)
-                    }
-                    landmarks.append(landmark_data)
-
-                    # Track visibility for key joints
-                    if idx in [
-                        self.mp_pose.PoseLandmark.LEFT_KNEE.value,
-                        self.mp_pose.PoseLandmark.RIGHT_KNEE.value,
-                        self.mp_pose.PoseLandmark.LEFT_ANKLE.value,
-                        self.mp_pose.PoseLandmark.RIGHT_ANKLE.value,
-                        self.mp_pose.PoseLandmark.LEFT_HIP.value,
-                        self.mp_pose.PoseLandmark.RIGHT_HIP.value
-                    ]:
-                        visibility_scores[idx] = float(landmark.visibility)
-
-                # Check if pose is stable and apply smoothing
-                is_stable = self._is_pose_stable(landmarks)
-
-                # Only update if pose is stable or this is the first detection
-                if is_stable or self.smoothed_landmarks is None:
-                    # Apply temporal smoothing
-                    smoothed_landmarks = self._smooth_landmarks(landmarks)
-                else:
-                    # Use previous smoothed landmarks if pose is too unstable
-                    smoothed_landmarks = self.smoothed_landmarks or landmarks
-
-                response.update({
-                    "landmarks": smoothed_landmarks,
-                    "pose_detected": True,
-                    "visibility_scores": visibility_scores,
-                    "pose_stable": is_stable
-                })
-
-                logger.debug(
-                    "Pose detected",
-                    landmarks_count=len(landmarks),
-                    avg_visibility=np.mean([l["visibility"] for l in landmarks])
+            for idx, landmark in enumerate(results.pose_landmarks.landmark):
+                landmark_model = Landmark(
+                    x=float(landmark.x),
+                    y=float(landmark.y),
+                    z=float(landmark.z),
+                    visibility=float(landmark.visibility),
                 )
-            else:
-                logger.debug("No pose detected in frame")
+                landmarks.append(landmark_model)
 
-            return response
+                if idx in tracked_indices:
+                    visibility_scores[idx] = landmark_model.visibility
 
-        except Exception as e:
-            logger.error("Error processing frame", error=str(e))
+            is_stable = self._is_pose_stable(landmarks)
+            smoothed_landmarks = self._smooth_landmarks(landmarks) if is_stable else (
+                list(self.smoothed_landmarks) if self.smoothed_landmarks is not None else landmarks
+            )
+
+            logger.debug(
+                "Pose detected",
+                landmarks_count=len(landmarks),
+                avg_visibility=sum(item.visibility for item in landmarks) / len(landmarks),
+            )
+
+            return PoseDetectionResult(
+                timestamp_ms=timestamp_ms,
+                frame_width=original_width,
+                frame_height=original_height,
+                fps=self.current_fps,
+                landmarks=smoothed_landmarks,
+                pose_detected=True,
+                visibility_scores=visibility_scores,
+                pose_stable=is_stable,
+            )
+        except Exception as exc:
+            logger.error("Error processing frame", error=str(exc))
             return None
 
-    def _update_fps(self, timestamp_ms: float):
-        """Update FPS counter"""
+    def _update_fps(self, timestamp_ms: float) -> None:
+        """Update FPS counter using millisecond timestamps."""
         if self.fps_start_time_ms is None or timestamp_ms < self.fps_start_time_ms:
             self.fps_start_time_ms = timestamp_ms
             self.fps_counter = 0
-            self.current_fps = 0
+            self.current_fps = 0.0
 
         self.fps_counter += 1
 
-        if self.fps_start_time_ms is None:
-            return
-
         elapsed_ms = timestamp_ms - self.fps_start_time_ms
-
-        # Calculate FPS every second
         if elapsed_ms >= 1000:
             elapsed_seconds = elapsed_ms / 1000
             self.current_fps = self.fps_counter / elapsed_seconds
             self.fps_counter = 0
             self.fps_start_time_ms = timestamp_ms
 
-    def _smooth_landmarks(self, landmarks: List[Dict]) -> List[Dict]:
-        """
-        Apply exponential smoothing to landmarks to reduce jitter
-
-        Args:
-            landmarks: Current frame landmarks
-
-        Returns:
-            Smoothed landmarks
-        """
+    def _smooth_landmarks(self, landmarks: LandmarkList) -> LandmarkList:
+        """Apply exponential smoothing to reduce jitter between frames."""
         if self.smoothed_landmarks is None:
-            # First frame, use as is
-            self.smoothed_landmarks = landmarks.copy()
-            return self.smoothed_landmarks
+            self.smoothed_landmarks = [landmark.model_copy() for landmark in landmarks]
+            return list(self.smoothed_landmarks)
 
-        # Apply exponential smoothing
-        alpha = 1.0 - self.smoothing_factor  # Invert so higher smoothing_factor = more smoothing
+        alpha = 1.0 - self.smoothing_factor
+        smoothed: LandmarkList = []
 
-        smoothed = []
-        for i, landmark in enumerate(landmarks):
-            if i < len(self.smoothed_landmarks):
-                prev_landmark = self.smoothed_landmarks[i]
-                smoothed_landmark = {
-                    "x": alpha * landmark["x"] + (1 - alpha) * prev_landmark["x"],
-                    "y": alpha * landmark["y"] + (1 - alpha) * prev_landmark["y"],
-                    "z": alpha * landmark["z"] + (1 - alpha) * prev_landmark["z"],
-                    "visibility": landmark["visibility"]  # Don't smooth visibility
-                }
+        for index, landmark in enumerate(landmarks):
+            if index < len(self.smoothed_landmarks):
+                previous = self.smoothed_landmarks[index]
+                smoothed.append(
+                    Landmark(
+                        x=alpha * landmark.x + (1 - alpha) * previous.x,
+                        y=alpha * landmark.y + (1 - alpha) * previous.y,
+                        z=alpha * landmark.z + (1 - alpha) * previous.z,
+                        visibility=landmark.visibility,
+                    )
+                )
             else:
-                smoothed_landmark = landmark.copy()
-            smoothed.append(smoothed_landmark)
+                smoothed.append(landmark.model_copy())
 
         self.smoothed_landmarks = smoothed
-        return smoothed
+        return list(smoothed)
 
-    def _is_pose_stable(self, landmarks: List[Dict], threshold: float = 0.1) -> bool:
-        """
-        Check if pose is stable (not too much movement from previous frame)
-
-        Args:
-            landmarks: Current landmarks
-            threshold: Movement threshold
-
-        Returns:
-            True if pose is stable
-        """
+    def _is_pose_stable(self, landmarks: LandmarkList, threshold: float = 0.1) -> bool:
+        """Check whether the pose is stable enough to update smoothed landmarks."""
         if self.previous_landmarks is None:
-            self.previous_landmarks = landmarks.copy()
+            self.previous_landmarks = [landmark.model_copy() for landmark in landmarks]
             return True
 
-        # Calculate average movement
-        total_movement = 0
+        total_movement = 0.0
         count = 0
-        for i, landmark in enumerate(landmarks):
-            if i < len(self.previous_landmarks):
-                prev = self.previous_landmarks[i]
-                # Check if both landmarks are visible
-                if landmark["visibility"] > 0.5 and prev["visibility"] > 0.5:
-                    dx = landmark["x"] - prev["x"]
-                    dy = landmark["y"] - prev["y"]
-                    movement = (dx ** 2 + dy ** 2) ** 0.5
-                    total_movement += movement
-                    count += 1
+        for index, landmark in enumerate(landmarks):
+            if index >= len(self.previous_landmarks):
+                continue
 
-        self.previous_landmarks = landmarks.copy()
+            previous = self.previous_landmarks[index]
+            if landmark.visibility > 0.5 and previous.visibility > 0.5:
+                dx = landmark.x - previous.x
+                dy = landmark.y - previous.y
+                total_movement += math.hypot(dx, dy)
+                count += 1
+
+        self.previous_landmarks = [landmark.model_copy() for landmark in landmarks]
 
         if count == 0:
             return False
 
-        avg_movement = total_movement / count
-        return avg_movement < threshold
+        return (total_movement / count) < threshold
 
-    def calculate_angle(self, a: Tuple[float, float], b: Tuple[float, float], c: Tuple[float, float]) -> float:
-        """
-        Calculate angle at point b given three points a-b-c
-
-        Args:
-            a, b, c: Points as (x, y) tuples
-
-        Returns:
-            Angle in degrees
-        """
+    def calculate_angle(self, a: Point2D, b: Point2D, c: Point2D) -> float:
+        """Calculate the angle at point ``b`` for the triangle a-b-c."""
         try:
-            a = np.array(a)
-            b = np.array(b)
-            c = np.array(c)
+            ba_x = a[0] - b[0]
+            ba_y = a[1] - b[1]
+            bc_x = c[0] - b[0]
+            bc_y = c[1] - b[1]
 
-            # Calculate vectors
-            ba = a - b
-            bc = c - b
-
-            # Calculate cosine of angle
-            cosine_angle = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc) + 1e-6)
-            cosine_angle = np.clip(cosine_angle, -1.0, 1.0)
-
-            # Calculate angle in degrees
-            angle = np.degrees(np.arccos(cosine_angle))
-
-            return angle
-
-        except Exception as e:
-            logger.error("Error calculating angle", error=str(e))
+            numerator = (ba_x * bc_x) + (ba_y * bc_y)
+            denominator = (math.hypot(ba_x, ba_y) * math.hypot(bc_x, bc_y)) + 1e-6
+            cosine_angle = max(min(numerator / denominator, 1.0), -1.0)
+            return math.degrees(math.acos(cosine_angle))
+        except Exception as exc:
+            logger.error("Error calculating angle", error=str(exc))
             return 0.0
 
-    def get_landmark_point(self, landmarks: List[Dict], landmark_index: int, min_visibility: float = 0.3) -> Optional[Tuple[float, float]]:
-        """
-        Extract (x, y) coordinates for a specific landmark
-
-        Args:
-            landmarks: List of landmark dictionaries
-            landmark_index: MediaPipe landmark index
-            min_visibility: Minimum visibility threshold for landmark
-
-        Returns:
-            (x, y) coordinates or None if not found or not visible enough
-        """
+    def get_landmark_point(
+        self,
+        landmarks: LandmarkList,
+        landmark_index: int,
+        min_visibility: float = 0.3,
+    ) -> Point2D | None:
+        """Extract an ``(x, y)`` point when a landmark is sufficiently visible."""
         try:
-            if landmarks and landmark_index < len(landmarks):
-                landmark = landmarks[landmark_index]
-                # Check visibility threshold
-                if landmark.get("visibility", 0) >= min_visibility:
-                    return (landmark["x"], landmark["y"])
-                else:
-                    logger.debug(
-                        "Landmark not visible enough",
-                        landmark_index=landmark_index,
-                        visibility=landmark.get("visibility", 0),
-                        min_visibility=min_visibility
-                    )
+            if landmark_index >= len(landmarks):
+                return None
+
+            landmark = landmarks[landmark_index]
+            if landmark.visibility >= min_visibility:
+                return (landmark.x, landmark.y)
+
+            logger.debug(
+                "Landmark not visible enough",
+                landmark_index=landmark_index,
+                visibility=landmark.visibility,
+                min_visibility=min_visibility,
+            )
             return None
-        except Exception as e:
-            logger.error("Error extracting landmark", landmark_index=landmark_index, error=str(e))
+        except Exception as exc:
+            logger.error("Error extracting landmark", landmark_index=landmark_index, error=str(exc))
             return None
 
-    def cleanup(self):
-        """Cleanup resources"""
-        if self.pose:
+    def cleanup(self) -> None:
+        """Release MediaPipe and thread-pool resources."""
+        if self.pose is not None:
             self.pose.close()
-        if self.executor:
-            self.executor.shutdown(wait=True)
+        self.executor.shutdown(wait=True)
         logger.info("PoseDetector cleanup completed")
