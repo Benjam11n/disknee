@@ -382,7 +382,7 @@ async def cleanup_task():
 
 ## Future Enhancements
 
-1. **WebRTC Direct Connection**: P2P video streaming for lowest latency
+1. **WebRTC Transport Option**: Replace the current camera-capture plus WebSocket frame transport with P2P media streaming for lower latency
 2. **Model Fine-tuning**: Train custom pose model for specific exercises
 3. **Edge Deployment**: Run backend on edge servers closer to users
 4. **Predictive AI**: Predict next movement for better rep counting

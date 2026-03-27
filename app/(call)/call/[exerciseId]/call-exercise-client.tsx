@@ -3,7 +3,7 @@
 /**
  * @file call-exercise-client.tsx
  * @description The core interactive component for real-time rehabilitation sessions.
- * Manages the WebRTC video stream, WebSocket connection for AI pose analysis, 
+ * Manages local camera capture, the WebSocket connection for AI pose analysis,
  * and provides live visual feedback to the patient.
  */
 
