@@ -30,8 +30,11 @@ export function FAQSection() {
                 {category.category}
               </h4>
               <div className="space-y-2">
-                {category.questions.map((faq, index) => (
-                  <Card key={index} className="border-border/50">
+                {category.questions.map((faq) => (
+                  <Card
+                    key={`${category.category}-${faq.q}`}
+                    className="border-border/50"
+                  >
                     <CardContent className="p-4">
                       <div className="space-y-2">
                         <h5 className="font-medium">{faq.q}</h5>

@@ -1,4 +1,5 @@
 import { List } from "lucide-react";
+import type { Metadata } from "next";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -10,6 +11,12 @@ import { auth } from "@/lib/auth";
 import { ROUTES } from "@/lib/constants/routes";
 
 import { ExerciseProgressClient } from "./exercise-progress-client";
+
+export const metadata: Metadata = {
+  title: "Exercises",
+  description:
+    "Review your current DisKnee exercise plan and session progress.",
+};
 
 export default async function ExercisePage() {
   const session = await auth.api.getSession({

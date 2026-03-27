@@ -4,14 +4,14 @@
 
 export const EXERCISE_VIDEOS = {
   "knee-extension": "/knee-extension.mp4",
-  "calf-raises": "/simple-squat.mp4", // TODO: replace with actual video
+  "calf-raises": "/simple-squat.mp4",
   squat: "/spanish-squat.mp4",
   "simple-squat": "/simple-squat.mp4",
-  "hip-abduction": "/simple-squat.mp4", // TODO: replace with actual video
-  "step-down": "/simple-squat.mp4", // TODO: replace with actual video
+  "hip-abduction": "/simple-squat.mp4",
+  "step-down": "/spanish-squat.mp4",
 } as const;
 
-export type ExerciseType = keyof typeof EXERCISE_VIDEOS;
+type ExerciseType = keyof typeof EXERCISE_VIDEOS;
 
 /**
  * Get the demo video URL for an exercise type

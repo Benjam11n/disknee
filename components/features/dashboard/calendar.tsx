@@ -59,7 +59,7 @@ export function Calendar({
 
             return (
               <CalendarDay
-                key={index}
+                key={dateStr || `empty-${index}`}
                 date={date}
                 isToday={isToday ?? false}
                 isSelected={isSelected ?? false}

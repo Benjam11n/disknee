@@ -42,6 +42,7 @@ export function Logo({
           src={logoIcon}
           alt="DisKnee Logo"
           fill
+          sizes={`${size}px`}
           className="object-contain p-1"
         />
       </div>

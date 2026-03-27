@@ -1,9 +1,9 @@
+import Link from "next/link";
+
 import { Logo } from "@/components/shared/logo";
 
 /**
  * Landing page footer component.
- * Note: Footer links are currently placeholder and should be updated
- * to point to actual pages when they are implemented.
  */
 export function LandingPageFooter() {
   return (
@@ -21,14 +21,14 @@ export function LandingPageFooter() {
             <h3 className="font-semibold">Product</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <a href="#features" className="hover:text-foreground">
+                <Link href="/#features" className="hover:text-foreground">
                   Features
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#how-it-works" className="hover:text-foreground">
+                <Link href="/#how-it-works" className="hover:text-foreground">
                   How It Works
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -37,14 +37,14 @@ export function LandingPageFooter() {
             <h3 className="font-semibold">Company</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <a href="#" className="hover:text-foreground">
-                  About
-                </a>
+                <span className="text-muted-foreground/80">
+                  Built by DisKnee
+                </span>
               </li>
               <li>
-                <a href="#" className="hover:text-foreground">
+                <Link href="/help" className="hover:text-foreground">
                   Contact
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -53,19 +53,19 @@ export function LandingPageFooter() {
             <h3 className="font-semibold">Legal</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <a href="#" className="hover:text-foreground">
-                  Privacy Policy
-                </a>
+                <span className="text-muted-foreground/80">
+                  Privacy available on request
+                </span>
               </li>
               <li>
-                <a href="#" className="hover:text-foreground">
-                  Terms of Service
-                </a>
+                <span className="text-muted-foreground/80">
+                  Terms available on request
+                </span>
               </li>
               <li>
-                <a href="#" className="hover:text-foreground">
-                  HIPAA Compliance
-                </a>
+                <span className="text-muted-foreground/80">
+                  HIPAA-aware design
+                </span>
               </li>
             </ul>
           </div>

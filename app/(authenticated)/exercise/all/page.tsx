@@ -1,6 +1,8 @@
 import { ExerciseDifficulty } from "@prisma/client";
 import { Search, Video, Play, Clock } from "lucide-react";
+import type { Metadata } from "next";
 import { headers } from "next/headers";
+import Link from "next/link";
 import { Suspense } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +19,12 @@ import { getExercisesAction } from "@/lib/actions/exercises";
 import { auth } from "@/lib/auth";
 import { ROUTES } from "@/lib/constants/routes";
 import { getDifficultyBadgeVariant } from "@/lib/utils";
+
+export const metadata: Metadata = {
+  title: "All Exercises",
+  description:
+    "Browse the full DisKnee exercise library and review guided movement sessions.",
+};
 
 async function getAllExercises(searchParams?: {
   search?: string;
@@ -161,15 +169,13 @@ export default async function AllExercisesPage({
                     </div>
 
                     {/* Start Button */}
-                    <a
+                    <Link
                       href={ROUTES.EXERCISE.detail(exercise.id)}
-                      className="w-full"
+                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 rounded-md text-sm font-medium inline-flex items-center justify-center gap-2"
                     >
-                      <button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center gap-2">
-                        <Play className="h-4 w-4" />
-                        {exercise.done ? "Review Exercise" : "Start Exercise"}
-                      </button>
-                    </a>
+                      <Play className="h-4 w-4" />
+                      {exercise.done ? "Review Exercise" : "Start Exercise"}
+                    </Link>
                   </div>
                 </CardContent>
               </Card>

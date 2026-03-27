@@ -1,4 +1,5 @@
 import type { ShopItem } from "@prisma/client";
+import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 
@@ -8,6 +9,12 @@ import { auth } from "@/lib/auth";
 import type { InventoryWithItem } from "@/lib/types/exercise";
 
 import { CallExerciseClient } from "./call-exercise-client";
+
+export const metadata: Metadata = {
+  title: "Exercise Session",
+  description:
+    "Complete a guided rehab session with live camera-based pose feedback.",
+};
 
 export default async function CallExercisePage({ params }: RouteParams) {
   const { exerciseId } = await params;

@@ -40,12 +40,6 @@ export function LandingPageNavbar({
             >
               How It Works
             </a>
-            <a
-              href="#testimonials"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Testimonials
-            </a>
             <Link href={ROUTES.LOGIN}>
               <Button>Sign In</Button>
             </Link>
@@ -101,12 +95,6 @@ export function LandingPageNavbar({
               className="block px-3 py-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               How It Works
-            </a>
-            <a
-              href="#testimonials"
-              className="block px-3 py-2 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Testimonials
             </a>
             <Link href={ROUTES.LOGIN} className="block px-3 py-2">
               <Button className="w-full">Sign In</Button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { env } from "@/env";
 import {
@@ -16,12 +16,12 @@ import { logger } from "@/lib/logger";
 import { PoseSocketClient } from "@/lib/pose-socket-client";
 import type { PoseResult } from "@/lib/types/exercise";
 
-interface Landmark {
-  x: number;
-  y: number;
-  z: number;
-  visibility: number;
-}
+import {
+  drawSkeleton,
+  drawVideoFrame,
+  getBodyHeightPx,
+} from "./video-stream-canvas";
+import type { Landmark } from "./video-stream-canvas";
 
 interface VideoStreamProps {
   isVideoOn: boolean;
@@ -49,12 +49,7 @@ export function VideoStream({
   const crownConfig = { ...DEFAULT_CROWN_SETTINGS, ...crownSettings };
   const glassesConfig = { ...DEFAULT_GLASSES_SETTINGS, ...glassesSettings };
   const streamConfig = { ...DEFAULT_VIDEO_STREAM_TRANSPORT, ...streamSettings };
-  const crownEmoji = crownConfig.emoji;
-  const crownSize = crownConfig.size;
-  const crownYOffset = crownConfig.yOffset;
-  const glassesEmoji = glassesConfig.emoji;
-  const glassesSize = glassesConfig.size;
-  const glassesYOffset = glassesConfig.yOffset;
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -66,12 +61,12 @@ export function VideoStream({
   const flippedRef = useRef(flipped);
   const exerciseIdRef = useRef(exerciseId);
   const accessoryConfigRef = useRef({
-    crownEmoji,
-    crownSize,
-    crownYOffset,
-    glassesEmoji,
-    glassesSize,
-    glassesYOffset,
+    crownEmoji: crownConfig.emoji,
+    crownSize: crownConfig.size,
+    crownYOffset: crownConfig.yOffset,
+    glassesEmoji: glassesConfig.emoji,
+    glassesSize: glassesConfig.size,
+    glassesYOffset: glassesConfig.yOffset,
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -94,243 +89,91 @@ export function VideoStream({
 
   useEffect(() => {
     accessoryConfigRef.current = {
-      crownEmoji,
-      crownSize,
-      crownYOffset,
-      glassesEmoji,
-      glassesSize,
-      glassesYOffset,
+      crownEmoji: crownConfig.emoji,
+      crownSize: crownConfig.size,
+      crownYOffset: crownConfig.yOffset,
+      glassesEmoji: glassesConfig.emoji,
+      glassesSize: glassesConfig.size,
+      glassesYOffset: glassesConfig.yOffset,
     };
-  }, [
-    crownEmoji,
-    crownSize,
-    crownYOffset,
-    glassesEmoji,
-    glassesSize,
-    glassesYOffset,
-  ]);
+  }, [crownConfig, glassesConfig]);
 
-  const drawVideoFrame = useCallback(
-    (
-      ctx: CanvasRenderingContext2D,
-      video: HTMLVideoElement,
-      canvas: HTMLCanvasElement,
-      flipped: boolean
-    ) => {
-      if (flipped) {
-        ctx.drawImage(video, canvas.width, 0, -canvas.width, canvas.height);
-        return;
+  const drawFrame = useCallback(() => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas) {
+      animationRef.current = requestAnimationFrame(drawFrame);
+      return;
+    }
+
+    const ctx = canvas.getContext("2d");
+    if (ctx && video.readyState === 4) {
+      if (
+        canvas.width !== video.videoWidth ||
+        canvas.height !== video.videoHeight
+      ) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
       }
 
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    },
-    []
-  );
-
-  const getBodyHeightPx = useCallback(
-    (landmarks: Landmark[], canvasHeight: number) => {
-      const minY = Math.min(...landmarks.map((landmark) => landmark.y));
-      const maxY = Math.max(...landmarks.map((landmark) => landmark.y));
-
-      return (maxY - minY) * canvasHeight;
-    },
-    []
-  );
-
-  // Draw skeleton from landmarks
-  const drawSkeleton = useCallback(
-    (
-      ctx: CanvasRenderingContext2D,
-      landmarks: Landmark[],
-      flipped: boolean
-    ) => {
-      if (!landmarks || landmarks.length === 0) {
-        return;
-      }
-
-      const {
-        crownEmoji,
-        crownSize,
-        crownYOffset,
-        glassesEmoji,
-        glassesSize,
-        glassesYOffset,
-      } = accessoryConfigRef.current;
-      const { width } = ctx.canvas;
-      const { height } = ctx.canvas;
-
-      // Draw skeleton connections
-      const connections = [
-        [11, 13],
-        [13, 15], // Right arm
-        [12, 14],
-        [14, 16], // Left arm
-        [11, 12], // Shoulders
-        [11, 23],
-        [12, 24], // Torso
-        [23, 25],
-        [25, 27], // Right leg
-        [24, 26],
-        [26, 28], // Left leg
-      ];
-
-      ctx.strokeStyle = "#00ff00"; // Green color
-      ctx.lineWidth = 3;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-
-      // Draw connections
-      connections.forEach(([startIdx, endIdx]) => {
-        const start = landmarks[startIdx];
-        const end = landmarks[endIdx];
-        if (start && end && start.visibility > 0.5 && end.visibility > 0.5) {
-          ctx.beginPath();
-          const startX = flipped ? width - start.x * width : start.x * width;
-          const startY = start.y * height;
-          const endX = flipped ? width - end.x * width : end.x * width;
-          const endY = end.y * height;
-          ctx.moveTo(startX, startY);
-          ctx.lineTo(endX, endY);
-          ctx.stroke();
-        }
-      });
-
-      // Draw joints (excluding face landmarks)
-      ctx.fillStyle = "#ff0000"; // Red color
-      landmarks.forEach((lm, index) => {
-        // Skip drawing dots on face landmarks (0-10 are face/upper body landmarks)
-        const isFaceLandmark = index <= 10 || index === 23 || index === 24; // Also skip hips
-
-        if (lm && lm.visibility > 0.5 && !isFaceLandmark) {
-          const x = flipped ? width - lm.x * width : lm.x * width;
-          const y = lm.y * height;
-          ctx.beginPath();
-          ctx.arc(x, y, 6, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      });
-
-      const nose = landmarks[0];
-      if (nose && nose.visibility > 0.5) {
-        const noseX = flipped ? width - nose.x * width : nose.x * width;
-        const noseY = nose.y * height;
-
-        ctx.font = `${crownSize}px Arial`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "bottom";
-
-        ctx.fillText(crownEmoji, noseX, noseY + crownYOffset);
-      }
-
-      // Draw glasses between the eyes
-      const leftEye = landmarks[2]; // Left eye landmark
-      const rightEye = landmarks[5]; // Right eye landmark
+      const currentFlipped = flippedRef.current;
+      drawVideoFrame(ctx, video, canvas, currentFlipped);
 
       if (
-        leftEye &&
-        leftEye.visibility > 0.5 &&
-        rightEye &&
-        rightEye.visibility > 0.5
+        onCameraDistanceWarningRef.current &&
+        video.videoHeight > 0 &&
+        lastLandmarks.current?.length
       ) {
-        const leftEyeX = flipped
-          ? width - leftEye.x * width
-          : leftEye.x * width;
-        const leftEyeY = leftEye.y * height;
-        const rightEyeX = flipped
-          ? width - rightEye.x * width
-          : rightEye.x * width;
-        const rightEyeY = rightEye.y * height;
-
-        // Calculate center position between eyes
-        const glassesX = (leftEyeX + rightEyeX) / 2 + 5;
-        const glassesY = (leftEyeY + rightEyeY) / 2 + glassesYOffset;
-
-        // Calculate distance between eyes to scale glasses
-        const eyeDistance = Math.abs(rightEyeX - leftEyeX);
-        const scaleFactor = (eyeDistance / 60) * 1.5; // Base distance for scaling, 1.5x multiplier for better visibility
-
-        ctx.font = `${glassesSize * scaleFactor}px Arial`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-
-        // Add shadow for better visibility
-        ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
-        ctx.shadowBlur = 4;
-        ctx.shadowOffsetX = 2;
-        ctx.shadowOffsetY = 2;
-
-        ctx.fillText(glassesEmoji, glassesX, glassesY);
-
-        // Reset shadow
-        ctx.shadowColor = "transparent";
-        ctx.shadowBlur = 0;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 0;
+        const bodyHeight = getBodyHeightPx(
+          lastLandmarks.current,
+          canvas.height
+        );
+        onCameraDistanceWarningRef.current(bodyHeight > canvas.height * 0.8);
       }
-    },
-    []
-  );
 
-  // Draw video frame and send to backend
-  const drawFrame = useCallback(() => {
-    if (videoRef.current && canvasRef.current) {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext("2d");
+      if (lastLandmarks.current) {
+        drawSkeleton(
+          ctx,
+          lastLandmarks.current,
+          currentFlipped,
+          accessoryConfigRef
+        );
+      }
 
-      if (ctx && video.readyState === 4) {
-        // Set canvas dimensions
-        if (
-          canvas.width !== video.videoWidth ||
-          canvas.height !== video.videoHeight
-        ) {
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-        }
-
-        const currentFlipped = flippedRef.current;
-
-        drawVideoFrame(ctx, video, canvas, currentFlipped);
-
-        // Check camera distance (person too close if they fill most of the frame)
-        if (
-          onCameraDistanceWarningRef.current &&
-          video.videoHeight > 0 &&
-          lastLandmarks.current &&
-          lastLandmarks.current.length > 0
-        ) {
-          const bodyHeight = getBodyHeightPx(
-            lastLandmarks.current,
-            canvas.height
-          );
-          const frameHeight = canvas.height;
-
-          // If body occupies more than 80% of frame height, person is too close
-          const tooClose = bodyHeight > frameHeight * 0.8;
-          onCameraDistanceWarningRef.current(tooClose);
-        }
-
-        // Draw skeleton if we have landmarks
-        if (lastLandmarks.current) {
-          drawSkeleton(ctx, lastLandmarks.current, currentFlipped);
-        }
-
-        // Send frame to backend if connected
-        if (
-          poseClientRef.current &&
-          exerciseIdRef.current &&
-          poseClientRef.current.connected()
-        ) {
-          poseClientRef.current.sendFrame(video);
-        }
+      if (
+        poseClientRef.current &&
+        exerciseIdRef.current &&
+        poseClientRef.current.connected()
+      ) {
+        poseClientRef.current.sendFrame(video);
       }
     }
 
     animationRef.current = requestAnimationFrame(drawFrame);
-  }, [drawSkeleton, drawVideoFrame, getBodyHeightPx]);
+  }, []);
+
+  const stopCamera = useCallback(() => {
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+      videoRef.current.onloadedmetadata = null;
+    }
+
+    lastLandmarks.current = null;
+  }, []);
 
   const startCamera = useCallback(async () => {
-    if (!videoRef.current) {
+    const video = videoRef.current;
+    if (!video) {
       return;
     }
 
@@ -340,42 +183,37 @@ export function VideoStream({
         audio: false,
         video: { facingMode: "user", height: 480, width: 640 },
       });
-      streamRef.current = stream;
-      videoRef.current.srcObject = stream;
 
-      await new Promise((resolve) => {
-        videoRef.current!.onloadedmetadata = () => {
+      streamRef.current = stream;
+      video.srcObject = stream;
+
+      await new Promise<void>((resolve) => {
+        video.onloadedmetadata = () => {
           if (!animationRef.current) {
             animationRef.current = requestAnimationFrame(drawFrame);
           }
-          resolve(true);
+          resolve();
         };
       });
 
-      await videoRef.current.play();
+      await video.play();
 
       if (!animationRef.current) {
         animationRef.current = requestAnimationFrame(drawFrame);
       }
-    } catch (error) {
-      logger.error(error);
+    } catch (cameraError) {
+      logger.error(cameraError);
       setError("Failed to access camera. Grant permissions and reload.");
     }
   }, [drawFrame]);
 
-  const stopCamera = useCallback(() => {
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-      animationRef.current = null;
+  const disconnectPoseClient = useCallback(() => {
+    if (!poseClientRef.current) {
+      return;
     }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-    }
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-      videoRef.current.onloadedmetadata = null;
-    }
+
+    poseClientRef.current.disconnect();
+    poseClientRef.current = null;
     lastLandmarks.current = null;
   }, []);
 
@@ -383,19 +221,18 @@ export function VideoStream({
     if (isCallActive && isVideoOn) {
       startCamera();
 
-      // Connect to backend WebSocket for pose detection
       if (exerciseId && !poseClientRef.current) {
         poseClientRef.current = new PoseSocketClient({
           baseUrl: env.NEXT_PUBLIC_BACKEND_URL,
-          exerciseId: exerciseId,
+          exerciseId,
           onPoseResult: (result: PoseResult) => {
-            if (result.landmarks && result.landmarks.length > 0) {
+            if (result.landmarks?.length) {
               lastLandmarks.current = result.landmarks;
             }
             onPoseUpdateRef.current?.(result);
           },
-          onError: (error) => {
-            logger.error(error, "PoseSocketClient error:");
+          onError: (socketError) => {
+            logger.error(socketError, "PoseSocketClient error:");
           },
           captureHeight: streamConfig.captureHeight,
           captureWidth: streamConfig.captureWidth,
@@ -407,38 +244,28 @@ export function VideoStream({
         poseClientRef.current
           .connect()
           .then(() => {
-            // Reset exercise state after connecting to ensure fresh start
             poseClientRef.current?.resetExercise();
           })
-          .catch((error) => {
-            logger.error(error, "Failed to connect to pose backend:");
+          .catch((socketError) => {
+            logger.error(socketError, "Failed to connect to pose backend:");
           });
       }
     } else {
       stopCamera();
-      // Disconnect from backend
-      if (poseClientRef.current) {
-        poseClientRef.current.disconnect();
-        poseClientRef.current = null;
-        // Clear landmarks when disconnecting
-        lastLandmarks.current = null;
-      }
+      disconnectPoseClient();
     }
 
-    // Cleanup function
     return () => {
       stopCamera();
-      if (poseClientRef.current) {
-        poseClientRef.current.disconnect();
-        poseClientRef.current = null;
-        lastLandmarks.current = null;
-      }
+      disconnectPoseClient();
     };
   }, [
+    disconnectPoseClient,
+    exerciseId,
     isCallActive,
     isVideoOn,
     startCamera,
-    exerciseId,
+    stopCamera,
     streamConfig.captureHeight,
     streamConfig.captureWidth,
     streamConfig.frameSkip,
@@ -447,7 +274,7 @@ export function VideoStream({
   ]);
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative h-full w-full">
       <video
         ref={videoRef}
         className="hidden"
@@ -456,7 +283,7 @@ export function VideoStream({
         autoPlay
         style={{ transform: flipped ? "scaleX(-1)" : "none" }}
       />
-      <canvas ref={canvasRef} className="w-full h-full object-cover" />
+      <canvas ref={canvasRef} className="h-full w-full object-cover" />
 
       {error && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-red-400">

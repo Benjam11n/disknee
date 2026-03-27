@@ -36,11 +36,20 @@ export default function ReportsClient({
     [initialWeeks, statusFilter, dateFilter]
   );
 
+  const statusFilterId = "report-status-filter";
+  const dateFilterId = "report-date-filter";
+
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <label className="text-sm text-muted-foreground">Filter status</label>
+        <label
+          htmlFor={statusFilterId}
+          className="text-sm text-muted-foreground"
+        >
+          Filter status
+        </label>
         <select
+          id={statusFilterId}
           value={statusFilter}
           onChange={(e) =>
             setStatusFilter(
@@ -55,11 +64,12 @@ export default function ReportsClient({
           <option value="NOT_SENT">Not Sent</option>
         </select>
 
-        <label className="ml-4 flex items-center gap-2">
+        <label htmlFor={dateFilterId} className="ml-4 flex items-center gap-2">
           <span className="text-sm text-muted-foreground">
             Week start (iso)
           </span>
           <input
+            id={dateFilterId}
             type="date"
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
@@ -80,7 +90,7 @@ export default function ReportsClient({
           weekEnd.setDate(weekEnd.getDate() + 6);
           return (
             <details
-              key={wi}
+              key={week.weekStart}
               className="border-2 rounded-lg p-4"
               open={wi === 0}
             >
@@ -131,14 +141,16 @@ export default function ReportsClient({
               </summary>
 
               <div className="mt-4 space-y-4">
-                {week.days.map((day, di) => (
-                  <div key={di} className="border rounded-md p-3 bg-card">
+                {week.days.map((day) => (
+                  <div key={day.date} className="border rounded-md p-3 bg-card">
                     <div className="font-medium mb-2">
                       {formatDayHeader(day.date)}
                     </div>
                     <div className="space-y-3">
-                      {day.items.map((it, ii) => (
-                        <div key={ii}>
+                      {day.items.map((it) => (
+                        <div
+                          key={`${day.date}-${it.title}-${it.endedOn ?? "pending"}`}
+                        >
                           <div className="font-semibold">{it.title}</div>
                           <div className="text-sm text-muted-foreground">
                             <div>

@@ -2,18 +2,35 @@
 
 import type { ShopItem } from "@prisma/client";
 import { Video, VideoOff } from "lucide-react";
-import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { VideoStream } from "@/components/shared/video-stream";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
-export function TryOnClient() {
-  const searchParams = useSearchParams();
-  const itemName = searchParams.get("item_name") || "Item";
-  const itemIcon = searchParams.get("item_icon") || "👑";
-  const itemType = searchParams.get("item_type") || "HAT";
+interface TryOnClientProps {
+  searchParams: Record<string, string | string[] | undefined>;
+}
+
+function readSearchParam(
+  searchParams: Record<string, string | string[] | undefined>,
+  key: string,
+  fallback: string
+): string {
+  const value = searchParams[key];
+  if (typeof value === "string") {
+    return value;
+  }
+  if (Array.isArray(value) && value.length > 0) {
+    return value[0] ?? fallback;
+  }
+  return fallback;
+}
+
+export function TryOnClient({ searchParams }: TryOnClientProps) {
+  const itemName = readSearchParam(searchParams, "item_name", "Item");
+  const itemIcon = readSearchParam(searchParams, "item_icon", "👑");
+  const itemType = readSearchParam(searchParams, "item_type", "HAT");
 
   const mockItem: ShopItem = {
     createdAt: new Date(),

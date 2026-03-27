@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 
@@ -6,6 +7,12 @@ import { auth } from "@/lib/auth";
 import { ROUTES } from "@/lib/constants/routes";
 
 import { LeaderboardClient } from "./leaderboard-client";
+
+export const metadata: Metadata = {
+  title: "Leaderboard",
+  description:
+    "Track your ranking against other DisKnee patients by score and accuracy.",
+};
 
 export default async function LeaderboardPage() {
   const session = await auth.api.getSession({

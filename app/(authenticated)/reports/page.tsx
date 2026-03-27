@@ -1,8 +1,17 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { getReportsDataAction } from "@/lib/actions/reports";
 
 import ReportsClient from "./reports-client";
+
+export const metadata: Metadata = {
+  title: "Reports",
+  description:
+    "Review weekly exercise history, completion status, and clinician feedback.",
+};
+
+export const dynamic = "force-dynamic";
 
 export default async function ReportsPage() {
   const reportResponse = await getReportsDataAction();

@@ -128,14 +128,17 @@ export function ProgressJourney({
 
             {/* Milestones */}
             <div className="relative flex justify-between">
-              {milestones.map((milestone, index) => {
+              {milestones.map((milestone) => {
                 const isCompleted = weeksCompleted >= milestone.week;
                 const isCurrent =
                   weeksCompleted >= milestone.week - 1 &&
                   weeksCompleted < milestone.week;
 
                 return (
-                  <div key={index} className="flex flex-col items-center">
+                  <div
+                    key={`${milestone.label}-${milestone.week}`}
+                    className="flex flex-col items-center"
+                  >
                     <div
                       className={cn(
                         "w-10 h-10 rounded-full flex items-center justify-center text-sm transition-all duration-300",

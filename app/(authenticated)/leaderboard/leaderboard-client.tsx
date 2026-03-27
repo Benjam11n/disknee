@@ -1,7 +1,7 @@
 "use client";
 
 import type { leaderboardByScore } from "@prisma/client";
-import { useState, useCallback } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { Leaderboard } from "@/components/features/dashboard/leaderboard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,14 +14,27 @@ interface LeaderboardClientProps {
   patientName: string;
 }
 
+const LEADERBOARD_SKELETON_KEYS = [
+  "leaderboard-skeleton-1",
+  "leaderboard-skeleton-2",
+  "leaderboard-skeleton-3",
+  "leaderboard-skeleton-4",
+  "leaderboard-skeleton-5",
+];
+
 export function LeaderboardClient({
   initialLeaderboard,
   patientName,
 }: LeaderboardClientProps) {
-  const [leaderboardData, setLeaderboardData] =
-    useState<leaderboardByScore[]>(initialLeaderboard);
+  const [leaderboardData, setLeaderboardData] = useState<
+    leaderboardByScore[] | null
+  >(null);
   const [rankingType, setRankingType] = useState<"score" | "accuracy">("score");
   const [loading, setLoading] = useState(false);
+  const currentLeaderboard = useMemo(
+    () => leaderboardData ?? initialLeaderboard,
+    [initialLeaderboard, leaderboardData]
+  );
 
   const fetchLeaderboard = useCallback(async (type: "score" | "accuracy") => {
     setLoading(true);
@@ -69,14 +82,14 @@ export function LeaderboardClient({
           <div className="space-y-4">
             <Skeleton className="h-8 w-32" />
             <div className="space-y-2">
-              {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-16 w-full" />
+              {LEADERBOARD_SKELETON_KEYS.map((key) => (
+                <Skeleton key={key} className="h-16 w-full" />
               ))}
             </div>
           </div>
         ) : (
           <Leaderboard
-            leaderboard={leaderboardData}
+            leaderboard={currentLeaderboard}
             patientName={patientName}
             showAll={true}
             maxItems={50}

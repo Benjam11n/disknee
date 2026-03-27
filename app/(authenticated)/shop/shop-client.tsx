@@ -1,7 +1,7 @@
 "use client";
 
 import type { ShopItem, UserInventory } from "@prisma/client";
-import { useState, useMemo } from "react";
+import { useMemo, useReducer, useState } from "react";
 import { toast } from "sonner";
 
 import { FeaturedItemsSection } from "@/components/features/shop/featured-items-section";
@@ -18,15 +18,61 @@ interface ShopClientProps {
   initialInventory?: (UserInventory & { item: ShopItem })[];
 }
 
+const EMPTY_INVENTORY: (UserInventory & { item: ShopItem })[] = [];
+
+interface ShopInventoryState {
+  points: number;
+  userInventory: (UserInventory & { item: ShopItem })[];
+}
+
+type ShopInventoryAction =
+  | {
+      nextInventory: (UserInventory & { item: ShopItem })[];
+      nextPoints: number;
+      type: "purchase";
+    }
+  | {
+      equip: boolean;
+      item: UserInventory & { item: ShopItem };
+      type: "equip";
+    };
+
+function shopInventoryReducer(
+  state: ShopInventoryState,
+  action: ShopInventoryAction
+): ShopInventoryState {
+  if (action.type === "purchase") {
+    return {
+      points: action.nextPoints,
+      userInventory: action.nextInventory,
+    };
+  }
+
+  return {
+    ...state,
+    userInventory: state.userInventory.map((inventoryItem) =>
+      inventoryItem.itemId === action.item.itemId
+        ? { ...inventoryItem, isEquipped: action.equip }
+        : inventoryItem.item.type === action.item.item.type
+          ? { ...inventoryItem, isEquipped: false }
+          : inventoryItem
+    ),
+  };
+}
+
 export function ShopClient({
   shopItems,
   userPoints,
   userId,
-  initialInventory = [],
+  initialInventory = EMPTY_INVENTORY,
 }: ShopClientProps) {
-  const [userInventory, setUserInventory] =
-    useState<(UserInventory & { item: ShopItem })[]>(initialInventory);
-  const [points, setPoints] = useState(userPoints);
+  const [{ points, userInventory }, dispatchInventory] = useReducer(
+    shopInventoryReducer,
+    {
+      points: userPoints,
+      userInventory: initialInventory,
+    }
+  );
   const [isPurchasing, setIsPurchasing] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -93,11 +139,12 @@ export function ShopClient({
       });
 
       if (result.success && result.data) {
-        setPoints((prev) => prev - price);
-        setUserInventory((prev) => [
-          ...prev,
-          result.data as UserInventory & { item: ShopItem },
-        ]);
+        const purchasedItem = result.data as UserInventory & { item: ShopItem };
+        dispatchInventory({
+          nextInventory: [...userInventory, purchasedItem],
+          nextPoints: points - price,
+          type: "purchase",
+        });
         toast.success("Item purchased successfully!");
       }
     } catch (error: unknown) {
@@ -117,15 +164,11 @@ export function ShopClient({
 
       if (result.success && result.data) {
         const equippedItem = result.data as UserInventory & { item: ShopItem };
-        setUserInventory((prev) =>
-          prev.map((item) =>
-            item.itemId === itemId
-              ? { ...item, isEquipped: equip }
-              : item.item.type === equippedItem.item.type
-                ? { ...item, isEquipped: false }
-                : item
-          )
-        );
+        dispatchInventory({
+          equip,
+          item: equippedItem,
+          type: "equip",
+        });
         toast.success(equip ? "Item equipped!" : "Item unequipped!");
       }
     } catch (error: unknown) {

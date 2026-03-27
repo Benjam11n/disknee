@@ -45,15 +45,22 @@ export function ModelVideo({
 
   return (
     <div className="w-full h-full relative bg-black">
+      <button
+        type="button"
+        onClick={handleVideoClick}
+        className="absolute inset-0 z-10 cursor-pointer"
+        aria-label={
+          isPlaying ? "Pause reference video" : "Play reference video"
+        }
+      />
       <video
         ref={videoRef}
         src={videoSource}
-        className="w-full h-full object-cover cursor-pointer"
+        className="w-full h-full object-cover"
         loop
         playsInline
         muted
         autoPlay
-        onClick={handleVideoClick}
       />
 
       {/* Exercise type label */}
@@ -69,7 +76,7 @@ export function ModelVideo({
       {!isPlaying && (
         <div
           className="absolute inset-0 bg-black/50 flex items-center justify-center cursor-pointer"
-          onClick={handleVideoClick}
+          aria-hidden="true"
         >
           <div className="text-center text-white">
             <svg

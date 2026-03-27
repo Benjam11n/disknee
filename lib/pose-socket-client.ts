@@ -1,7 +1,7 @@
 /**
  * @class PoseSocketClient
  * @description A robust WebSocket client designed for high-throughput image data transfer.
- * 
+ *
  * Responsibilities:
  * 1. Handling binary image serialization (Canvas -> JPEG -> Base64).
  * 2. Managing back-pressure via frame-skipping logic.

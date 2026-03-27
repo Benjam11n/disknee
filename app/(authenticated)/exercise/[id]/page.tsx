@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
@@ -7,6 +8,12 @@ import {
 } from "@/lib/actions/exercises";
 
 import { ExerciseDetailClient } from "./exercise-detail-client";
+
+export const metadata: Metadata = {
+  title: "Exercise Detail",
+  description:
+    "Review exercise instructions, guidance, and related plan activity.",
+};
 
 export default async function ExerciseDetailPage({ params }: RouteParams) {
   const { id } = await params;
